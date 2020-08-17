@@ -12,6 +12,7 @@ plugins {
     id("org.asciidoctor.convert") version "1.5.8"
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("io.gitlab.arturbosch.detekt").version("1.11.0")
+    id("com.google.cloud.tools.jib") version "2.5.0"
     idea
     jacoco
 }
@@ -58,6 +59,22 @@ tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
+    }
+}
+
+jib {
+    val dockerUsername: String = System.getenv("DOCKER_USERNAME") ?: "DOCKER_USERNAME"
+    val dockerPassword: String = System.getenv("DOCKER_PASSWORD") ?: "DOCKER_PASSWORD"
+    to {
+        image = "ampnet/report-service:$version"
+        auth {
+            username = dockerUsername
+            password = dockerPassword
+        }
+        tags = setOf("latest")
+    }
+    container {
+        creationTime = "USE_CURRENT_TIMESTAMP"
     }
 }
 
