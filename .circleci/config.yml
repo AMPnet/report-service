@@ -57,9 +57,6 @@ jobs:
   deploy:
     executor: java-executor
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "96:2c:54:e3:52:7c:c8:89:e3:0f:58:44:d8:be:71:fb"
       - checkout
       - gradle-dependencies
 
@@ -81,6 +78,6 @@ workflows:
           requires:
             - test
             - codeQuality
-          filters:
-            branches:
-              only: master
+#          filters:
+#            branches:
+#              only: master
