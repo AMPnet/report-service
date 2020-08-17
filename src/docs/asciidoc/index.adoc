@@ -1,0 +1,14 @@
+= AMPnet Report Service API Documentation
+Version {version}, {date}
+:doctype: book
+:toc: left
+:sectnums:
+:toclevels: 2
+:source-highlighter: prettify
+:docinfo: shared
+:icons: font
+
+== Introduction
+This document contains generated documentation for `AMPnet report-service`. Report service contains all endpoints
+for generating reports in PDF
+Source code is available on https://github.com/AMPnet/report-service[Github].
