@@ -29,7 +29,6 @@ jobs:
     steps:
       - checkout
       - gradle-dependencies
-
       - run:
           name: Run all tests
           command: ./gradlew test
@@ -59,7 +58,6 @@ jobs:
     steps:
       - checkout
       - gradle-dependencies
-
       - run: ./gradlew build
       - run:
           name: Copy docs to static resources
@@ -78,6 +76,6 @@ workflows:
           requires:
             - test
             - codeQuality
-#          filters:
-#            branches:
-#              only: master
+          filters:
+            branches:
+              only: master
