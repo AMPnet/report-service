@@ -10,7 +10,7 @@ plugins {
     id("org.springframework.boot") version "2.4.0-SNAPSHOT"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
     id("org.asciidoctor.convert") version "1.5.8"
-    id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
+    // id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("io.gitlab.arturbosch.detekt").version("1.11.0")
     id("com.google.cloud.tools.jib") version "2.5.0"
     idea
@@ -105,7 +105,7 @@ detekt {
 }
 
 task("qualityCheck") {
-    dependsOn(tasks.ktlintCheck, tasks.detekt, tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
+    dependsOn(tasks.detekt, tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
 }
 
 tasks.asciidoctor {
