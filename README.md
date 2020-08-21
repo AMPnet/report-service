@@ -1,6 +1,6 @@
 # Report Service
 
-[![codecov](https://codecov.io/gh/AMPnet/wallet-service/branch/master/graph/badge.svg)](https://codecov.io/gh/AMPnet/wallet-service)
+![Release](https://github.com/AMPnet/report-service/workflows/Release/badge.svg?branch=master) [![codecov](https://codecov.io/gh/AMPnet/wallet-service/branch/master/graph/badge.svg)](https://codecov.io/gh/AMPnet/wallet-service)
 
 Report service is a part of the AMPnet crowdfunding project.
 
