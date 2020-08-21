@@ -3,14 +3,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 plugins {
-    val kotlinVersion = "1.4.0"
+    val kotlinVersion = "1.3.72"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
 
-    id("org.springframework.boot") version "2.4.0-SNAPSHOT"
+    id("org.springframework.boot") version "2.3.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
     id("org.asciidoctor.convert") version "1.5.8"
-    // id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("io.gitlab.arturbosch.detekt").version("1.11.0")
     id("com.google.cloud.tools.jib") version "2.5.0"
     idea
@@ -29,8 +29,6 @@ configurations {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
-    maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
 dependencies {
@@ -105,7 +103,7 @@ detekt {
 }
 
 task("qualityCheck") {
-    dependsOn(tasks.detekt, tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
+    dependsOn(tasks.ktlintCheck, tasks.detekt, tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
 }
 
 tasks.asciidoctor {
