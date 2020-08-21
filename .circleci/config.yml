@@ -46,9 +46,9 @@ jobs:
     steps:
       - checkout
       - gradle-dependencies
-      - run:
-          name: Kotlin linter
-          command: ./gradlew ktlinCheck
+#      - run:
+#          name: Kotlin linter
+#          command: ./gradlew ktlinCheck
       - run:
           name: Run code quality check
           command: ./gradlew detekt
