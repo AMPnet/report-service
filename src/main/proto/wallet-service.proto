@@ -1,0 +1,21 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.ampnet.walletservice.proto;
+
+message WalletResponse {
+  string uuid = 1;
+  string owner = 2;
+  string activation_data = 3;
+  Type type = 4;
+  string currency = 5;
+  string hash = 6;
+  enum Type {
+    USER = 0;
+    ORGANIZATION = 1;
+    PROJECT = 2;
+  }
+}
+
+service WalletService {
+
+}
