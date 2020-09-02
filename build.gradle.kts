@@ -51,7 +51,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 
     implementation("com.github.AMPnet:jwt:0.0.9")
-    implementation("net.devh:grpc-spring-boot-starter:2.10.1.RELEASE")
+    implementation("net.devh:grpc-client-spring-boot-starter:2.10.1.RELEASE")
 }
 
 tasks.withType<Test> {
