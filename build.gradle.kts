@@ -1,3 +1,9 @@
+import com.google.protobuf.gradle.generateProtoTasks
+import com.google.protobuf.gradle.id
+import com.google.protobuf.gradle.ofSourceSet
+import com.google.protobuf.gradle.plugins
+import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -13,6 +19,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("io.gitlab.arturbosch.detekt").version("1.11.0")
     id("com.google.cloud.tools.jib") version "2.5.0"
+    id("com.google.protobuf") version "0.8.13"
     idea
     jacoco
 }
@@ -65,6 +72,24 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.12.4"
+    }
+    plugins {
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.31.1"
+        }
+    }
+    generateProtoTasks {
+        ofSourceSet("main").forEach {
+            it.plugins {
+                id("grpc")
+            }
+        }
+    }
+}
+
 jib {
     val dockerUsername: String = System.getenv("DOCKER_USERNAME") ?: "DOCKER_USERNAME"
     val dockerPassword: String = System.getenv("DOCKER_PASSWORD") ?: "DOCKER_PASSWORD"
@@ -90,9 +115,19 @@ tasks.jacocoTestReport {
         html.destination = file("$buildDir/reports/jacoco/html")
     }
     sourceDirectories.setFrom(listOf(file("${project.projectDir}/src/main/kotlin")))
+    classDirectories.setFrom(
+        fileTree("$buildDir/classes/kotlin/main").apply {
+            exclude("**/pojo/**", "**/grpc/**")
+        }
+    )
     dependsOn(tasks.test)
 }
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        sourceSets.main.get().output.asFileTree.matching {
+            exclude("com/ampnet/*/proto/**", "com/ampnet/reportservice/grpc/**")
+        }
+    )
     violationRules {
         rule {
             limit {
