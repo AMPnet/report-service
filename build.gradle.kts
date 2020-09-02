@@ -29,6 +29,8 @@ configurations {
 
 repositories {
     mavenCentral()
+    jcenter()
+    maven(url = "https://jitpack.io")
 }
 
 dependencies {
@@ -47,6 +49,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("org.springframework.security:spring-security-test")
+
+    implementation("com.github.AMPnet:jwt:0.0.9")
 }
 
 tasks.withType<Test> {
