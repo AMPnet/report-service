@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+        "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <h3 style="text-align: center; color: green">
+            <span th:text="${to}">Welcome to Zagreb</span>
+        </h3>
+
+        <h3 style="text-align: center; color: green">
+            <span th:text="'Developed by ' + ${from} + '!'">Developed by Josip</span>
+        </h3>
+
+        <h1>Transaction list</h1>
+
+        <table>
+            <tr>
+                <th>TRANSACTION</th>
+                <th>FROM-TX-HASH</th>
+                <th>TO-TX-HASH</th>
+                <th>AMOUNT</th>
+                <th></th>
+            </tr>
+            <tr th:each="tx : ${transactions.transactions}">
+                <td th:text="${txStat.index + 1}">1</td>
+                <td th:text="${tx.fromTxHash}">From tx hash</td>
+                <td th:text="${tx.toTxHash}">To tx hash</td>
+                <td th:text="${tx.amount}">700 Eura</td>
+            </tr>
+        </table>
+
+        <h3 style="text-align: center; color: green">
+            <span th:text="'Sum ' + ${transactions.txAmountsSum} + '!'">Sum is: 500</span>
+        </h3>
+
+    </body>
+</html>

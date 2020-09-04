@@ -12,3 +12,12 @@ Version {version}, {date}
 This document contains generated documentation for `AMPnet report-service`. Report service contains all endpoints
 for generating reports in PDF
 Source code is available on https://github.com/AMPnet/report-service[Github].
+
+== Reporting API
+All requests need header: `Authorization: Bearer JWT`.
+
+=== Get user transactions report
+.Request
+include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForUserTransactions/http-request.adoc[]
+.Response
+include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForUserTransactions/http-response.adoc[]

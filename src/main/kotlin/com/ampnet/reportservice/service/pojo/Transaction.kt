@@ -2,6 +2,8 @@ package com.ampnet.reportservice.service.pojo
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 
+const val FROM_CENTS_TO_EUROS = 100L
+
 data class Transaction(
     val type: String,
     val fromTxHash: String,
@@ -22,4 +24,15 @@ data class Transaction(
 
 data class Transactions(
     val transactions: List<Transaction>
-)
+
+) {
+    val txAmountsSum: Long = transactions.sumByLong { it.amount.toLong() / FROM_CENTS_TO_EUROS }
+}
+
+inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
+    var sum = 0L
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
