@@ -5,15 +5,18 @@ import com.ampnet.crowdfunding.proto.TransactionsResponse
 const val FROM_CENTS_TO_EUROS = 100L
 
 data class Transaction(
-    val type: String,
+    val type: TransactionsResponse.Transaction.Type,
     val fromTxHash: String,
     val toTxHash: String,
     val amount: String,
     val date: String,
     val state: String
 ) {
+    var from: String? = null
+    var to: String? = null
+
     constructor(transaction: TransactionsResponse.Transaction) : this(
-        transaction.type.name,
+        transaction.type,
         transaction.fromTxHash,
         transaction.toTxHash,
         transaction.amount,
@@ -24,7 +27,6 @@ data class Transaction(
 
 data class Transactions(
     val transactions: List<Transaction>
-
 ) {
     val txAmountsSum: Long = transactions.sumByLong { it.amount.toLong() / FROM_CENTS_TO_EUROS }
 }

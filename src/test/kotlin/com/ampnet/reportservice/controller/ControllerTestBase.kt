@@ -1,9 +1,13 @@
 package com.ampnet.reportservice.controller
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
+import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
+import com.ampnet.reportservice.grpc.projectservice.ProjectService
+import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
+import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert
@@ -30,12 +34,21 @@ abstract class ControllerTestBase : TestBase() {
 
     protected val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
     protected val walletUuid: UUID = UUID.fromString("d3499ace-ee85-11ea-adc1-0242ac120002")
+    protected val projectUuid: UUID = UUID.fromString("979dd8c5-765d-49a4-b64d-142a3c55f4df")
+    protected val fromTxHash: String = "From tx hash"
+    protected val toTxHash: String = "To tx hash"
 
     @MockBean
     protected lateinit var walletService: WalletService
 
     @MockBean
     protected lateinit var blockchainService: BlockchainService
+
+    @MockBean
+    protected lateinit var projectService: ProjectService
+
+    @MockBean
+    protected lateinit var userService: UserService
 
     protected lateinit var mockMvc: MockMvc
 
@@ -60,7 +73,7 @@ abstract class ControllerTestBase : TestBase() {
         activationData: String = "activation data",
         type: WalletResponse.Type = WalletResponse.Type.USER,
         currency: String = "EUR",
-        hash: String = "walllet hash"
+        hash: String = "wallet hash"
     ): WalletResponse {
         return WalletResponse.newBuilder()
             .setUuid(uuid.toString())
@@ -73,14 +86,25 @@ abstract class ControllerTestBase : TestBase() {
     }
 
     protected fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
-        val tx = createTransaction()
-        return listOf(
-            tx, tx, tx, tx, tx, tx, tx, tx,
-            tx, tx, tx, tx, tx, tx, tx, tx
-        )
+        return MutableList(16) { createTransaction() }
     }
 
-    protected fun checkIsPDF(data: ByteArray) {
+    protected fun createUserResponse(userUUID: UUID): UserResponse {
+        return UserResponse.newBuilder()
+            .setUuid(userUuid.toString())
+            .setFirstName("First name")
+            .setLastName("Last name")
+            .build()
+    }
+
+    protected fun createProjectsResponse(projectUUID: UUID): ProjectResponse {
+        return ProjectResponse.newBuilder()
+            .setUuid(projectUUID.toString())
+            .setName("Project name")
+            .build()
+    }
+
+    protected fun verifyPdfFormat(data: ByteArray) {
         assertThat(data.isNotEmpty()).isTrue()
         assertThat(data.size).isGreaterThan(4)
 
@@ -91,8 +115,8 @@ abstract class ControllerTestBase : TestBase() {
         assertThat(data[3]).isEqualTo(0x46) // F
         assertThat(data[4]).isEqualTo(0x2D) // -
 
-        if (data[5].compareTo(0x31) == 0 && data[6].compareTo(0x2E) == 0 && data[7].compareTo(0x33) == 0) // version is 1.3 ?
-        {
+        // version is 1.3
+        if (data[5].compareTo(0x31) == 0 && data[6].compareTo(0x2E) == 0 && data[7].compareTo(0x33) == 0) {
             // file terminator
             assertThat(data[data.size - 7]).isEqualTo(0x25) // %
             assertThat(data[data.size - 6]).isEqualTo(0x25) // %
@@ -103,8 +127,9 @@ abstract class ControllerTestBase : TestBase() {
             assertThat(data[data.size - 1]).isEqualTo(0x0A) // EOL
             return
         }
-        if (data[5].compareTo(0x31) == 0 && data[6].compareTo(0x2E) == 0 && data[7].compareTo(0x34) == 0) // version is 1.4 ?
-        {
+
+        // version is 1.4
+        if (data[5].compareTo(0x31) == 0 && data[6].compareTo(0x2E) == 0 && data[7].compareTo(0x34) == 0) {
             // file terminator
             assertThat(data[data.size - 6]).isEqualTo(0x25) // %
             assertThat(data[data.size - 5]).isEqualTo(0x25) // %
@@ -119,9 +144,9 @@ abstract class ControllerTestBase : TestBase() {
 
     private fun createTransaction(): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()
-            .setType(TransactionsResponse.Transaction.Type.DEPOSIT)
-            .setFromTxHash("from tx hash")
-            .setToTxHash("to tx hash")
+            .setType(TransactionsResponse.Transaction.Type.INVEST)
+            .setFromTxHash(fromTxHash)
+            .setToTxHash(toTxHash)
             .setAmount("700")
             .setDate(ZonedDateTime.now().toString())
             .setState("MINTED")

@@ -10,10 +10,7 @@ import java.util.UUID
 
 class WithMockUserSecurityFactory : WithSecurityContextFactory<WithMockCrowdfundUser> {
 
-    companion object {
-        const val fullName = "First Last"
-    }
-
+    private val fullName = "First Last"
     private val password = "password"
 
     override fun createSecurityContext(annotation: WithMockCrowdfundUser): SecurityContext {

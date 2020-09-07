@@ -18,13 +18,16 @@
                 <th>FROM-TX-HASH</th>
                 <th>TO-TX-HASH</th>
                 <th>AMOUNT</th>
-                <th></th>
+                <th>DATE</th>
+                <th>STATE</th>
             </tr>
             <tr th:each="tx : ${transactions.transactions}">
                 <td th:text="${txStat.index + 1}">1</td>
-                <td th:text="${tx.fromTxHash}">From tx hash</td>
-                <td th:text="${tx.toTxHash}">To tx hash</td>
+                <td th:text="${tx.from}">From tx hash</td>
+                <td th:text="${tx.to}">To tx hash</td>
                 <td th:text="${tx.amount}">700 Eura</td>
+                <td th:text="${tx.date}">Datum</td>
+                <td th:text="${tx.state}">State</td>
             </tr>
         </table>
 
