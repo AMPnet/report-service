@@ -2,6 +2,8 @@ package com.ampnet.reportservice.service.impl
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
+import com.ampnet.reportservice.exception.ErrorCode
+import com.ampnet.reportservice.exception.ResourceNotFoundException
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
 import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
@@ -28,7 +30,8 @@ class TemplateDataServiceImpl(
     companion object : KLogging()
 
     override fun getUserTransactionsData(userUUID: UUID): Transactions {
-        val wallet = walletService.getWalletsByOwner(listOf(userUUID))[0]
+        val wallet = walletService.getWalletsByOwner(listOf(userUUID)).firstOrNull()
+            ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUUID")
         val transactions = blockchainService.getTransactions(wallet.hash)
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)

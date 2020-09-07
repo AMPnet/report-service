@@ -39,8 +39,7 @@ class ReportingServiceImpl(
             logger.warn { ex.message }
             throw InternalException(
                 ErrorCode.INT_GENERATING_PDF,
-                "Could not generate pdf" +
-                    " with PdfRendererBuilder.",
+                "Could not generate pdf with PdfRendererBuilder.",
                 ex
             )
         }

@@ -92,8 +92,8 @@ abstract class ControllerTestBase : TestBase() {
     protected fun createUserResponse(userUUID: UUID): UserResponse {
         return UserResponse.newBuilder()
             .setUuid(userUuid.toString())
-            .setFirstName("First name")
-            .setLastName("Last name")
+            .setFirstName("First")
+            .setLastName("Last")
             .build()
     }
 

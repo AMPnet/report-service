@@ -38,8 +38,7 @@ class TemplateServiceImpl(
             logger.warn { ex.message }
             throw InternalException(
                 ErrorCode.INT_GENERATING_PDF,
-                "Could not process " +
-                    "template with thymeleaf.",
+                "Could not process template with thymeleaf.",
                 ex
             )
         }
