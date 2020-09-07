@@ -18,4 +18,6 @@ class JwtProperties {
 class GrpcProperties {
     var blockchainServiceTimeout: Long = 5000
     var walletServiceTimeout: Long = 5000
+    var userServiceTimeout: Long = 5000
+    var projectServiceTimeout: Long = 5000
 }

@@ -3,6 +3,7 @@ package com.ampnet.reportservice.grpc.wallet
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
+import com.ampnet.walletservice.proto.GetWalletsByHashRequest
 import com.ampnet.walletservice.proto.GetWalletsByOwnerRequest
 import com.ampnet.walletservice.proto.WalletResponse
 import com.ampnet.walletservice.proto.WalletServiceGrpc
@@ -26,18 +27,31 @@ class WalletServiceImpl(
         WalletServiceGrpc.newBlockingStub(channel)
     }
 
-    override fun getWallet(uuid: UUID): WalletResponse? {
-        logger.debug { "Fetching wallet: $uuid" }
+    override fun getWalletsByOwner(uuids: List<UUID>): List<WalletResponse> {
+        logger.debug { "Fetching wallets by owner uuid: $uuids" }
         try {
             val request = GetWalletsByOwnerRequest.newBuilder()
-                .addAllOwnersUuids(listOf(uuid.toString()))
+                .addAllOwnersUuids(uuids.map { it.toString() })
                 .build()
             val response = serviceWithTimeout()
-                .getWallets(request).walletsList
-            return response.firstOrNull()?.let { wallet ->
-                logger.debug { "Fetched wallet: $wallet" }
-                wallet
-            }
+                .getWalletsByOwner(request).walletsList
+            logger.debug { "Fetched wallets: $response" }
+            return response
+        } catch (ex: StatusRuntimeException) {
+            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets. ${ex.localizedMessage}")
+        }
+    }
+
+    override fun getWalletsByHash(hashes: Set<String>): List<WalletResponse> {
+        logger.debug { "Fetching wallets by hashes: $hashes" }
+        try {
+            val request = GetWalletsByHashRequest.newBuilder()
+                .addAllHashes(hashes)
+                .build()
+            val response = serviceWithTimeout()
+                .getWalletsByHash(request).walletsList
+            logger.debug { "Fetched wallets: $response" }
+            return response
         } catch (ex: StatusRuntimeException) {
             throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets. ${ex.localizedMessage}")
         }

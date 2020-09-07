@@ -8,28 +8,28 @@ for example amount: 1550 is actually 15.50 EUR.
 ******************************************/
 
 message TransactionsRequest {
-  string tx_hash = 1;
+    string tx_hash = 1;
 }
 
 message TransactionsResponse {
-  message Transaction {
-    enum Type {
-      DEPOSIT = 0;
-      WITHDRAW = 1;
-      INVEST = 2;
-      SHARE_PAYOUT = 3;
-      CANCEL_INVESTMENT = 4;
+    message Transaction {
+      enum Type {
+        DEPOSIT = 0;
+        WITHDRAW = 1;
+        INVEST = 2;
+        SHARE_PAYOUT = 3;
+        CANCEL_INVESTMENT = 4;
+      }
+      string from_tx_hash = 1;
+      string to_tx_hash = 2;
+      string amount = 3;
+      string date = 4;
+      Type type = 5;
+      string state = 6;
     }
-    string from_tx_hash = 1;
-    string to_tx_hash = 2;
-    string amount = 3;
-    string date = 4;
-    Type type = 5;
-    string state = 6;
-  }
-  repeated Transaction transactions = 1;
+    repeated Transaction transactions = 1;
 }
 
 service BlockchainService {
-  rpc GetTransactions(TransactionsRequest) returns (TransactionsResponse);
+    rpc GetTransactions(TransactionsRequest) returns (TransactionsResponse);
 }
