@@ -107,6 +107,10 @@ jib {
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
+        jvmFlags = listOf(
+            "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap",
+            "-XX:MinHeapFreeRatio=20", "-XX:MaxHeapFreeRatio=40"
+        )
     }
 }
 
