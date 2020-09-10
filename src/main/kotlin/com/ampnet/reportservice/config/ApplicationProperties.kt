@@ -11,7 +11,7 @@ class ApplicationProperties {
 }
 
 class JwtProperties {
-    lateinit var signingKey: String
+    lateinit var publicKey: String
 }
 
 @Suppress("MagicNumber")
