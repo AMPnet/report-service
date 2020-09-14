@@ -4,6 +4,7 @@ import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.service.impl.TemplateDataServiceImpl
 import com.ampnet.userservice.proto.UserResponse
+import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -79,6 +80,12 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             Mockito.`when`(projectService.getProjects(listOf(userUuid, projectUuid)))
                 .thenReturn(listOf(testContext.project))
         }
+        suppose("User service will the userWithInfo") {
+            testContext.userWithInfo = createUserWithInfoResponse(userUuid)
+            Mockito.`when`(userService.getUserWithInfo(userUuid))
+                .thenReturn(testContext.userWithInfo)
+        }
+
         verify("Template data service can get user transactions") {
             val user = testContext.user
             val project = testContext.project
@@ -109,5 +116,6 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         lateinit var transactions: List<TransactionsResponse.Transaction>
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
+        lateinit var userWithInfo: UserWithInfoResponse
     }
 }

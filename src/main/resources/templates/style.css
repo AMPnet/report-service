@@ -1,0 +1,151 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    font-family: 'Poppins', sans-serif;/**/
+}
+
+h1 {
+    font-size: 1.8rem;
+    color: #6AA84F;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.4rem;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#account-summary-table td,
+#transactions-summary-table td {
+    border-bottom: 1px solid #CCCCCC;
+}
+
+table th {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    font-style: italic;
+}
+
+table th,
+table td {
+    font-weight: 400;
+    text-align: right;
+    padding: 6px;
+}
+
+.container {
+    /*margin: 75px 125px;*/
+}
+
+/*Header*/
+
+.topbar {
+    margin-bottom: 50px;
+}
+
+.topbar div {
+    width: 200px;
+    height: 80px;
+    background-color: aqua;
+}
+
+.topbar h3 {
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+/*Client info*/
+
+.page-1 .client-info p {
+    padding-bottom: 8px;
+}
+
+.page-1 .client-info .address {
+    margin-bottom: 38px;
+    text-align: left;
+}
+
+.page-1 .client-info .address #client-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.page-1 .client-info table {
+    margin-bottom: 50px;
+}
+
+/*Account summary, first table*/
+.page-1 .account-summary h1 {
+    margin-bottom: 50px;
+}
+
+.page-1 .account-summary .summary-info {
+    margin-bottom: 25px;
+}
+
+.page-1 .account-summary .summary-info .summary-left {
+    text-align: left;
+}
+
+.page-1 .account-summary .summary-info .summary-left h2 {
+    padding-bottom: 8px;
+}
+
+.page-1 .account-summary .summary-info .summary-right {
+    margin-top: 42px;
+}
+
+.page-1 .account-summary #account-summary-table {
+    margin-bottom: 64px;
+}
+
+/*Page 2 start*/
+
+.page-2 .transactions h2 {
+    margin-bottom: 50px;
+}
+
+/*To add dynamically on tables: 
+    text-left (.text-left) class on collumns according to design 
+    (first column for table 1, first 2 columns for table 2)
+
+    Grey background (.table-grey-background) on every odd row except for first row
+    
+    right border (.table-border-right) on every th and td tag except last one
+    
+    bottom border (.table-border-bottom) on last table row
+
+    add class to remove bottom border (.table-no-bottom-border) on
+    every td element in last row
+*/
+
+/*Classes to add dynamically*/
+
+.text-left {
+    text-align: left;
+}
+
+.table-border-right {
+    border-right: 1px solid #CCCCCC;
+}
+
+.table-border-bottom {
+    border-bottom: 1px solid black;
+}
+
+.table-no-bottom-border {
+    border-bottom: none !important;
+}
+
+.table-grey-background {
+    background-color: #EFEFEF;
+}

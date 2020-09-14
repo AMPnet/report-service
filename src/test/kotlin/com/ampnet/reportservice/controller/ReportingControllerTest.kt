@@ -4,6 +4,7 @@ import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.security.WithMockCrowdfundUser
 import com.ampnet.userservice.proto.UserResponse
+import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -41,10 +42,10 @@ class ReportingControllerTest : ControllerTestBase() {
         }
         suppose("Blockchain service will return wallets for hashes") {
             testContext.wallets = listOf(
-                createWalletResponse(UUID.randomUUID(), userUuid, hash = fromTxHash),
-                createWalletResponse(UUID.randomUUID(), projectUuid, hash = toTxHash)
+                createWalletResponse(UUID.randomUUID(), userUuid, hash = userWalletHash),
+                createWalletResponse(UUID.randomUUID(), projectUuid, hash = projectWalletHash)
             )
-            Mockito.`when`(walletService.getWalletsByHash(setOf(fromTxHash, toTxHash)))
+            Mockito.`when`(walletService.getWalletsByHash(setOf(mintHash, userWalletHash, projectWalletHash, burnHash)))
                 .thenReturn(testContext.wallets)
         }
         suppose("User service will return a list of users") {
@@ -56,6 +57,11 @@ class ReportingControllerTest : ControllerTestBase() {
             testContext.project = createProjectsResponse(projectUuid)
             Mockito.`when`(projectService.getProjects(listOf(userUuid, projectUuid)))
                 .thenReturn(listOf(testContext.project))
+        }
+        suppose("User service will the userWithInfo") {
+            testContext.userWithInfo = createUserWithInfoResponse(userUuid)
+            Mockito.`when`(userService.getUserWithInfo(userUuid))
+                .thenReturn(testContext.userWithInfo)
         }
 
         verify("User can get pdf with all transactions") {
@@ -77,5 +83,6 @@ class ReportingControllerTest : ControllerTestBase() {
         lateinit var transactions: List<TransactionsResponse.Transaction>
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
+        lateinit var userWithInfo: UserWithInfoResponse
     }
 }

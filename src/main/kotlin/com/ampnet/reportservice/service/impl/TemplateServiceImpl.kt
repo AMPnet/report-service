@@ -29,8 +29,6 @@ class TemplateServiceImpl(
 
     private fun processThymeleafTemplate(transactions: Transactions): String {
         val context = Context()
-        context.setVariable("to", "AMPnet")
-        context.setVariable("from", "Josip Koncurat")
         context.setVariable("transactions", transactions)
         try {
             return templateEngine.process(userTransactionsTemplate, context)

@@ -11,11 +11,14 @@ import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.TemplateDataService
 import com.ampnet.reportservice.service.pojo.Transaction
 import com.ampnet.reportservice.service.pojo.Transactions
+import com.ampnet.reportservice.service.pojo.UserInfo
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
 import org.springframework.stereotype.Service
 import java.util.UUID
+
+const val TO_PERCENTAGE = 100.0
 
 @Service
 class TemplateDataServiceImpl(
@@ -35,9 +38,8 @@ class TemplateDataServiceImpl(
         val transactions = blockchainService.getTransactions(wallet.hash)
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
-        return Transactions(
-            setBlockchainTransactionFromToNames(transactions, wallets)
-        )
+        val userWithInfo = UserInfo(userUUID, userService.getUserWithInfo(userUUID))
+        return Transactions(setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo)
     }
 
     private fun getWalletHashes(transactions: List<TransactionsResponse.Transaction>): Set<String> {
@@ -67,14 +69,26 @@ class TemplateDataServiceImpl(
                 TransactionsResponse.Transaction.Type.INVEST -> {
                     transaction.from = getUserNameWithUuid(ownerUuidFrom, users)
                     transaction.to = getProjectNameWithUuid(ownerUuidTo, projects)
+                    transaction.expectedProjectFunding = getExpectedProjectFunding(ownerUuidTo, projects)
+                    transaction.percentageInProject = getPercentageInProject(
+                        transaction.expectedProjectFunding, transaction.amount
+                    )
                 }
                 TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT -> {
                     transaction.from = getProjectNameWithUuid(ownerUuidFrom, projects)
                     transaction.to = getUserNameWithUuid(ownerUuidTo, users)
+                    transaction.expectedProjectFunding = getExpectedProjectFunding(ownerUuidFrom, projects)
+                    transaction.percentageInProject = getPercentageInProject(
+                        transaction.expectedProjectFunding, transaction.amount
+                    )
                 }
                 TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> {
                     transaction.from = getProjectNameWithUuid(ownerUuidFrom, projects)
                     transaction.to = getUserNameWithUuid(ownerUuidTo, users)
+                    transaction.expectedProjectFunding = getExpectedProjectFunding(ownerUuidFrom, projects)
+                    transaction.percentageInProject = getPercentageInProject(
+                        transaction.expectedProjectFunding, transaction.amount
+                    )
                 }
                 TransactionsResponse.Transaction.Type.DEPOSIT -> {
                     transaction.from = platformWalletName
@@ -85,7 +99,7 @@ class TemplateDataServiceImpl(
                     transaction.to = platformWalletName
                 }
                 TransactionsResponse.Transaction.Type.UNRECOGNIZED -> {
-                    // skip
+                    // skip or throw exception?
                 }
             }
         }
@@ -100,5 +114,14 @@ class TemplateDataServiceImpl(
 
     private fun getProjectNameWithUuid(ownerUuid: String?, projects: Map<String, ProjectResponse>): String? {
         return projects[ownerUuid]?.name
+    }
+
+    private fun getExpectedProjectFunding(ownerUuid: String?, projects: Map<String, ProjectResponse>): Long? {
+        return projects[ownerUuid]?.expectedFunding
+    }
+
+    private fun getPercentageInProject(expectedFunding: Long?, amount: String): String {
+        if (expectedFunding != null) return (TO_PERCENTAGE * amount.toLong() / expectedFunding).toString()
+        return ""
     }
 }
