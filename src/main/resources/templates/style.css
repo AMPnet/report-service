@@ -6,7 +6,7 @@
 
 body {
     width: 100%;
-    font-family: 'Poppins', sans-serif;/**/
+    font-family: 'Poppins', sans-serif;
 }
 
 h1 {
@@ -44,23 +44,6 @@ table td {
 
 .container {
     /*margin: 75px 125px;*/
-}
-
-/*Header*/
-
-.topbar {
-    margin-bottom: 50px;
-}
-
-.topbar div {
-    width: 200px;
-    height: 80px;
-    background-color: aqua;
-}
-
-.topbar h3 {
-    font-size: 1rem;
-    font-weight: 400;
 }
 
 /*Client info*/
@@ -148,4 +131,22 @@ table td {
 
 .table-grey-background {
     background-color: #EFEFEF;
+}
+
+.page-1 {
+    page-break-after: always;
+}
+
+@page {
+
+    margin-top: 150px;
+
+    @top-left {
+        content: url(../images/logo.jpg);
+    }
+
+    @top-right {
+        font-family: 'Poppins', sans-serif;
+        content: "Page " counter(page) "/" counter(pages);
+    }
 }
