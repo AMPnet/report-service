@@ -52,6 +52,10 @@ table td {
     margin-bottom: 50px;
 }
 
+.topbar table {
+    position: relative;
+}
+
 .topbar div {
     width: 200px;
     height: 80px;
@@ -61,6 +65,25 @@ table td {
 .topbar h3 {
     font-size: 1rem;
     font-weight: 400;
+}
+
+#header {
+    position: running(header);
+    text-align: right;
+}
+
+@page {
+    @top-right {
+        content: element(header);
+    }
+}
+
+#pagenumber:before {
+    content: counter(page);
+}
+
+#pagecount:before {
+    content: counter(pages);
 }
 
 /*Client info*/
@@ -113,6 +136,7 @@ table td {
 .page-2 .transactions h2 {
     margin-bottom: 50px;
 }
+
 
 /*To add dynamically on tables: 
     text-left (.text-left) class on collumns according to design 

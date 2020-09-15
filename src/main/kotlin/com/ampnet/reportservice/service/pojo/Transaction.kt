@@ -2,15 +2,14 @@ package com.ampnet.reportservice.service.pojo
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.enums.TransactionStatusType
-import com.ampnet.userservice.proto.UserWithInfoResponse
 import java.text.DecimalFormat
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 const val FROM_CENTS_TO_EUROS = 100L
+const val TO_PERCENTAGE = 100.0
 
-data class Transaction(
+class Transaction(
     val type: TransactionsResponse.Transaction.Type,
     val fromTxHash: String,
     val toTxHash: String,
@@ -21,12 +20,16 @@ data class Transaction(
     var from: String? = null
     var to: String? = null
     var expectedProjectFunding: Long? = null
-    var percentageInProject: String = ""
-    val txDate = formatToYearMonthDayTime(date)
-    val txStatus = getTransactionStatusType(type)
-    val showTxTo = showTxTo(type)
-    val showPercentage = showPercentage(type)
-    val amountInEuro = getEurAmount(amount.toLong() / FROM_CENTS_TO_EUROS)
+        set(value) {
+            value?.let {
+                field = value
+                percentageInProject = getPercentageInProject(field, amount)
+            }
+        }
+    var percentageInProject: String? = null
+    var txDate: String? = null
+    lateinit var txStatus: TransactionStatusType
+    lateinit var amountInEuro: String
 
     constructor(transaction: TransactionsResponse.Transaction) : this(
         transaction.type,
@@ -35,7 +38,11 @@ data class Transaction(
         transaction.amount,
         transaction.date,
         transaction.state
-    )
+    ) {
+        txDate = formatToYearMonthDayTime(date)
+        amountInEuro = getEurAmount(amount.toLong() / FROM_CENTS_TO_EUROS)
+        txStatus = getTransactionStatusType(type)
+    }
 
     private fun formatToYearMonthDayTime(date: String): String {
         val pattern = "MMM dd, yyyy HH:mm"
@@ -53,61 +60,68 @@ data class Transaction(
         }
     }
 
-    private fun showTxTo(type: TransactionsResponse.Transaction.Type): Boolean {
-        if (type == TransactionsResponse.Transaction.Type.DEPOSIT ||
-            type == TransactionsResponse.Transaction.Type.WITHDRAW
-        ) return false
-        return true
-    }
-
-    private fun showPercentage(type: TransactionsResponse.Transaction.Type): Boolean {
-        if (type == TransactionsResponse.Transaction.Type.INVEST ||
-            type == TransactionsResponse.Transaction.Type.SHARE_PAYOUT ||
-            type == TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT
-        ) return true
-        return false
+    private fun getPercentageInProject(expectedFunding: Long?, amount: String): String? {
+        return expectedFunding?.let {
+            (TO_PERCENTAGE * amount.toLong() / expectedFunding).toString()
+        }
     }
 }
 
-data class Transactions(
+class TxSummary(
     val transactions: List<Transaction>,
     val userInfo: UserInfo
 ) {
     private val transactionsByType = transactions.groupBy { it.type }
-
-    val txAmountsSum: Long = transactions.sumByLong { it.amount.toLong() / FROM_CENTS_TO_EUROS }
-    val period: String = getPeriod(transactions)
-    val dateOfFinish = "Total balance as of " + formatToYearMonthDay(transactions.last().date)
+    val txAmountsSum = transactions.sumByLong { it.amount.toLong() / FROM_CENTS_TO_EUROS }
+    val period: String? = getPeriod(transactions)
+    val dateOfFinish: String? = getDateOfFinish(transactions)
     val balance: String = getBalance(transactions)
 
-    val deposits = transactionsByType[TransactionsResponse.Transaction.Type.DEPOSIT]?.sumByLong {
-        it.amount.toLong()
-    }?.div(FROM_CENTS_TO_EUROS) ?: 0
-    val withdrawals = transactionsByType[TransactionsResponse.Transaction.Type.WITHDRAW]?.sumByLong {
-        it.amount.toLong()
-    }?.div(FROM_CENTS_TO_EUROS) ?: 0
-    val revenueShare = transactionsByType[TransactionsResponse.Transaction.Type.SHARE_PAYOUT]?.sumByLong {
-        it.amount.toLong()
-    }?.div(FROM_CENTS_TO_EUROS) ?: 0
-    val investments = transactionsByType[TransactionsResponse.Transaction.Type.INVEST]?.sumByLong {
-        it.amount.toLong()
-    }?.div(FROM_CENTS_TO_EUROS) ?: 0
-    val sharesBought = transactionsByType[TransactionsResponse.Transaction.Type.UNRECOGNIZED]?.sumByLong {
-        it.amount.toLong()
-    }?.div(FROM_CENTS_TO_EUROS) ?: 0
-    val sharesSold = transactionsByType[TransactionsResponse.Transaction.Type.UNRECOGNIZED]?.sumByLong {
-        it.amount.toLong()
-    }?.div(FROM_CENTS_TO_EUROS) ?: 0
+    val deposits = getEurAmount(
+        transactionsByType[TransactionsResponse.Transaction.Type.DEPOSIT]?.sumByLong {
+            it.amount.toLong()
+        }?.div(FROM_CENTS_TO_EUROS) ?: 0
+    )
+    val withdrawals = getEurAmount(
+        transactionsByType[TransactionsResponse.Transaction.Type.WITHDRAW]?.sumByLong {
+            it.amount.toLong()
+        }?.div(FROM_CENTS_TO_EUROS) ?: 0
+    )
+    val revenueShare = getEurAmount(
+        transactionsByType[TransactionsResponse.Transaction.Type.SHARE_PAYOUT]?.sumByLong {
+            it.amount.toLong()
+        }?.div(FROM_CENTS_TO_EUROS) ?: 0
+    )
+    val investments = getEurAmount(
+        transactionsByType[TransactionsResponse.Transaction.Type.INVEST]?.sumByLong {
+            it.amount.toLong()
+        }?.div(FROM_CENTS_TO_EUROS) ?: 0
+    )
+    val sharesBought = getEurAmount(
+        transactionsByType[TransactionsResponse.Transaction.Type.UNRECOGNIZED]?.sumByLong {
+            it.amount.toLong()
+        }?.div(FROM_CENTS_TO_EUROS) ?: 0
+    )
+    val sharesSold = getEurAmount(
+        transactionsByType[TransactionsResponse.Transaction.Type.UNRECOGNIZED]?.sumByLong {
+            it.amount.toLong()
+        }?.div(FROM_CENTS_TO_EUROS) ?: 0
+    )
 
-    private fun getPeriod(transactions: List<Transaction>): String {
+    private fun getPeriod(transactions: List<Transaction>): String? {
         return when (transactions.size) {
-            0 -> ""
+            0 -> null
             1 -> formatToYearMonthDay(transactions.first().date)
             else -> {
                 formatToYearMonthDay(transactions.first().date) + " to " +
                     formatToYearMonthDay(transactions.last().date)
             }
         }
+    }
+
+    private fun getDateOfFinish(transactions: List<Transaction>): String? {
+        if (transactions.isEmpty()) return null
+        return "Total balance as of " + formatToYearMonthDay(transactions.last().date)
     }
 
     private fun formatToYearMonthDay(date: String): String {
@@ -134,20 +148,6 @@ data class Transactions(
     }
 }
 
-data class UserInfo(
-    val userUuid: UUID,
-    val firstName: String,
-    val lastName: String,
-    val address: String
-) {
-    constructor(userUuid: UUID, userWithInfo: UserWithInfoResponse) : this(
-        userUuid,
-        userWithInfo.user.firstName,
-        userWithInfo.user.lastName,
-        userWithInfo.address
-    )
-}
-
 inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
     var sum = 0L
     for (element in this) {
@@ -157,6 +157,6 @@ inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
 }
 
 private fun getEurAmount(amount: Long): String {
-    val decimalFormat = DecimalFormat("#,###.00")
-    return "€" + decimalFormat.format(amount)
+    val decimalFormat = DecimalFormat("#,##0.00")
+    return decimalFormat.format(amount)
 }

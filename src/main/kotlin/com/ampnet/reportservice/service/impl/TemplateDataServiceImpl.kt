@@ -10,15 +10,13 @@ import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.TemplateDataService
 import com.ampnet.reportservice.service.pojo.Transaction
-import com.ampnet.reportservice.service.pojo.Transactions
+import com.ampnet.reportservice.service.pojo.TxSummary
 import com.ampnet.reportservice.service.pojo.UserInfo
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
 import org.springframework.stereotype.Service
 import java.util.UUID
-
-const val TO_PERCENTAGE = 100.0
 
 @Service
 class TemplateDataServiceImpl(
@@ -32,14 +30,14 @@ class TemplateDataServiceImpl(
 
     companion object : KLogging()
 
-    override fun getUserTransactionsData(userUUID: UUID): Transactions {
+    override fun getUserTransactionsData(userUUID: UUID): TxSummary {
         val wallet = walletService.getWalletsByOwner(listOf(userUUID)).firstOrNull()
             ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUUID")
         val transactions = blockchainService.getTransactions(wallet.hash)
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
         val userWithInfo = UserInfo(userUUID, userService.getUserWithInfo(userUUID))
-        return Transactions(setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo)
+        return TxSummary(setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo)
     }
 
     private fun getWalletHashes(transactions: List<TransactionsResponse.Transaction>): Set<String> {
@@ -70,36 +68,18 @@ class TemplateDataServiceImpl(
                     transaction.from = getUserNameWithUuid(ownerUuidFrom, users)
                     transaction.to = getProjectNameWithUuid(ownerUuidTo, projects)
                     transaction.expectedProjectFunding = getExpectedProjectFunding(ownerUuidTo, projects)
-                    transaction.percentageInProject = getPercentageInProject(
-                        transaction.expectedProjectFunding, transaction.amount
-                    )
                 }
                 TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT -> {
                     transaction.from = getProjectNameWithUuid(ownerUuidFrom, projects)
                     transaction.to = getUserNameWithUuid(ownerUuidTo, users)
                     transaction.expectedProjectFunding = getExpectedProjectFunding(ownerUuidFrom, projects)
-                    transaction.percentageInProject = getPercentageInProject(
-                        transaction.expectedProjectFunding, transaction.amount
-                    )
                 }
                 TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> {
                     transaction.from = getProjectNameWithUuid(ownerUuidFrom, projects)
                     transaction.to = getUserNameWithUuid(ownerUuidTo, users)
-                    transaction.expectedProjectFunding = getExpectedProjectFunding(ownerUuidFrom, projects)
-                    transaction.percentageInProject = getPercentageInProject(
-                        transaction.expectedProjectFunding, transaction.amount
-                    )
-                }
-                TransactionsResponse.Transaction.Type.DEPOSIT -> {
-                    transaction.from = platformWalletName
-                    transaction.to = getUserNameWithUuid(ownerUuidTo, users)
-                }
-                TransactionsResponse.Transaction.Type.WITHDRAW -> {
-                    transaction.from = getUserNameWithUuid(ownerUuidFrom, users)
-                    transaction.to = platformWalletName
                 }
                 TransactionsResponse.Transaction.Type.UNRECOGNIZED -> {
-                    // skip or throw exception?
+                    logger.warn { "Unrecognized transaction: $transaction" }
                 }
             }
         }
@@ -118,10 +98,5 @@ class TemplateDataServiceImpl(
 
     private fun getExpectedProjectFunding(ownerUuid: String?, projects: Map<String, ProjectResponse>): Long? {
         return projects[ownerUuid]?.expectedFunding
-    }
-
-    private fun getPercentageInProject(expectedFunding: Long?, amount: String): String {
-        if (expectedFunding != null) return (TO_PERCENTAGE * amount.toLong() / expectedFunding).toString()
-        return ""
     }
 }

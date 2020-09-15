@@ -92,21 +92,12 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             val transactions = templateDataService.getUserTransactionsData(userUuid).transactions
             assertThat(transactions).hasSize(5)
 
-            val depositTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.DEPOSIT }
-            assertThat(depositTx.from).isEqualTo(platformWalletName)
-            assertThat(depositTx.to).isEqualTo("${user.firstName} ${user.lastName}")
             val investTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.INVEST }
             assertThat(investTx.from).isEqualTo("${user.firstName} ${user.lastName}")
             assertThat(investTx.to).isEqualTo(project.name)
             val cancelInvestmentTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT }
             assertThat(cancelInvestmentTx.from).isEqualTo(project.name)
             assertThat(cancelInvestmentTx.to).isEqualTo("${user.firstName} ${user.lastName}")
-            val sharePayoutTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.SHARE_PAYOUT }
-            assertThat(sharePayoutTx.from).isEqualTo(project.name)
-            assertThat(sharePayoutTx.to).isEqualTo("${user.firstName} ${user.lastName}")
-            val withdrawTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.WITHDRAW }
-            assertThat(withdrawTx.from).isEqualTo("${user.firstName} ${user.lastName}")
-            assertThat(withdrawTx.to).isEqualTo(platformWalletName)
         }
     }
 
