@@ -17,7 +17,8 @@
                     <td>
                         <div class="address">
                             <p id="client-name" th:text="${txSummary.userInfo.firstName + ' ' + txSummary.userInfo.lastName}">Filip Dujmušić</p>
-                            <p th:text="${txSummary.userInfo.address}">Ulica Ante Jakšića 23</p>
+                            <p th:text="${txSummary.userInfo.street} ?: ''">Ulica Ante Jakšića 23</p>
+                            <p th:text="(${txSummary.userInfo.county} ?: '') + (${txSummary.userInfo.city != null} ? (', ' + ${txSummary.userInfo.city}) : '')">Zagreb</p>
                         </div>
                     </td>
                 </tr>
@@ -106,11 +107,11 @@
                     <th class="table-border-right">Pending</th>
                     <th>Paid Out</th>
                 </tr>
-                <tr th:each="tx,iStat : ${txSummary.transactions}" th:classappend="${(iStat.even? 'table-grey-background': '') + (iStat.last? ' table-border-bottom': '')}">
+                <tr th:each="tx,iStat : ${txSummary.transactions}" th:classappend="${(iStat.even? 'table-grey-background': '') + (iStat.last? 'table-border-bottom': '')}">
                     <td th:text="${tx.txDate}" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Aug 1, 2020 13:30</td>
                     <td th:utext="${tx.type.name} + (${tx.to != null} ? ('<br/>' + ${tx.to}) : '') + (${tx.percentageInProject != null} ? (' | ' +${tx.percentageInProject}) + '%' : '')" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Deposit</td>
-                    <td th:utext="${tx.txStatus.name() == 'PAID_IN'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-border-right table-no-bottom-border': 'table-border-right'}">Deposit</td>
-                    <td th:utext="${tx.txStatus.name() == 'PENDING'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-border-right table-no-bottom-border': 'table-border-right'}">Deposit</td>
+                    <td th:utext="${tx.txStatus.name() == 'PAID_IN'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="table-border-right">Deposit</td>
+                    <td th:utext="${tx.txStatus.name() == 'PENDING'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="table-border-right">Deposit</td>
                     <td th:utext="${tx.txStatus.name() == 'PAID_OUT'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-no-bottom-border': ''}">Deposit</td>
                 </tr>
             </table>

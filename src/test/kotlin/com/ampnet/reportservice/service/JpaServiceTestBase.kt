@@ -93,7 +93,7 @@ abstract class JpaServiceTestBase : TestBase() {
     protected fun createUserWithInfoResponse(userUUID: UUID): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
-            .setAddress("User address")
+            .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
             .build()
     }
 }

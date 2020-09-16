@@ -40,7 +40,7 @@ class Transaction(
         transaction.state
     ) {
         txDate = formatToYearMonthDayTime(date)
-        amountInEuro = getEurAmount(amount.toLong() / FROM_CENTS_TO_EUROS)
+        amountInEuro = getEurAmountFormatted(amount.toLong())
         txStatus = getTransactionStatusType(type)
     }
 
@@ -72,37 +72,36 @@ class TxSummary(
     val userInfo: UserInfo
 ) {
     private val transactionsByType = transactions.groupBy { it.type }
-    val txAmountsSum = transactions.sumByLong { it.amount.toLong() / FROM_CENTS_TO_EUROS }
     val period: String? = getPeriod(transactions)
     val dateOfFinish: String? = getDateOfFinish(transactions)
     val balance: String = getBalance(transactions)
 
-    val deposits = getEurAmount(
+    val deposits = getEurAmountFormatted(
         transactionsByType[TransactionsResponse.Transaction.Type.DEPOSIT]?.sumByLong {
             it.amount.toLong()
         }?.div(FROM_CENTS_TO_EUROS) ?: 0
     )
-    val withdrawals = getEurAmount(
+    val withdrawals = getEurAmountFormatted(
         transactionsByType[TransactionsResponse.Transaction.Type.WITHDRAW]?.sumByLong {
             it.amount.toLong()
         }?.div(FROM_CENTS_TO_EUROS) ?: 0
     )
-    val revenueShare = getEurAmount(
+    val revenueShare = getEurAmountFormatted(
         transactionsByType[TransactionsResponse.Transaction.Type.SHARE_PAYOUT]?.sumByLong {
             it.amount.toLong()
         }?.div(FROM_CENTS_TO_EUROS) ?: 0
     )
-    val investments = getEurAmount(
+    val investments = getEurAmountFormatted(
         transactionsByType[TransactionsResponse.Transaction.Type.INVEST]?.sumByLong {
             it.amount.toLong()
         }?.div(FROM_CENTS_TO_EUROS) ?: 0
     )
-    val sharesBought = getEurAmount(
+    val sharesBought = getEurAmountFormatted(
         transactionsByType[TransactionsResponse.Transaction.Type.UNRECOGNIZED]?.sumByLong {
             it.amount.toLong()
         }?.div(FROM_CENTS_TO_EUROS) ?: 0
     )
-    val sharesSold = getEurAmount(
+    val sharesSold = getEurAmountFormatted(
         transactionsByType[TransactionsResponse.Transaction.Type.UNRECOGNIZED]?.sumByLong {
             it.amount.toLong()
         }?.div(FROM_CENTS_TO_EUROS) ?: 0
@@ -144,7 +143,7 @@ class TxSummary(
                 }
             }
         }
-        return getEurAmount(balance / FROM_CENTS_TO_EUROS)
+        return getEurAmountFormatted(balance)
     }
 }
 
@@ -156,7 +155,7 @@ inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
     return sum
 }
 
-private fun getEurAmount(amount: Long): String {
+private fun getEurAmountFormatted(amount: Long): String {
     val decimalFormat = DecimalFormat("#,##0.00")
-    return decimalFormat.format(amount)
+    return decimalFormat.format(amount / FROM_CENTS_TO_EUROS)
 }

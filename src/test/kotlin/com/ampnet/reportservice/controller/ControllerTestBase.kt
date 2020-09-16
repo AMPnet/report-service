@@ -89,20 +89,20 @@ abstract class ControllerTestBase : TestBase() {
     }
 
     protected fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
-        val deposits = MutableList(3) {
+        val deposits = MutableList(20) {
             createTransaction(TransactionsResponse.Transaction.Type.DEPOSIT, mintHash, userWalletHash)
         }
-        val invests = MutableList(2) {
+        val invests = MutableList(5) {
             createTransaction(TransactionsResponse.Transaction.Type.INVEST, userWalletHash, projectWalletHash)
         }
-        val withdrawals = MutableList(2) {
+        val withdrawals = MutableList(5) {
             createTransaction(TransactionsResponse.Transaction.Type.WITHDRAW, userWalletHash, burnHash)
         }
         val revenueShares =
-            MutableList(2) {
+            MutableList(5) {
                 createTransaction(TransactionsResponse.Transaction.Type.SHARE_PAYOUT, projectWalletHash, userWalletHash)
             }
-        val cancelInvestments = MutableList(2) {
+        val cancelInvestments = MutableList(5) {
             createTransaction(TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT, projectWalletHash, userWalletHash)
         }
         return deposits + invests + withdrawals + revenueShares + cancelInvestments
@@ -119,7 +119,7 @@ abstract class ControllerTestBase : TestBase() {
     protected fun createUserWithInfoResponse(userUUID: UUID): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
-            .setAddress("User address")
+            .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
             .build()
     }
 
