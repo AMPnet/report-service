@@ -2,9 +2,9 @@ package com.ampnet.reportservice.service
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
+import com.ampnet.reportservice.service.data.FROM_CENTS_TO_EUROS
+import com.ampnet.reportservice.service.data.TO_PERCENTAGE
 import com.ampnet.reportservice.service.impl.TemplateDataServiceImpl
-import com.ampnet.reportservice.service.pojo.FROM_CENTS_TO_EUROS
-import com.ampnet.reportservice.service.pojo.TO_PERCENTAGE
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse

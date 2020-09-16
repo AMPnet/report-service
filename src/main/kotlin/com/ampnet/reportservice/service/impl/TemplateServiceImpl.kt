@@ -4,7 +4,7 @@ import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.InternalException
 import com.ampnet.reportservice.service.TemplateDataService
 import com.ampnet.reportservice.service.TemplateService
-import com.ampnet.reportservice.service.pojo.TxSummary
+import com.ampnet.reportservice.service.data.TxSummary
 import mu.KLogging
 import org.springframework.stereotype.Service
 import org.thymeleaf.TemplateEngine

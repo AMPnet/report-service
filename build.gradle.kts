@@ -62,6 +62,7 @@ dependencies {
 
     implementation("com.openhtmltopdf:openhtmltopdf-core:1.0.4")
     implementation("com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.4")
+    implementation("com.openhtmltopdf:openhtmltopdf-svg-support:1.0.4")
     implementation("org.thymeleaf:thymeleaf:3.0.11.RELEASE")
 }
 

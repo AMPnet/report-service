@@ -9,9 +9,9 @@ import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.TemplateDataService
-import com.ampnet.reportservice.service.pojo.Transaction
-import com.ampnet.reportservice.service.pojo.TxSummary
-import com.ampnet.reportservice.service.pojo.UserInfo
+import com.ampnet.reportservice.service.data.Transaction
+import com.ampnet.reportservice.service.data.TxSummary
+import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging

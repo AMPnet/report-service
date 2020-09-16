@@ -89,20 +89,20 @@ abstract class ControllerTestBase : TestBase() {
     }
 
     protected fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
-        val deposits = MutableList(20) {
+        val deposits = MutableList(2) {
             createTransaction(TransactionsResponse.Transaction.Type.DEPOSIT, mintHash, userWalletHash)
         }
-        val invests = MutableList(5) {
+        val invests = MutableList(2) {
             createTransaction(TransactionsResponse.Transaction.Type.INVEST, userWalletHash, projectWalletHash)
         }
-        val withdrawals = MutableList(5) {
+        val withdrawals = MutableList(2) {
             createTransaction(TransactionsResponse.Transaction.Type.WITHDRAW, userWalletHash, burnHash)
         }
         val revenueShares =
-            MutableList(5) {
+            MutableList(2) {
                 createTransaction(TransactionsResponse.Transaction.Type.SHARE_PAYOUT, projectWalletHash, userWalletHash)
             }
-        val cancelInvestments = MutableList(5) {
+        val cancelInvestments = MutableList(2) {
             createTransaction(TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT, projectWalletHash, userWalletHash)
         }
         return deposits + invests + withdrawals + revenueShares + cancelInvestments

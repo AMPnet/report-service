@@ -17,8 +17,7 @@
                     <td>
                         <div class="address">
                             <p id="client-name" th:text="${txSummary.userInfo.firstName + ' ' + txSummary.userInfo.lastName}">Filip Dujmušić</p>
-                            <p th:text="${txSummary.userInfo.street} ?: ''">Ulica Ante Jakšića 23</p>
-                            <p th:text="(${txSummary.userInfo.county} ?: '') + (${txSummary.userInfo.city != null} ? (', ' + ${txSummary.userInfo.city}) : '')">Zagreb</p>
+                            <p th:each="item : ${txSummary.userInfo.address}" th:text="${item}"></p>
                         </div>
                     </td>
                 </tr>
@@ -51,7 +50,7 @@
                         </td>
                         <td>
                             <div class="summary-right">
-                                <p th:text="${txSummary.balance}">€1,360.00</p>
+                                <p th:text="'€' +${txSummary.balance}">€1,360.00</p>
                             </div>
                         </td>
                     </tr>
