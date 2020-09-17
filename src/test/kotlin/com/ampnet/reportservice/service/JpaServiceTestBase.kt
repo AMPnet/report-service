@@ -62,6 +62,7 @@ abstract class JpaServiceTestBase : TestBase() {
             .setUuid(userUuid.toString())
             .setFirstName("First")
             .setLastName("Last")
+            .setEmail("email@as.co")
             .build()
     }
 
@@ -69,6 +70,17 @@ abstract class JpaServiceTestBase : TestBase() {
         return ProjectResponse.newBuilder()
             .setUuid(projectUUID.toString())
             .setName("Project name")
+            .setActive(true)
+            .setCreatedByUser(UUID.randomUUID().toString())
+            .setOrganizationUuid(UUID.randomUUID().toString())
+            .setCurrency("EUR")
+            .setDescription("Project description")
+            .setEndDate(ZonedDateTime.now().toEpochSecond())
+            .setStartDate(ZonedDateTime.now().minusDays(11).toEpochSecond())
+            .setImageUrl("image-url")
+            .setMaxPerUser(100000000L)
+            .setMinPerUser(1000L)
+            .setExpectedFunding(100000000L)
             .build()
     }
 
@@ -77,7 +89,7 @@ abstract class JpaServiceTestBase : TestBase() {
         toTxHash: String,
         amount: String,
         type: TransactionsResponse.Transaction.Type,
-        date: String = ZonedDateTime.now().toString(),
+        date: String = ZonedDateTime.now().toInstant().toEpochMilli().toString(),
         state: String = "MINTED"
     ): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()

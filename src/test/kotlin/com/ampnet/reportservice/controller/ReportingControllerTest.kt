@@ -32,8 +32,8 @@ class ReportingControllerTest : ControllerTestBase() {
     fun mustBeAbleToGeneratePdfForUserTransactions() {
         suppose("Wallet service will return wallet for the user") {
             testContext.wallet = createWalletResponse(walletUuid, userUuid)
-
-            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid))).thenReturn(listOf(testContext.wallet))
+            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid)))
+                .thenReturn(listOf(testContext.wallet))
         }
         suppose("Blockchain service will return transactions for wallet") {
             testContext.transactions = createTransactionsResponse()
@@ -75,6 +75,52 @@ class ReportingControllerTest : ControllerTestBase() {
             verifyPdfFormat(pdfContent)
             // File(downloadDir).writeBytes(pdfContent)
         }
+    }
+
+    private fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
+        val investment = "30000"
+        val deposits = MutableList(2) {
+            createTransaction(
+                TransactionsResponse.Transaction.Type.DEPOSIT,
+                mintHash,
+                userWalletHash,
+                amount = "1000000"
+            )
+        }
+        val invests = MutableList(2) {
+            createTransaction(
+                TransactionsResponse.Transaction.Type.INVEST,
+                userWalletHash,
+                projectWalletHash,
+                amount = investment
+            )
+        }
+        val withdrawals = MutableList(2) {
+            createTransaction(
+                TransactionsResponse.Transaction.Type.WITHDRAW,
+                userWalletHash,
+                burnHash,
+                amount = "10000"
+            )
+        }
+        val revenueShares =
+            MutableList(2) {
+                createTransaction(
+                    TransactionsResponse.Transaction.Type.SHARE_PAYOUT,
+                    projectWalletHash,
+                    userWalletHash,
+                    amount = "6670"
+                )
+            }
+        val cancelInvestments = MutableList(1) {
+            createTransaction(
+                TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT,
+                projectWalletHash,
+                userWalletHash,
+                amount = investment
+            )
+        }
+        return deposits + invests + withdrawals + revenueShares + cancelInvestments
     }
 
     private class TestContext {

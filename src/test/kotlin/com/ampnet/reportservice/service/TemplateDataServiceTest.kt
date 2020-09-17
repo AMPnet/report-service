@@ -2,8 +2,9 @@ package com.ampnet.reportservice.service
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
-import com.ampnet.reportservice.service.data.FROM_CENTS_TO_EUROS
+import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
 import com.ampnet.reportservice.service.data.TO_PERCENTAGE
+import com.ampnet.reportservice.service.data.toEurAmount
 import com.ampnet.reportservice.service.impl.TemplateDataServiceImpl
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
@@ -12,9 +13,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import java.text.DecimalFormat
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class TemplateDataServiceTest : JpaServiceTestBase() {
@@ -22,10 +20,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     private lateinit var testContext: TestContext
 
     private val templateDataService: TemplateDataService by lazy {
-        TemplateDataServiceImpl(
-            walletService, blockchainService,
-            userService, projectService
-        )
+        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService)
     }
 
     @BeforeEach
@@ -34,7 +29,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     }
 
     @Test
-    fun mustBeAbleToSetTransactionsFromToNames() {
+    fun mustGenerateCorrectTxSummary() {
         suppose("Wallet service will return wallet for the user") {
             testContext.wallet = createWalletResponse(walletUuid, userUuid)
             Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid))).thenReturn(listOf(testContext.wallet))
@@ -42,23 +37,23 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         suppose("Blockchain service will return transactions for wallet") {
             testContext.transactions = listOf(
                 createTransaction(
-                    mintHash, userWalletHash, "100000",
+                    mintHash, userWalletHash, testContext.deposit.toString(),
                     TransactionsResponse.Transaction.Type.DEPOSIT
                 ),
                 createTransaction(
-                    userWalletHash, projectWalletHash, "20000",
+                    userWalletHash, projectWalletHash, testContext.invest.toString(),
                     TransactionsResponse.Transaction.Type.INVEST
                 ),
                 createTransaction(
-                    projectWalletHash, userWalletHash, "20000",
+                    projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
                     TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT
                 ),
                 createTransaction(
-                    projectWalletHash, userWalletHash, "1000",
+                    projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
                     TransactionsResponse.Transaction.Type.SHARE_PAYOUT
                 ),
                 createTransaction(
-                    userWalletHash, burnHash, "10000",
+                    userWalletHash, burnHash, testContext.withdraw.toString(),
                     TransactionsResponse.Transaction.Type.WITHDRAW
                 )
             )
@@ -90,63 +85,57 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         }
 
         verify("Template data service can get user transactions") {
-            val user = testContext.user
             val project = testContext.project
-            val transactions = templateDataService.getUserTransactionsData(userUuid).transactions
+            val txSummary = templateDataService.getUserTransactionsData(userUuid)
+            assertThat(txSummary.balance).isEqualTo(
+                (
+                    testContext.deposit - testContext.invest + testContext.cancelInvestment +
+                        testContext.sharePayout - testContext.withdraw
+                    ).toEurAmount()
+            )
+            assertThat(txSummary.deposits).isEqualTo(testContext.deposit.toEurAmount())
+            assertThat(txSummary.withdrawals).isEqualTo(testContext.withdraw.toEurAmount())
+            assertThat(txSummary.investments).isEqualTo((testContext.invest - testContext.cancelInvestment).toEurAmount())
+            assertThat(txSummary.revenueShare).isEqualTo(testContext.sharePayout.toEurAmount())
 
+            val transactions = txSummary.transactions
             assertThat(transactions).hasSize(5)
             val depositTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.DEPOSIT }
-            assertThat(depositTx.from).isNull()
-            assertThat(depositTx.to).isNull()
-            assertThat(depositTx.expectedProjectFunding).isNull()
+            assertThat(depositTx.description).isNull()
             assertThat(depositTx.percentageInProject).isNull()
-            assertThat(depositTx.txDate).isEqualTo(formatToYearMonthDayTime(depositTx.date))
-            assertThat(depositTx.amountInEuro).isEqualTo(getEurAmountFormatted(depositTx.amount.toLong()))
+            assertThat(depositTx.txDate).isNotBlank()
+            assertThat(depositTx.amountInEuro).isEqualTo(depositTx.amount.toEurAmount())
             val investTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.INVEST }
-            assertThat(investTx.from).isEqualTo("${user.firstName} ${user.lastName}")
-            assertThat(investTx.to).isEqualTo(project.name)
-            assertThat(investTx.expectedProjectFunding).isEqualTo(project.expectedFunding)
-            assertThat(investTx.percentageInProject).isEqualTo(getPercentageInProject(project.expectedFunding, investTx.amount))
-            assertThat(investTx.txDate).isEqualTo(formatToYearMonthDayTime(investTx.date))
-            assertThat(investTx.amountInEuro).isEqualTo(getEurAmountFormatted(investTx.amount.toLong()))
-            val cancelInvestmentTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT }
-            assertThat(cancelInvestmentTx.from).isEqualTo(project.name)
-            assertThat(cancelInvestmentTx.to).isEqualTo("${user.firstName} ${user.lastName}")
-            assertThat(cancelInvestmentTx.expectedProjectFunding).isEqualTo(project.expectedFunding)
-            assertThat(cancelInvestmentTx.percentageInProject).isEqualTo(getPercentageInProject(project.expectedFunding, cancelInvestmentTx.amount))
-            assertThat(cancelInvestmentTx.txDate).isEqualTo(formatToYearMonthDayTime(cancelInvestmentTx.date))
-            assertThat(cancelInvestmentTx.amountInEuro).isEqualTo(getEurAmountFormatted(cancelInvestmentTx.amount.toLong()))
+            assertThat(investTx.description).isEqualTo(project.name)
+            assertThat(investTx.percentageInProject).isEqualTo(
+                getPercentageInProject(project.expectedFunding, investTx.amount)
+            )
+            assertThat(investTx.txDate).isNotBlank()
+            assertThat(investTx.amountInEuro).isEqualTo(investTx.amount.toEurAmount())
+            val cancelInvestmentTx =
+                transactions.first { it.type == TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT }
+            assertThat(cancelInvestmentTx.description).isEqualTo(project.name)
+            assertThat(cancelInvestmentTx.percentageInProject).isEqualTo(
+                getPercentageInProject(project.expectedFunding, cancelInvestmentTx.amount)
+            )
+            assertThat(cancelInvestmentTx.txDate).isNotBlank()
+            assertThat(cancelInvestmentTx.amountInEuro).isEqualTo(cancelInvestmentTx.amount.toEurAmount())
             val sharePayoutTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.SHARE_PAYOUT }
-            assertThat(sharePayoutTx.from).isEqualTo(project.name)
-            assertThat(sharePayoutTx.to).isEqualTo("${user.firstName} ${user.lastName}")
-            assertThat(sharePayoutTx.expectedProjectFunding).isNull()
-            assertThat(sharePayoutTx.percentageInProject).isNull()
-            assertThat(sharePayoutTx.txDate).isEqualTo(formatToYearMonthDayTime(sharePayoutTx.date))
-            assertThat(sharePayoutTx.amountInEuro).isEqualTo(getEurAmountFormatted(sharePayoutTx.amount.toLong()))
+            assertThat(sharePayoutTx.description).isEqualTo(project.name)
+            assertThat(sharePayoutTx.txDate).isNotBlank()
+            assertThat(sharePayoutTx.amountInEuro).isEqualTo(sharePayoutTx.amount.toEurAmount())
             val withdrawTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.WITHDRAW }
-            assertThat(withdrawTx.from).isNull()
-            assertThat(withdrawTx.to).isNull()
-            assertThat(withdrawTx.expectedProjectFunding).isNull()
+            assertThat(withdrawTx.description).isNull()
             assertThat(withdrawTx.percentageInProject).isNull()
-            assertThat(withdrawTx.txDate).isEqualTo(formatToYearMonthDayTime(withdrawTx.date))
-            assertThat(withdrawTx.amountInEuro).isEqualTo(getEurAmountFormatted(withdrawTx.amount.toLong()))
+            assertThat(withdrawTx.txDate).isNotBlank()
+            assertThat(withdrawTx.amountInEuro).isEqualTo(withdrawTx.amount.toEurAmount())
         }
     }
 
-    private fun getPercentageInProject(expectedFunding: Long?, amount: String): String? {
+    private fun getPercentageInProject(expectedFunding: Long?, amount: Long): String? {
         return expectedFunding?.let {
-            (TO_PERCENTAGE * amount.toLong() / expectedFunding).toString()
+            (TO_PERCENTAGE * amount / expectedFunding).toString().take(LENGTH_OF_PERCENTAGE)
         }
-    }
-
-    private fun formatToYearMonthDayTime(date: String): String {
-        val pattern = "MMM dd, yyyy HH:mm"
-        return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.parse(date))
-    }
-
-    private fun getEurAmountFormatted(amount: Long): String {
-        val decimalFormat = DecimalFormat("#,##0.00")
-        return decimalFormat.format(amount / FROM_CENTS_TO_EUROS)
     }
 
     private class TestContext {
@@ -156,5 +145,10 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
         lateinit var userWithInfo: UserWithInfoResponse
+        val deposit = 100000L
+        val invest = 20000L
+        val cancelInvestment = 20000L
+        val sharePayout = 1000L
+        val withdraw = 10000L
     }
 }

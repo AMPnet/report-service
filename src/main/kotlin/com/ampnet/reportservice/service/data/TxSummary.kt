@@ -15,25 +15,15 @@ class TxSummary(
     val period: String? = getPeriod(transactions)
     val dateOfFinish: String? = getDateOfFinish(transactions)
     val balance: String = getBalance(transactions)
-    val deposits = CurrencyFormatting.getEurAmountFormatted(
-        sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.DEPOSIT)
-    )
-    val withdrawals = CurrencyFormatting.getEurAmountFormatted(
-        sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.WITHDRAW)
-    )
-    val revenueShare = CurrencyFormatting.getEurAmountFormatted(
-        sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.SHARE_PAYOUT)
-    )
-    val investments = CurrencyFormatting.getEurAmountFormatted(
+    val deposits = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.DEPOSIT).toEurAmount()
+    val withdrawals = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.WITHDRAW).toEurAmount()
+    val revenueShare = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.SHARE_PAYOUT).toEurAmount()
+    val investments = (
         sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.INVEST) -
-            sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.INVEST)
-    )
-    val sharesBought = CurrencyFormatting.getEurAmountFormatted(
-        sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.UNRECOGNIZED)
-    )
-    val sharesSold = CurrencyFormatting.getEurAmountFormatted(
-        sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.UNRECOGNIZED)
-    )
+            sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT)
+        ).toEurAmount()
+    val sharesBought = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.UNRECOGNIZED).toEurAmount()
+    val sharesSold = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.UNRECOGNIZED).toEurAmount()
 
     private fun getPeriod(transactions: List<Transaction>): String? {
         return when (transactions.size) {
@@ -51,35 +41,20 @@ class TxSummary(
         return "Total balance as of " + formatToYearMonthDay(transactions.last().date)
     }
 
-    private fun formatToYearMonthDay(date: String): String {
-        val pattern = "MMM dd, yyyy"
-        return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.parse(date))
-    }
+    private fun formatToYearMonthDay(date: ZonedDateTime) =
+        date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
 
     private fun getBalance(transactions: List<Transaction>): String {
-        var balance = 0L
-        transactions.forEach { transaction ->
-            val amount = transaction.amount.toLong()
-            when (transaction.type) {
-                TransactionsResponse.Transaction.Type.INVEST -> balance -= amount
-                TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT -> balance += amount
-                TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> balance += amount
-                TransactionsResponse.Transaction.Type.DEPOSIT -> balance += amount
-                TransactionsResponse.Transaction.Type.WITHDRAW -> balance -= amount
-                TransactionsResponse.Transaction.Type.UNRECOGNIZED -> {
-                    // skip
-                }
-            }
-        }
+        val balance = transactions.sumByLong { it.amountToCalculate() }
         if (balance < 0) {
             logger.error("Negative balance for user: $userInfo for a period: $period")
             return "N/A"
         }
-        return CurrencyFormatting.getEurAmountFormatted(balance)
+        return balance.toEurAmount()
     }
 
     private fun sumTransactionAmountsByType(type: TransactionsResponse.Transaction.Type): Long {
-        return transactionsByType[type]?.sumByLong { it.amount.toLong() } ?: 0L
+        return transactionsByType[type]?.sumByLong { it.amount } ?: 0L
     }
 }
 
