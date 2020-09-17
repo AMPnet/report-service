@@ -137,6 +137,10 @@ table td {
     page-break-after: always;
 }
 
+table tr {
+    page-break-inside: avoid;
+}
+
 @page {
 
     margin-top: 150px;
