@@ -7,16 +7,17 @@
 body {
     width: 100%;
     font-family: 'Poppins', sans-serif;
+    font-size: 16px
 }
 
 h1 {
-    font-size: 1.8rem;
+    font-size: 22px;
     color: #6AA84F;
     text-align: center;
 }
 
 h2 {
-    font-size: 1.4rem;
+    font-size: 18px;
 }
 
 table {
@@ -43,7 +44,6 @@ table td {
 }
 
 .container {
-    /*margin: 75px 125px;*/
 }
 /*Client info*/
 
@@ -52,22 +52,21 @@ table td {
 }
 
 .page-1 .client-info .address {
-    margin-bottom: 38px;
+    margin-bottom: 20px;
     text-align: left;
 }
 
 .page-1 .client-info .address #client-name {
-    font-size: 1.2rem;
     font-weight: 700;
 }
 
 .page-1 .client-info table {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
 
 /*Account summary, first table*/
 .page-1 .account-summary h1 {
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 .page-1 .account-summary .summary-info {
@@ -93,22 +92,28 @@ table td {
 /*Page 2 start*/
 
 .page-2 .transactions h2 {
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 
-/*To add dynamically on tables: 
-    text-left (.text-left) class on collumns according to design 
+/*To add dynamically on tables:
+    text-left (.text-left) class on collumns according to design
     (first column for table 1, first 2 columns for table 2)
 
     Grey background (.table-grey-background) on every odd row except for first row
-    
+
     right border (.table-border-right) on every th and td tag except last one
-    
+
     bottom border (.table-border-bottom) on last table row
 
     add class to remove bottom border (.table-no-bottom-border) on
     every td element in last row
+
+    NEW!!!!
+    add class table-text-small to td that has text
+    (for instance on first account summary table that
+    would be column under Type heading or columns under
+    date and type headings in table 2)
 */
 
 /*Classes to add dynamically*/
@@ -133,6 +138,10 @@ table td {
     background-color: #EFEFEF;
 }
 
+.table-text-small {
+    font-size: 14px;
+}
+
 .page-1 {
     page-break-after: always;
 }
@@ -142,8 +151,8 @@ table tr {
 }
 
 @page {
-
-    margin-top: 150px;
+    size: letter;
+    margin: 150px 100px 0 100px;
 
     @top-left {
         content: url(../images/logo.png);
@@ -151,6 +160,7 @@ table tr {
 
     @top-right {
         font-family: 'Poppins', sans-serif;
+        font-size: 15px;
         content: "Page " counter(page) "/" counter(pages);
     }
 }
