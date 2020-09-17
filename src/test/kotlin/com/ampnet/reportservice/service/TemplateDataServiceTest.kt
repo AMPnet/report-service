@@ -13,8 +13,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class TemplateDataServiceTest : JpaServiceTestBase() {
@@ -105,14 +103,14 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             val depositTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.DEPOSIT }
             assertThat(depositTx.description).isNull()
             assertThat(depositTx.percentageInProject).isNull()
-            assertThat(depositTx.txDate).isEqualTo(formatToYearMonthDayTime(depositTx.date))
+            assertThat(depositTx.txDate).isNotBlank()
             assertThat(depositTx.amountInEuro).isEqualTo(depositTx.amount.toEurAmount())
             val investTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.INVEST }
             assertThat(investTx.description).isEqualTo(project.name)
             assertThat(investTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, investTx.amount)
             )
-            assertThat(investTx.txDate).isEqualTo(formatToYearMonthDayTime(investTx.date))
+            assertThat(investTx.txDate).isNotBlank()
             assertThat(investTx.amountInEuro).isEqualTo(investTx.amount.toEurAmount())
             val cancelInvestmentTx =
                 transactions.first { it.type == TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT }
@@ -120,16 +118,16 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(cancelInvestmentTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, cancelInvestmentTx.amount)
             )
-            assertThat(cancelInvestmentTx.txDate).isEqualTo(formatToYearMonthDayTime(cancelInvestmentTx.date))
+            assertThat(cancelInvestmentTx.txDate).isNotBlank()
             assertThat(cancelInvestmentTx.amountInEuro).isEqualTo(cancelInvestmentTx.amount.toEurAmount())
             val sharePayoutTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.SHARE_PAYOUT }
             assertThat(sharePayoutTx.description).isEqualTo(project.name)
-            assertThat(sharePayoutTx.txDate).isEqualTo(formatToYearMonthDayTime(sharePayoutTx.date))
+            assertThat(sharePayoutTx.txDate).isNotBlank()
             assertThat(sharePayoutTx.amountInEuro).isEqualTo(sharePayoutTx.amount.toEurAmount())
             val withdrawTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.WITHDRAW }
             assertThat(withdrawTx.description).isNull()
             assertThat(withdrawTx.percentageInProject).isNull()
-            assertThat(withdrawTx.txDate).isEqualTo(formatToYearMonthDayTime(withdrawTx.date))
+            assertThat(withdrawTx.txDate).isNotBlank()
             assertThat(withdrawTx.amountInEuro).isEqualTo(withdrawTx.amount.toEurAmount())
         }
     }
@@ -138,11 +136,6 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         return expectedFunding?.let {
             (TO_PERCENTAGE * amount / expectedFunding).toString().take(LENGTH_OF_PERCENTAGE)
         }
-    }
-
-    private fun formatToYearMonthDayTime(date: String): String {
-        val pattern = "MMM dd, yyyy HH:mm"
-        return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.parse(date))
     }
 
     private class TestContext {

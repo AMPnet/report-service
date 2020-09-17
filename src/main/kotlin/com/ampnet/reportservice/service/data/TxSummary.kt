@@ -41,10 +41,8 @@ class TxSummary(
         return "Total balance as of " + formatToYearMonthDay(transactions.last().date)
     }
 
-    private fun formatToYearMonthDay(date: String): String {
-        val pattern = "MMM dd, yyyy"
-        return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.parse(date))
-    }
+    private fun formatToYearMonthDay(date: ZonedDateTime) =
+        date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
 
     private fun getBalance(transactions: List<Transaction>): String {
         val balance = transactions.sumByLong { it.amountToCalculate() }

@@ -2,6 +2,8 @@ package com.ampnet.reportservice.service.data
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.enums.TransactionStatusType
+import java.time.Instant
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -32,20 +34,16 @@ abstract class Transaction(transaction: TransactionsResponse.Transaction) {
     val fromTxHash: String = transaction.fromTxHash
     val toTxHash: String = transaction.toTxHash
     val amount: Long = transaction.amount.toLong()
-    val date: String = transaction.date
+    val date: ZonedDateTime =
+        ZonedDateTime.ofInstant(Instant.ofEpochMilli(transaction.date.toLong()), ZoneId.systemDefault())
     val state: String = transaction.state
-    var txDate = formatToYearMonthDayTime(date)
+    val txDate: String = date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
     val amountInEuro: String = amount.toEurAmount()
     abstract val txStatus: TransactionStatusType
     abstract val name: String
 
     var description: String? = null
     var percentageInProject: String? = null
-
-    private fun formatToYearMonthDayTime(date: String): String {
-        val pattern = "MMM dd, yyyy HH:mm"
-        return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.parse(date))
-    }
 
     fun setPercentageInProject(expectedProjectFunding: Long) {
         if (expectedProjectFunding > 0) {

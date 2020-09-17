@@ -89,7 +89,7 @@ abstract class JpaServiceTestBase : TestBase() {
         toTxHash: String,
         amount: String,
         type: TransactionsResponse.Transaction.Type,
-        date: String = ZonedDateTime.now().toString(),
+        date: String = ZonedDateTime.now().toInstant().toEpochMilli().toString(),
         state: String = "MINTED"
     ): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()
