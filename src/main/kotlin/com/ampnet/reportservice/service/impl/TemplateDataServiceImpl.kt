@@ -10,6 +10,7 @@ import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.TemplateDataService
 import com.ampnet.reportservice.service.data.Transaction
+import com.ampnet.reportservice.service.data.TransactionFactory
 import com.ampnet.reportservice.service.data.TxSummary
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.userservice.proto.UserResponse
@@ -25,8 +26,6 @@ class TemplateDataServiceImpl(
     private val userService: UserService,
     private val projectService: ProjectService
 ) : TemplateDataService {
-
-    private val platformWalletName = "Platform"
 
     companion object : KLogging()
 
@@ -59,7 +58,7 @@ class TemplateDataServiceImpl(
             .associateBy { it.uuid }
         val projects = projectService.getProjects(walletOwners.map { UUID.fromString(it) })
             .associateBy { it.uuid }
-        val transactions = transactionsResponse.map { Transaction(it) }
+        val transactions = transactionsResponse.mapNotNull { TransactionFactory.createTransaction(it) }
         transactions.forEach { transaction ->
             val ownerUuidFrom = walletsMap[transaction.fromTxHash]?.owner
             val ownerUuidTo = walletsMap[transaction.toTxHash]?.owner
@@ -77,6 +76,9 @@ class TemplateDataServiceImpl(
                 TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> {
                     transaction.from = getProjectNameWithUuid(ownerUuidFrom, projects)
                     transaction.to = getUserNameWithUuid(ownerUuidTo, users)
+                }
+                TransactionsResponse.Transaction.Type.DEPOSIT, TransactionsResponse.Transaction.Type.WITHDRAW -> {
+                    // from and to data not needed
                 }
                 TransactionsResponse.Transaction.Type.UNRECOGNIZED -> {
                     logger.warn { "Unrecognized transaction: $transaction" }

@@ -62,6 +62,7 @@ abstract class JpaServiceTestBase : TestBase() {
             .setUuid(userUuid.toString())
             .setFirstName("First")
             .setLastName("Last")
+            .setEmail("email@as.co")
             .build()
     }
 
@@ -69,6 +70,7 @@ abstract class JpaServiceTestBase : TestBase() {
         return ProjectResponse.newBuilder()
             .setUuid(projectUUID.toString())
             .setName("Project name")
+            .setExpectedFunding(1000000000L)
             .build()
     }
 

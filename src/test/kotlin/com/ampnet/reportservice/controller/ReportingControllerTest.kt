@@ -32,8 +32,8 @@ class ReportingControllerTest : ControllerTestBase() {
     fun mustBeAbleToGeneratePdfForUserTransactions() {
         suppose("Wallet service will return wallet for the user") {
             testContext.wallet = createWalletResponse(walletUuid, userUuid)
-
-            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid))).thenReturn(listOf(testContext.wallet))
+            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid)))
+                .thenReturn(listOf(testContext.wallet))
         }
         suppose("Blockchain service will return transactions for wallet") {
             testContext.transactions = createTransactionsResponse()
@@ -75,6 +75,30 @@ class ReportingControllerTest : ControllerTestBase() {
             verifyPdfFormat(pdfContent)
             // File(downloadDir).writeBytes(pdfContent)
         }
+    }
+
+    private fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
+        val deposits = MutableList(2) {
+            createTransaction(TransactionsResponse.Transaction.Type.DEPOSIT, mintHash, userWalletHash)
+        }
+        val invests = MutableList(1) {
+            createTransaction(TransactionsResponse.Transaction.Type.INVEST, userWalletHash, projectWalletHash)
+        }
+        val withdrawals = MutableList(2) {
+            createTransaction(TransactionsResponse.Transaction.Type.WITHDRAW, userWalletHash, burnHash)
+        }
+        val revenueShares =
+            MutableList(2) {
+                createTransaction(TransactionsResponse.Transaction.Type.SHARE_PAYOUT, projectWalletHash, userWalletHash)
+            }
+        val cancelInvestments = MutableList(1) {
+            createTransaction(
+                TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT,
+                projectWalletHash,
+                userWalletHash
+            )
+        }
+        return deposits + invests + withdrawals + revenueShares + cancelInvestments
     }
 
     private class TestContext {

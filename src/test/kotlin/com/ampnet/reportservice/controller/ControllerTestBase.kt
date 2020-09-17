@@ -88,26 +88,6 @@ abstract class ControllerTestBase : TestBase() {
             .build()
     }
 
-    protected fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
-        val deposits = MutableList(2) {
-            createTransaction(TransactionsResponse.Transaction.Type.DEPOSIT, mintHash, userWalletHash)
-        }
-        val invests = MutableList(2) {
-            createTransaction(TransactionsResponse.Transaction.Type.INVEST, userWalletHash, projectWalletHash)
-        }
-        val withdrawals = MutableList(2) {
-            createTransaction(TransactionsResponse.Transaction.Type.WITHDRAW, userWalletHash, burnHash)
-        }
-        val revenueShares =
-            MutableList(2) {
-                createTransaction(TransactionsResponse.Transaction.Type.SHARE_PAYOUT, projectWalletHash, userWalletHash)
-            }
-        val cancelInvestments = MutableList(2) {
-            createTransaction(TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT, projectWalletHash, userWalletHash)
-        }
-        return deposits + invests + withdrawals + revenueShares + cancelInvestments
-    }
-
     protected fun createUserResponse(userUUID: UUID): UserResponse {
         return UserResponse.newBuilder()
             .setUuid(userUuid.toString())
@@ -127,6 +107,16 @@ abstract class ControllerTestBase : TestBase() {
         return ProjectResponse.newBuilder()
             .setUuid(projectUUID.toString())
             .setName("Project name")
+            .setActive(true)
+            .setCreatedByUser(UUID.randomUUID().toString())
+            .setOrganizationUuid(UUID.randomUUID().toString())
+            .setCurrency("EUR")
+            .setDescription("Project description")
+            .setEndDate(ZonedDateTime.now().toEpochSecond())
+            .setStartDate(ZonedDateTime.now().minusDays(11).toEpochSecond())
+            .setImageUrl("image-url")
+            .setMaxPerUser(100000000L)
+            .setMinPerUser(1000L)
             .setExpectedFunding(100000000L)
             .build()
     }
@@ -169,7 +159,7 @@ abstract class ControllerTestBase : TestBase() {
         Assert.fail("Unsupported file format")
     }
 
-    private fun createTransaction(
+    protected fun createTransaction(
         type: TransactionsResponse.Transaction.Type,
         fromTxHash: String,
         toTxHash: String,
