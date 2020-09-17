@@ -8,6 +8,7 @@ import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.userservice.proto.UserResponse
+import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert
@@ -35,8 +36,10 @@ abstract class ControllerTestBase : TestBase() {
     protected val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
     protected val walletUuid: UUID = UUID.fromString("d3499ace-ee85-11ea-adc1-0242ac120002")
     protected val projectUuid: UUID = UUID.fromString("979dd8c5-765d-49a4-b64d-142a3c55f4df")
-    protected val fromTxHash: String = "From tx hash"
-    protected val toTxHash: String = "To tx hash"
+    protected val userWalletHash: String = "user wallet hash"
+    protected val projectWalletHash: String = "project wallet hash"
+    protected val mintHash: String = "mint"
+    protected val burnHash: String = "burn"
 
     @MockBean
     protected lateinit var walletService: WalletService
@@ -85,10 +88,6 @@ abstract class ControllerTestBase : TestBase() {
             .build()
     }
 
-    protected fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
-        return MutableList(16) { createTransaction() }
-    }
-
     protected fun createUserResponse(userUUID: UUID): UserResponse {
         return UserResponse.newBuilder()
             .setUuid(userUuid.toString())
@@ -97,10 +96,28 @@ abstract class ControllerTestBase : TestBase() {
             .build()
     }
 
+    protected fun createUserWithInfoResponse(userUUID: UUID): UserWithInfoResponse {
+        return UserWithInfoResponse.newBuilder()
+            .setUser(createUserResponse(userUUID))
+            .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
+            .build()
+    }
+
     protected fun createProjectsResponse(projectUUID: UUID): ProjectResponse {
         return ProjectResponse.newBuilder()
             .setUuid(projectUUID.toString())
             .setName("Project name")
+            .setActive(true)
+            .setCreatedByUser(UUID.randomUUID().toString())
+            .setOrganizationUuid(UUID.randomUUID().toString())
+            .setCurrency("EUR")
+            .setDescription("Project description")
+            .setEndDate(ZonedDateTime.now().toEpochSecond())
+            .setStartDate(ZonedDateTime.now().minusDays(11).toEpochSecond())
+            .setImageUrl("image-url")
+            .setMaxPerUser(100000000L)
+            .setMinPerUser(1000L)
+            .setExpectedFunding(100000000L)
             .build()
     }
 
@@ -142,13 +159,18 @@ abstract class ControllerTestBase : TestBase() {
         Assert.fail("Unsupported file format")
     }
 
-    private fun createTransaction(): TransactionsResponse.Transaction {
+    protected fun createTransaction(
+        type: TransactionsResponse.Transaction.Type,
+        fromTxHash: String,
+        toTxHash: String,
+        amount: String = "700000"
+    ): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()
-            .setType(TransactionsResponse.Transaction.Type.INVEST)
+            .setType(type)
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)
-            .setAmount("700")
-            .setDate(ZonedDateTime.now().toString())
+            .setAmount(amount)
+            .setDate(ZonedDateTime.now().toInstant().toEpochMilli().toString())
             .setState("MINTED")
             .build()
     }

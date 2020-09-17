@@ -4,7 +4,7 @@ import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.InternalException
 import com.ampnet.reportservice.service.TemplateDataService
 import com.ampnet.reportservice.service.TemplateService
-import com.ampnet.reportservice.service.pojo.Transactions
+import com.ampnet.reportservice.service.data.TxSummary
 import mu.KLogging
 import org.springframework.stereotype.Service
 import org.thymeleaf.TemplateEngine
@@ -27,11 +27,9 @@ class TemplateServiceImpl(
         return processThymeleafTemplate(transactions)
     }
 
-    private fun processThymeleafTemplate(transactions: Transactions): String {
+    private fun processThymeleafTemplate(txSummary: TxSummary): String {
         val context = Context()
-        context.setVariable("to", "AMPnet")
-        context.setVariable("from", "Josip Koncurat")
-        context.setVariable("transactions", transactions)
+        context.setVariable("txSummary", txSummary)
         try {
             return templateEngine.process(userTransactionsTemplate, context)
         } catch (ex: TemplateEngineException) {

@@ -3,9 +3,11 @@ package com.ampnet.reportservice.grpc.userservice
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
+import com.ampnet.userservice.proto.GetUserRequest
 import com.ampnet.userservice.proto.GetUsersRequest
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserServiceGrpc
+import com.ampnet.userservice.proto.UserWithInfoResponse
 import io.grpc.StatusRuntimeException
 import mu.KLogging
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
@@ -37,6 +39,20 @@ class UserServiceImpl(
             return response
         } catch (ex: StatusRuntimeException) {
             throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch users. ${ex.localizedMessage}")
+        }
+    }
+
+    override fun getUserWithInfo(uuid: UUID): UserWithInfoResponse {
+        logger.debug { "Fetching user: $uuid" }
+        try {
+            val request = GetUserRequest.newBuilder()
+                .setUuid(uuid.toString())
+                .build()
+            val response = serviceWithTimeout().getUserWithInfo(request)
+            logger.debug { "Fetched user: $response" }
+            return response
+        } catch (ex: StatusRuntimeException) {
+            throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch user. ${ex.localizedMessage}")
         }
     }
 
