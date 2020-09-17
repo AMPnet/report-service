@@ -4,7 +4,4 @@ import java.text.DecimalFormat
 
 const val FROM_CENTS_TO_EUROS = 100L
 
-fun Long.toEurAmount(): String {
-    val decimalFormat = DecimalFormat("#,##0.00")
-    return decimalFormat.format(this / FROM_CENTS_TO_EUROS)
-}
+fun Long.toEurAmount(): String = DecimalFormat("#,##0.00").format(this / FROM_CENTS_TO_EUROS)
