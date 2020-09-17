@@ -5,7 +5,8 @@ import com.ampnet.reportservice.enums.TransactionStatusType
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-const val TO_PERCENTAGE = 100
+const val TO_PERCENTAGE = 100.0
+const val LENGTH_OF_PERCENTAGE = 8
 
 class TransactionFactory private constructor() {
     companion object {
@@ -38,9 +39,19 @@ abstract class Transaction(transaction: TransactionsResponse.Transaction) {
     abstract val txStatus: TransactionStatusType
     abstract val name: String
 
+    var description: String? = null
+    var percentageInProject: String? = null
+
     private fun formatToYearMonthDayTime(date: String): String {
         val pattern = "MMM dd, yyyy HH:mm"
         return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.parse(date))
+    }
+
+    fun setPercentageInProject(expectedProjectFunding: Long) {
+        if (expectedProjectFunding > 0) {
+            percentageInProject = ((TO_PERCENTAGE * amount / expectedProjectFunding))
+                .toString().take(LENGTH_OF_PERCENTAGE)
+        }
     }
 
     fun amountToCalculate(): Long {
@@ -50,17 +61,6 @@ abstract class Transaction(transaction: TransactionsResponse.Transaction) {
             TransactionStatusType.UNDEFINED -> 0
         }
     }
-
-    var from: String? = null
-    var to: String? = null
-    var expectedProjectFunding: Long? = null
-        set(value) {
-            if (value != null && value > 0) {
-                field = value
-                percentageInProject = ((TO_PERCENTAGE * amount) / value).toString()
-            }
-        }
-    var percentageInProject: String? = null
 }
 
 class TransactionInvest(transaction: TransactionsResponse.Transaction) : Transaction(transaction) {

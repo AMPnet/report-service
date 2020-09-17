@@ -78,24 +78,46 @@ class ReportingControllerTest : ControllerTestBase() {
     }
 
     private fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
+        val investment = "30000"
         val deposits = MutableList(2) {
-            createTransaction(TransactionsResponse.Transaction.Type.DEPOSIT, mintHash, userWalletHash)
+            createTransaction(
+                TransactionsResponse.Transaction.Type.DEPOSIT,
+                mintHash,
+                userWalletHash,
+                amount = "1000000"
+            )
         }
-        val invests = MutableList(1) {
-            createTransaction(TransactionsResponse.Transaction.Type.INVEST, userWalletHash, projectWalletHash)
+        val invests = MutableList(2) {
+            createTransaction(
+                TransactionsResponse.Transaction.Type.INVEST,
+                userWalletHash,
+                projectWalletHash,
+                amount = investment
+            )
         }
         val withdrawals = MutableList(2) {
-            createTransaction(TransactionsResponse.Transaction.Type.WITHDRAW, userWalletHash, burnHash)
+            createTransaction(
+                TransactionsResponse.Transaction.Type.WITHDRAW,
+                userWalletHash,
+                burnHash,
+                amount = "10000"
+            )
         }
         val revenueShares =
             MutableList(2) {
-                createTransaction(TransactionsResponse.Transaction.Type.SHARE_PAYOUT, projectWalletHash, userWalletHash)
+                createTransaction(
+                    TransactionsResponse.Transaction.Type.SHARE_PAYOUT,
+                    projectWalletHash,
+                    userWalletHash,
+                    amount = "6670"
+                )
             }
         val cancelInvestments = MutableList(1) {
             createTransaction(
                 TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT,
                 projectWalletHash,
-                userWalletHash
+                userWalletHash,
+                amount = investment
             )
         }
         return deposits + invests + withdrawals + revenueShares + cancelInvestments

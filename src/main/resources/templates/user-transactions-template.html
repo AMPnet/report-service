@@ -108,7 +108,7 @@
                 </tr>
                 <tr th:each="tx,iStat : ${txSummary.transactions}" th:classappend="${(iStat.even? 'table-grey-background': '') + (iStat.last? 'table-border-bottom': '')}">
                     <td th:text="${tx.txDate}" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Aug 1, 2020 13:30</td>
-                    <td th:utext="${tx.name} + (${tx.to != null} ? ('<br/>' + ${tx.to}) : '') + (${tx.percentageInProject != null} ? (' | ' +${tx.percentageInProject}) + '%' : '')" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Deposit</td>
+                    <td th:utext="${tx.name} + (${tx.description != null} ? ('<br/>' + ${tx.description}) : '') + (${tx.percentageInProject != null} ? (' | ' +${tx.percentageInProject}) + '%' : '')" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Deposit</td>
                     <td th:utext="${tx.txStatus.name() == 'PAID_IN'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="table-border-right">Deposit</td>
                     <td th:utext="${tx.txStatus.name() == 'PENDING'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="table-border-right">Deposit</td>
                     <td th:utext="${tx.txStatus.name() == 'PAID_OUT'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-no-bottom-border': ''}">Deposit</td>

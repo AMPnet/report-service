@@ -70,7 +70,17 @@ abstract class JpaServiceTestBase : TestBase() {
         return ProjectResponse.newBuilder()
             .setUuid(projectUUID.toString())
             .setName("Project name")
-            .setExpectedFunding(1000000000L)
+            .setActive(true)
+            .setCreatedByUser(UUID.randomUUID().toString())
+            .setOrganizationUuid(UUID.randomUUID().toString())
+            .setCurrency("EUR")
+            .setDescription("Project description")
+            .setEndDate(ZonedDateTime.now().toEpochSecond())
+            .setStartDate(ZonedDateTime.now().minusDays(11).toEpochSecond())
+            .setImageUrl("image-url")
+            .setMaxPerUser(100000000L)
+            .setMinPerUser(1000L)
+            .setExpectedFunding(100000000L)
             .build()
     }
 

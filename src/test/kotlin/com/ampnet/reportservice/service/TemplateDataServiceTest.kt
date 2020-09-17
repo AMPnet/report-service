@@ -2,6 +2,7 @@ package com.ampnet.reportservice.service
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
+import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
 import com.ampnet.reportservice.service.data.TO_PERCENTAGE
 import com.ampnet.reportservice.service.data.toEurAmount
 import com.ampnet.reportservice.service.impl.TemplateDataServiceImpl
@@ -21,10 +22,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     private lateinit var testContext: TestContext
 
     private val templateDataService: TemplateDataService by lazy {
-        TemplateDataServiceImpl(
-            walletService, blockchainService,
-            userService, projectService
-        )
+        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService)
     }
 
     @BeforeEach
@@ -89,7 +87,6 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         }
 
         verify("Template data service can get user transactions") {
-            val user = testContext.user
             val project = testContext.project
             val txSummary = templateDataService.getUserTransactionsData(userUuid)
             assertThat(txSummary.balance).isEqualTo(
@@ -106,16 +103,12 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             val transactions = txSummary.transactions
             assertThat(transactions).hasSize(5)
             val depositTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.DEPOSIT }
-            assertThat(depositTx.from).isNull()
-            assertThat(depositTx.to).isNull()
-            assertThat(depositTx.expectedProjectFunding).isNull()
+            assertThat(depositTx.description).isNull()
             assertThat(depositTx.percentageInProject).isNull()
             assertThat(depositTx.txDate).isEqualTo(formatToYearMonthDayTime(depositTx.date))
             assertThat(depositTx.amountInEuro).isEqualTo(depositTx.amount.toEurAmount())
             val investTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.INVEST }
-            assertThat(investTx.from).isEqualTo("${user.firstName} ${user.lastName}")
-            assertThat(investTx.to).isEqualTo(project.name)
-            assertThat(investTx.expectedProjectFunding).isEqualTo(project.expectedFunding)
+            assertThat(investTx.description).isEqualTo(project.name)
             assertThat(investTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, investTx.amount)
             )
@@ -123,25 +116,18 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(investTx.amountInEuro).isEqualTo(investTx.amount.toEurAmount())
             val cancelInvestmentTx =
                 transactions.first { it.type == TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT }
-            assertThat(cancelInvestmentTx.from).isEqualTo(project.name)
-            assertThat(cancelInvestmentTx.to).isEqualTo("${user.firstName} ${user.lastName}")
-            assertThat(cancelInvestmentTx.expectedProjectFunding).isEqualTo(project.expectedFunding)
+            assertThat(cancelInvestmentTx.description).isEqualTo(project.name)
             assertThat(cancelInvestmentTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, cancelInvestmentTx.amount)
             )
             assertThat(cancelInvestmentTx.txDate).isEqualTo(formatToYearMonthDayTime(cancelInvestmentTx.date))
             assertThat(cancelInvestmentTx.amountInEuro).isEqualTo(cancelInvestmentTx.amount.toEurAmount())
             val sharePayoutTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.SHARE_PAYOUT }
-            assertThat(sharePayoutTx.from).isEqualTo(project.name)
-            assertThat(sharePayoutTx.to).isEqualTo("${user.firstName} ${user.lastName}")
-            assertThat(sharePayoutTx.expectedProjectFunding).isNull()
-            assertThat(sharePayoutTx.percentageInProject).isNull()
+            assertThat(sharePayoutTx.description).isEqualTo(project.name)
             assertThat(sharePayoutTx.txDate).isEqualTo(formatToYearMonthDayTime(sharePayoutTx.date))
             assertThat(sharePayoutTx.amountInEuro).isEqualTo(sharePayoutTx.amount.toEurAmount())
             val withdrawTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.WITHDRAW }
-            assertThat(withdrawTx.from).isNull()
-            assertThat(withdrawTx.to).isNull()
-            assertThat(withdrawTx.expectedProjectFunding).isNull()
+            assertThat(withdrawTx.description).isNull()
             assertThat(withdrawTx.percentageInProject).isNull()
             assertThat(withdrawTx.txDate).isEqualTo(formatToYearMonthDayTime(withdrawTx.date))
             assertThat(withdrawTx.amountInEuro).isEqualTo(withdrawTx.amount.toEurAmount())
@@ -150,7 +136,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
 
     private fun getPercentageInProject(expectedFunding: Long?, amount: Long): String? {
         return expectedFunding?.let {
-            (TO_PERCENTAGE * amount / expectedFunding).toString()
+            (TO_PERCENTAGE * amount / expectedFunding).toString().take(LENGTH_OF_PERCENTAGE)
         }
     }
 
