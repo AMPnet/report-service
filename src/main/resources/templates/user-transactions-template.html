@@ -45,7 +45,7 @@
                         <td>
                             <div class="summary-left">
                                 <h2>Account Summary</h2>
-                                <p th:text="${txSummary.dateOfFinish} ?: ''">Total balance as of Aug 31, 2020</p>
+                                <p th:text="'Total balance as of ' + ${txSummary.dateOfFinish} ?: ''">Total balance as of Aug 31, 2020</p>
                             </div>
                         </td>
                         <td>

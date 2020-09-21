@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.service.impl
 
+import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.InternalException
 import com.ampnet.reportservice.service.ReportingService
@@ -22,8 +23,8 @@ class ReportingServiceImpl(
 
     private val rootTemplate = "templates/root.htm"
 
-    override fun generatePdfReportForUserTransactions(userUUID: UUID): ByteArray {
-        val template = templateService.generateTemplateForUserTransactions(userUUID)
+    override fun generatePdfReportForUserTransactions(periodRequest: PeriodServiceRequest, userUUID: UUID): ByteArray {
+        val template = templateService.generateTemplateForUserTransactions(periodRequest, userUUID)
         return generateFromTemplateToByteArray(template)
     }
 
