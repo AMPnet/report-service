@@ -13,14 +13,21 @@ const val LENGTH_OF_PERCENTAGE = 8
 class TransactionFactory private constructor() {
     companion object {
         fun createTransaction(transaction: TransactionsResponse.Transaction): Transaction? {
-            transaction.type?.let {
-                return when (it) {
-                    TransactionsResponse.Transaction.Type.DEPOSIT -> TransactionDeposit(transaction)
-                    TransactionsResponse.Transaction.Type.WITHDRAW -> TransactionWithdraw(transaction)
-                    TransactionsResponse.Transaction.Type.INVEST -> TransactionInvest(transaction)
-                    TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> TransactionSharePayout(transaction)
-                    TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT -> TransactionCancelInvestment(transaction)
-                    TransactionsResponse.Transaction.Type.UNRECOGNIZED -> null
+            if (transaction.state == TransactionsResponse.Transaction.State.MINED) {
+                transaction.type?.let {
+                    return when (it) {
+                        TransactionsResponse.Transaction.Type.DEPOSIT -> TransactionDeposit(transaction)
+                        TransactionsResponse.Transaction.Type.WITHDRAW -> TransactionWithdraw(transaction)
+                        TransactionsResponse.Transaction.Type.INVEST -> TransactionInvest(transaction)
+                        TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> TransactionSharePayout(transaction)
+                        TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT ->
+                            TransactionCancelInvestment(transaction)
+                        TransactionsResponse.Transaction.Type.APPROVE_INVESTMENT -> {
+                            // not needed in reports
+                            null
+                        }
+                        TransactionsResponse.Transaction.Type.UNRECOGNIZED -> null
+                    }
                 }
             }
             return null
@@ -36,7 +43,7 @@ abstract class Transaction(transaction: TransactionsResponse.Transaction) {
     val amount: Long = transaction.amount.toLong()
     val date: ZonedDateTime =
         ZonedDateTime.ofInstant(Instant.ofEpochMilli(transaction.date.toLong()), ZoneId.systemDefault())
-    val state: String = transaction.state
+    val state: TransactionsResponse.Transaction.State = transaction.state
     val txDate: String = date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
     val amountInEuro: String = amount.toEurAmount()
     abstract val txStatus: TransactionStatusType

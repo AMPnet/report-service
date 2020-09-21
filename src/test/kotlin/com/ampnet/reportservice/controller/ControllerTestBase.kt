@@ -171,7 +171,7 @@ abstract class ControllerTestBase : TestBase() {
             .setToTxHash(toTxHash)
             .setAmount(amount)
             .setDate(ZonedDateTime.now().toInstant().toEpochMilli().toString())
-            .setState("MINTED")
+            .setState(TransactionsResponse.Transaction.State.MINED)
             .build()
     }
 }

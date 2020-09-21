@@ -90,7 +90,7 @@ abstract class JpaServiceTestBase : TestBase() {
         amount: String,
         type: TransactionsResponse.Transaction.Type,
         date: String = ZonedDateTime.now().toInstant().toEpochMilli().toString(),
-        state: String = "MINTED"
+        state: TransactionsResponse.Transaction.State = TransactionsResponse.Transaction.State.MINED
     ): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()
             .setType(type)
