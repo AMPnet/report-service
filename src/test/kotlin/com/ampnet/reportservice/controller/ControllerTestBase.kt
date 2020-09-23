@@ -26,6 +26,8 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -170,7 +172,7 @@ abstract class ControllerTestBase : TestBase() {
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)
             .setAmount(amount)
-            .setDate(ZonedDateTime.now().toInstant().toEpochMilli().toString())
+            .setDate(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli().toString())
             .setState("MINTED")
             .build()
     }

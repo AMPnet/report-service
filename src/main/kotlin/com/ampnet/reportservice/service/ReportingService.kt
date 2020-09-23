@@ -4,5 +4,5 @@ import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import java.util.UUID
 
 interface ReportingService {
-    fun generatePdfReportForUserTransactions(periodRequest: PeriodServiceRequest, userUUID: UUID): ByteArray
+    fun generatePdfReportForUserTransactions(userUUID: UUID, periodRequest: PeriodServiceRequest): ByteArray
 }

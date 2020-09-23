@@ -5,5 +5,5 @@ import com.ampnet.reportservice.service.data.TxSummary
 import java.util.UUID
 
 interface TemplateDataService {
-    fun getUserTransactionsData(periodRequest: PeriodServiceRequest, userUUID: UUID): TxSummary
+    fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TxSummary
 }

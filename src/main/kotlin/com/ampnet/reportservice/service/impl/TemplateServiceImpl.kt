@@ -23,8 +23,8 @@ class TemplateServiceImpl(
 
     internal val userTransactionsTemplate = "user-transactions-template"
 
-    override fun generateTemplateForUserTransactions(periodRequest: PeriodServiceRequest, userUUID: UUID): String {
-        val transactions = templateDataService.getUserTransactionsData(periodRequest, userUUID)
+    override fun generateTemplateForUserTransactions(userUUID: UUID, periodRequest: PeriodServiceRequest): String {
+        val transactions = templateDataService.getUserTransactionsData(userUUID, periodRequest)
         return processThymeleafTemplate(transactions)
     }
 

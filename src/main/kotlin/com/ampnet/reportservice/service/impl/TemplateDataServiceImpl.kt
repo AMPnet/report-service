@@ -31,7 +31,7 @@ class TemplateDataServiceImpl(
 
     companion object : KLogging()
 
-    override fun getUserTransactionsData(periodRequest: PeriodServiceRequest, userUUID: UUID): TxSummary {
+    override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TxSummary {
         val wallet = walletService.getWalletsByOwner(listOf(userUUID)).firstOrNull()
             ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUUID")
         val transactions = blockchainService.getTransactions(wallet.hash)
@@ -108,9 +108,9 @@ class TemplateDataServiceImpl(
     }
 
     private fun inTimePeriod(periodRequest: PeriodServiceRequest, dateTime: String): Boolean {
-        val date = Instant.ofEpochMilli(dateTime.toLong()).toEpochMilli()
-        val fromDate = periodRequest.from?.atStartOfDay()?.toInstant(ZoneOffset.UTC)?.toEpochMilli() ?: 0
-        val toDate = periodRequest.to?.atStartOfDay()?.toInstant(ZoneOffset.UTC)?.toEpochMilli()
+        val date = dateTime.toLong()
+        val fromDate = periodRequest.from?.toInstant(ZoneOffset.UTC)?.toEpochMilli() ?: 0
+        val toDate = periodRequest.to?.toInstant(ZoneOffset.UTC)?.toEpochMilli()
             ?: Instant.now().toEpochMilli()
         return date in fromDate..toDate
     }

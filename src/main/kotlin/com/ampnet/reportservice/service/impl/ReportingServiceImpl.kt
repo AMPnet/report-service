@@ -23,8 +23,8 @@ class ReportingServiceImpl(
 
     private val rootTemplate = "templates/root.htm"
 
-    override fun generatePdfReportForUserTransactions(periodRequest: PeriodServiceRequest, userUUID: UUID): ByteArray {
-        val template = templateService.generateTemplateForUserTransactions(periodRequest, userUUID)
+    override fun generatePdfReportForUserTransactions(userUUID: UUID, periodRequest: PeriodServiceRequest): ByteArray {
+        val template = templateService.generateTemplateForUserTransactions(userUUID, periodRequest)
         return generateFromTemplateToByteArray(template)
     }
 

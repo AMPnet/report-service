@@ -13,8 +13,8 @@ import com.ampnet.userservice.proto.UserWithInfoResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -42,12 +42,12 @@ class TxSummaryTest : TestBase() {
         return formatToYearMonthDay(period.from) + " to " + formatToYearMonthDay(period.to)
     }
 
-    private fun getDateOfFinish(period: PeriodServiceRequest): String? {
+    private fun getDateOfFinish(period: PeriodServiceRequest): String {
         return formatToYearMonthDay(period.to)
     }
 
-    private fun formatToYearMonthDay(date: LocalDate?): String? {
-        return date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
+    private fun formatToYearMonthDay(date: LocalDateTime?): String {
+        return date!!.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
     }
 
     private fun createUserResponse(userUUid: UUID = userUuid): UserResponse {
@@ -66,7 +66,7 @@ class TxSummaryTest : TestBase() {
     }
 
     private fun createTransaction(
-        date: ZonedDateTime = ZonedDateTime.now(),
+        date: LocalDateTime = LocalDateTime.now(),
         type: TransactionsResponse.Transaction.Type = TransactionsResponse.Transaction.Type.DEPOSIT,
         fromTxHash: String = "from-tx-hash",
         toTxHash: String = "to-tx-hash",
@@ -77,7 +77,7 @@ class TxSummaryTest : TestBase() {
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)
             .setAmount(amount)
-            .setDate(date.toInstant().toEpochMilli().toString())
+            .setDate(date.toInstant(ZoneOffset.UTC).toEpochMilli().toString())
             .setState("MINTED")
             .build()
     }
@@ -85,16 +85,16 @@ class TxSummaryTest : TestBase() {
     private fun createTransactions(): List<Transaction?> {
         return listOf(
             TransactionFactory.createTransaction(
-                createTransaction(ZonedDateTime.of(2020, 10, 1, 0, 0, 0, 0, ZoneId.of("UTC")))
+                createTransaction(LocalDateTime.of(2020, 10, 1, 0, 0, 0, 0))
             ),
             TransactionFactory.createTransaction(
-                createTransaction(ZonedDateTime.of(2020, 9, 1, 0, 0, 0, 0, ZoneId.of("UTC")))
+                createTransaction(LocalDateTime.of(2020, 9, 1, 0, 0, 0, 0))
             ),
             TransactionFactory.createTransaction(
-                createTransaction(ZonedDateTime.of(2020, 8, 1, 0, 0, 0, 0, ZoneId.of("UTC")))
+                createTransaction(LocalDateTime.of(2020, 8, 1, 0, 0, 0, 0))
             ),
             TransactionFactory.createTransaction(
-                createTransaction(ZonedDateTime.of(2020, 7, 1, 0, 0, 0, 0, ZoneId.of("UTC")))
+                createTransaction(LocalDateTime.of(2020, 7, 1, 0, 0, 0, 0))
             )
         )
     }

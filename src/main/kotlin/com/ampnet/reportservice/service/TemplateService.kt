@@ -4,5 +4,5 @@ import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import java.util.UUID
 
 interface TemplateService {
-    fun generateTemplateForUserTransactions(periodRequest: PeriodServiceRequest, userUUID: UUID): String
+    fun generateTemplateForUserTransactions(userUUID: UUID, periodRequest: PeriodServiceRequest): String
 }

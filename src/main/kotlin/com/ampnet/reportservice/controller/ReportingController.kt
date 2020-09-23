@@ -30,7 +30,7 @@ class ReportingController(
         val periodRequest = PeriodServiceRequest(from, to)
         val httpHeaders = HttpHeaders()
         httpHeaders.contentType = MediaType.APPLICATION_PDF
-        val pdfContents = reportingService.generatePdfReportForUserTransactions(periodRequest, userPrincipal.uuid)
+        val pdfContents = reportingService.generatePdfReportForUserTransactions(userPrincipal.uuid, periodRequest)
         return ResponseEntity(pdfContents, httpHeaders, HttpStatus.OK)
     }
 }

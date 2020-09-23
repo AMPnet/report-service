@@ -3,8 +3,7 @@ package com.ampnet.reportservice.service.data
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import mu.KLogging
-import java.time.LocalDate
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 const val DATE_FORMAT = "MMM dd, yyyy"
@@ -34,10 +33,12 @@ class TxSummary(
         val fromDate = periodRequest.from
         val toDate = periodRequest.to
         return when (transactions.size) {
-            0 -> formatToYearMonthDay(fromDate ?: LocalDate.now())
+            0 ->
+                formatToYearMonthDay(fromDate ?: LocalDateTime.now()) + " to " +
+                    (formatToYearMonthDay(toDate ?: LocalDateTime.now()))
             1 -> {
                 (formatToYearMonthDay(fromDate) ?: formatToYearMonthDay(transactions.first().date)) + " to " +
-                    (formatToYearMonthDay(toDate) ?: formatToYearMonthDay(LocalDate.now()))
+                    (formatToYearMonthDay(toDate) ?: formatToYearMonthDay(LocalDateTime.now()))
             }
             else -> {
                 (formatToYearMonthDay(fromDate) ?: formatToYearMonthDay(transactions.first().date)) + " to " +
@@ -48,18 +49,14 @@ class TxSummary(
 
     private fun getDateOfFinish(transactions: List<Transaction>, periodRequest: PeriodServiceRequest): String? {
         return if (transactions.isEmpty()) {
-            formatToYearMonthDay(periodRequest.to ?: LocalDate.now())
+            formatToYearMonthDay(periodRequest.to ?: LocalDateTime.now())
         } else {
             formatToYearMonthDay(periodRequest.to) ?: formatToYearMonthDay(transactions.last().date)
         }
     }
 
-    private fun formatToYearMonthDay(date: ZonedDateTime): String =
-        date.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
-
-    private fun formatToYearMonthDay(date: LocalDate?): String? {
-        return date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
-    }
+    private fun formatToYearMonthDay(date: LocalDateTime?): String? =
+        date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
 
     private fun getBalance(transactions: List<Transaction>): String {
         val balance = transactions.sumByLong { it.amountToCalculate() }

@@ -67,7 +67,7 @@ class ReportingControllerTest : ControllerTestBase() {
         verify("User can get pdf with all transactions") {
             val result = mockMvc.perform(
                 get(userTransactionsPath)
-                    .param("from", "2020-01-01")
+                    .param("from", "2019-10-10")
                     .param("to", null)
             )
                 .andExpect(status().isOk)
