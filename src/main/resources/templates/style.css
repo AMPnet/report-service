@@ -93,29 +93,6 @@ table td {
     margin-bottom: 30px;
 }
 
-
-/*To add dynamically on tables:
-    text-left (.text-left) class on collumns according to design
-    (first column for table 1, first 2 columns for table 2)
-
-    Grey background (.table-grey-background) on every odd row except for first row
-
-    right border (.table-border-right) on every th and td tag except last one
-
-    bottom border (.table-border-bottom) on last table row
-
-    add class to remove bottom border (.table-no-bottom-border) on
-    every td element in last row
-
-    NEW!!!!
-    add class table-text-small to td that has text
-    (for instance on first account summary table that
-    would be column under Type heading or columns under
-    date and type headings in table 2)
-*/
-
-/*Classes to add dynamically*/
-
 .text-left {
     text-align: left;
 }
