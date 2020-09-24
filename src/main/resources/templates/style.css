@@ -7,17 +7,17 @@
 body {
     width: 100%;
     font-family: 'Poppins', sans-serif;
-    font-size: 16px
+    font-size: 12px
 }
 
 h1 {
-    font-size: 22px;
+    font-size: 20px;
     color: #6AA84F;
     text-align: center;
 }
 
 h2 {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 table {
@@ -79,8 +79,13 @@ table td {
     padding-bottom: 8px;
 }
 
-.page-1 .account-summary .summary-info .summary-right {
-    margin-top: 42px;
+/*.summary-right .summary-left {*/
+/*    position: absolute;*/
+/*    bottom: 0;*/
+/*}*/
+
+.summary-right {
+    font-weight: bold;
 }
 
 .page-1 .account-summary #account-summary-table {
@@ -114,7 +119,7 @@ table td {
 }
 
 .table-text-small {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .page-1 {
@@ -126,16 +131,23 @@ table tr {
 }
 
 @page {
-    size: letter;
-    margin: 150px 100px 0 100px;
+    size: a4 portrait;
+    margin: 150px 80px 100px 80px;
 
     @top-left {
-        content: url(../images/logo.svg);
+        background-image: url(../images/logo.png);
+        background-size: 200px 82px;
+        background-repeat: no-repeat;
+        background-position: center;
+        display: inline-block;
+        width: 200px;
+        height: 82px;
+        content: "";
     }
 
     @top-right {
         font-family: 'Poppins', sans-serif;
-        font-size: 15px;
+        font-size: 12px;
         content: "Page " counter(page) "/" counter(pages);
     }
 }
