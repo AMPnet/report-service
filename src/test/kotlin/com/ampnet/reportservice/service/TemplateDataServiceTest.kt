@@ -2,6 +2,8 @@ package com.ampnet.reportservice.service
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
+import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
+import com.ampnet.reportservice.service.data.DATE_FORMAT
 import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
 import com.ampnet.reportservice.service.data.TO_PERCENTAGE
 import com.ampnet.reportservice.service.data.toEurAmount
@@ -13,6 +15,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class TemplateDataServiceTest : JpaServiceTestBase() {
@@ -26,14 +31,14 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     @BeforeEach
     fun init() {
         testContext = TestContext()
+        mockWalletService()
+        mockBlockchainService()
+        mockUserService()
+        mockProjectService()
     }
 
     @Test
     fun mustGenerateCorrectTxSummary() {
-        suppose("Wallet service will return wallet for the user") {
-            testContext.wallet = createWalletResponse(walletUuid, userUuid)
-            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid))).thenReturn(listOf(testContext.wallet))
-        }
         suppose("Blockchain service will return transactions for wallet") {
             testContext.transactions = listOf(
                 createTransaction(
@@ -60,33 +65,11 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
                 .thenReturn(testContext.transactions)
         }
-        suppose("Blockchain service will return wallets for hashes") {
-            testContext.wallets = listOf(
-                createWalletResponse(UUID.randomUUID(), userUuid, hash = userWalletHash),
-                createWalletResponse(UUID.randomUUID(), projectUuid, hash = projectWalletHash)
-            )
-            Mockito.`when`(walletService.getWalletsByHash(setOf(mintHash, userWalletHash, projectWalletHash, burnHash)))
-                .thenReturn(testContext.wallets)
-        }
-        suppose("User service will return a list of users") {
-            testContext.user = createUserResponse(userUuid)
-            Mockito.`when`(userService.getUsers(setOf(userUuid, projectUuid)))
-                .thenReturn(listOf(testContext.user))
-        }
-        suppose("Project service will return a list of projects") {
-            testContext.project = createProjectsResponse(projectUuid)
-            Mockito.`when`(projectService.getProjects(listOf(userUuid, projectUuid)))
-                .thenReturn(listOf(testContext.project))
-        }
-        suppose("User service will the userWithInfo") {
-            testContext.userWithInfo = createUserWithInfoResponse(userUuid)
-            Mockito.`when`(userService.getUserWithInfo(userUuid))
-                .thenReturn(testContext.userWithInfo)
-        }
 
         verify("Template data service can get user transactions") {
             val project = testContext.project
-            val txSummary = templateDataService.getUserTransactionsData(userUuid)
+            val periodRequest = PeriodServiceRequest(null, null)
+            val txSummary = templateDataService.getUserTransactionsData(userUuid, periodRequest)
             assertThat(txSummary.balance).isEqualTo(
                 (
                     testContext.deposit - testContext.invest + testContext.cancelInvestment +
@@ -132,10 +115,88 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         }
     }
 
+    @Test
+    fun mustNotIncludeTransactionsOutsideOfSelectedPeriod() {
+        suppose("Blockchain service will return transactions for wallet") {
+            testContext.transactions = listOf(
+                createTransaction(
+                    mintHash, userWalletHash, testContext.deposit.toString(),
+                    TransactionsResponse.Transaction.Type.DEPOSIT,
+                    LocalDateTime.of(2020, 10, 1, 1, 0, 0, 0)
+                ),
+                createTransaction(
+                    userWalletHash, projectWalletHash, testContext.invest.toString(),
+                    TransactionsResponse.Transaction.Type.INVEST,
+                    LocalDateTime.of(2020, 9, 1, 1, 0, 0, 0)
+                ),
+                createTransaction(
+                    userWalletHash, projectWalletHash, testContext.invest.toString(),
+                    TransactionsResponse.Transaction.Type.INVEST,
+                    LocalDateTime.of(2020, 8, 1, 1, 0, 0, 0)
+                ),
+                createTransaction(
+                    userWalletHash, projectWalletHash, testContext.invest.toString(),
+                    TransactionsResponse.Transaction.Type.INVEST,
+                    LocalDateTime.of(2020, 7, 1, 1, 0, 0, 0)
+                ),
+                createTransaction(
+                    userWalletHash, projectWalletHash, testContext.invest.toString(),
+                    TransactionsResponse.Transaction.Type.INVEST,
+                    LocalDateTime.of(2020, 6, 1, 1, 0, 0, 0)
+                )
+
+            )
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+                .thenReturn(testContext.transactions)
+        }
+        verify("Template data service can get user transactions in selected period") {
+            val periodRequest = PeriodServiceRequest(
+                LocalDate.of(2020, 7, 1),
+                LocalDate.of(2020, 9, 1)
+            )
+            val txSummary = templateDataService.getUserTransactionsData(userUuid, periodRequest)
+            assertThat(txSummary.transactions).hasSize(3)
+            assertThat(txSummary.dateOfFinish).isEqualTo(formatToYearMonthDay(periodRequest.to))
+        }
+    }
+
     private fun getPercentageInProject(expectedFunding: Long?, amount: Long): String? {
         return expectedFunding?.let {
             (TO_PERCENTAGE * amount / expectedFunding).toString().take(LENGTH_OF_PERCENTAGE)
         }
+    }
+
+    private fun formatToYearMonthDay(date: LocalDateTime?): String? {
+        return date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
+    }
+
+    private fun mockWalletService() {
+        testContext.wallet = createWalletResponse(walletUuid, userUuid)
+        Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid))).thenReturn(listOf(testContext.wallet))
+    }
+
+    private fun mockBlockchainService() {
+        testContext.wallets = listOf(
+            createWalletResponse(UUID.randomUUID(), userUuid, hash = userWalletHash),
+            createWalletResponse(UUID.randomUUID(), projectUuid, hash = projectWalletHash)
+        )
+        Mockito.`when`(walletService.getWalletsByHash(setOf(mintHash, userWalletHash, projectWalletHash, burnHash)))
+            .thenReturn(testContext.wallets)
+    }
+
+    private fun mockUserService() {
+        testContext.user = createUserResponse(userUuid)
+        Mockito.`when`(userService.getUsers(setOf(userUuid, projectUuid)))
+            .thenReturn(listOf(testContext.user))
+        testContext.userWithInfo = createUserWithInfoResponse(userUuid)
+        Mockito.`when`(userService.getUserWithInfo(userUuid))
+            .thenReturn(testContext.userWithInfo)
+    }
+
+    private fun mockProjectService() {
+        testContext.project = createProjectsResponse(projectUuid)
+        Mockito.`when`(projectService.getProjects(listOf(userUuid, projectUuid)))
+            .thenReturn(listOf(testContext.project))
     }
 
     private class TestContext {

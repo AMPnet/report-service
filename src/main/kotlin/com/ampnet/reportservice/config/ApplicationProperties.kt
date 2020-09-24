@@ -16,8 +16,8 @@ class JwtProperties {
 
 @Suppress("MagicNumber")
 class GrpcProperties {
-    var blockchainServiceTimeout: Long = 5000
-    var walletServiceTimeout: Long = 5000
-    var userServiceTimeout: Long = 5000
-    var projectServiceTimeout: Long = 5000
+    var blockchainServiceTimeout: Long = 15000
+    var walletServiceTimeout: Long = 10000
+    var userServiceTimeout: Long = 10000
+    var projectServiceTimeout: Long = 10000
 }
