@@ -25,7 +25,7 @@ plugins {
 }
 
 group = "com.ampnet"
-version = "0.1.1"
+version = "0.1.2"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
@@ -53,17 +53,19 @@ dependencies {
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("org.springframework.security:spring-security-test")
-
     implementation("com.github.AMPnet:jwt:0.1.5")
     implementation("net.devh:grpc-client-spring-boot-starter:2.10.1.RELEASE")
 
-    implementation("com.openhtmltopdf:openhtmltopdf-core:1.0.4")
-    implementation("com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.4")
-    implementation("com.openhtmltopdf:openhtmltopdf-svg-support:1.0.4")
+    val openHtmlToPdfVersion = "1.0.4"
+    implementation("com.openhtmltopdf:openhtmltopdf-core:$openHtmlToPdfVersion")
+    implementation("com.openhtmltopdf:openhtmltopdf-pdfbox:$openHtmlToPdfVersion")
+    implementation("com.openhtmltopdf:openhtmltopdf-svg-support:$openHtmlToPdfVersion")
+    implementation("com.openhtmltopdf:openhtmltopdf-slf4j:$openHtmlToPdfVersion")
     implementation("org.thymeleaf:thymeleaf:3.0.11.RELEASE")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<Test> {

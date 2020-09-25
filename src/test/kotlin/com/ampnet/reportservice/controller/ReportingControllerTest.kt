@@ -30,7 +30,7 @@ class ReportingControllerTest : ControllerTestBase() {
 
     @Test
     @WithMockCrowdfundUser
-    fun mustBeAbleToGeneratePdfForUserTransactions() {
+    fun mustBeAbleToGeneratePdfForAllUserTransactions() {
         suppose("Wallet service will return wallet for the user") {
             testContext.wallet = createWalletResponse(walletUuid, userUuid)
             Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid)))
@@ -68,6 +68,8 @@ class ReportingControllerTest : ControllerTestBase() {
         verify("User can get pdf with all transactions") {
             val result = mockMvc.perform(
                 get(userTransactionsPath)
+                    .param("from", "2019-10-10")
+                    .param("to", null)
             )
                 .andExpect(status().isOk)
                 .andReturn()

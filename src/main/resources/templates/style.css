@@ -7,16 +7,17 @@
 body {
     width: 100%;
     font-family: 'Poppins', sans-serif;
+    font-size: 12px
 }
 
 h1 {
-    font-size: 1.8rem;
+    font-size: 20px;
     color: #6AA84F;
     text-align: center;
 }
 
 h2 {
-    font-size: 1.4rem;
+    font-size: 16px;
 }
 
 table {
@@ -42,9 +43,6 @@ table td {
     padding: 6px;
 }
 
-.container {
-    /*margin: 75px 125px;*/
-}
 /*Client info*/
 
 .page-1 .client-info p {
@@ -52,22 +50,21 @@ table td {
 }
 
 .page-1 .client-info .address {
-    margin-bottom: 38px;
+    margin-bottom: 20px;
     text-align: left;
 }
 
 .page-1 .client-info .address #client-name {
-    font-size: 1.2rem;
     font-weight: 700;
 }
 
 .page-1 .client-info table {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
 
 /*Account summary, first table*/
 .page-1 .account-summary h1 {
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 .page-1 .account-summary .summary-info {
@@ -82,8 +79,8 @@ table td {
     padding-bottom: 8px;
 }
 
-.page-1 .account-summary .summary-info .summary-right {
-    margin-top: 42px;
+.summary-right {
+    font-weight: bold;
 }
 
 .page-1 .account-summary #account-summary-table {
@@ -93,25 +90,8 @@ table td {
 /*Page 2 start*/
 
 .page-2 .transactions h2 {
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
-
-
-/*To add dynamically on tables: 
-    text-left (.text-left) class on collumns according to design 
-    (first column for table 1, first 2 columns for table 2)
-
-    Grey background (.table-grey-background) on every odd row except for first row
-    
-    right border (.table-border-right) on every th and td tag except last one
-    
-    bottom border (.table-border-bottom) on last table row
-
-    add class to remove bottom border (.table-no-bottom-border) on
-    every td element in last row
-*/
-
-/*Classes to add dynamically*/
 
 .text-left {
     text-align: left;
@@ -133,6 +113,10 @@ table td {
     background-color: #EFEFEF;
 }
 
+.table-text-small {
+    font-size: 12px;
+}
+
 .page-1 {
     page-break-after: always;
 }
@@ -142,15 +126,23 @@ table tr {
 }
 
 @page {
-
-    margin-top: 150px;
+    size: a4 portrait;
+    margin: 150px 80px 100px 80px;
 
     @top-left {
-        content: url(../images/logo.png);
+        background-image: url(../images/logo.png);
+        background-size: 200px 82px;
+        background-repeat: no-repeat;
+        background-position: center;
+        display: inline-block;
+        width: 200px;
+        height: 82px;
+        content: "";
     }
 
     @top-right {
         font-family: 'Poppins', sans-serif;
+        font-size: 12px;
         content: "Page " counter(page) "/" counter(pages);
     }
 }

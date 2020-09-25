@@ -1,19 +1,23 @@
 package com.ampnet.reportservice.service.data
 
 import com.ampnet.crowdfunding.proto.TransactionType
+import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import mu.KLogging
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+const val DATE_FORMAT = "MMM dd, yyyy"
 
 class TxSummary(
     val transactions: List<Transaction>,
-    val userInfo: UserInfo
+    val userInfo: UserInfo,
+    val periodRequest: PeriodServiceRequest
 ) {
     companion object : KLogging()
 
     private val transactionsByType = transactions.groupBy { it.type }
-    val period: String? = getPeriod(transactions)
-    val dateOfFinish: String? = getDateOfFinish(transactions)
+    val period: String? = getPeriod(transactions, periodRequest)
+    val dateOfFinish: String? = getDateOfFinish(transactions, periodRequest)
     val balance: String = getBalance(transactions)
     val deposits = sumTransactionAmountsByType(TransactionType.DEPOSIT).toEurAmount()
     val withdrawals = sumTransactionAmountsByType(TransactionType.WITHDRAW).toEurAmount()
@@ -25,24 +29,34 @@ class TxSummary(
     val sharesBought = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
     val sharesSold = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
 
-    private fun getPeriod(transactions: List<Transaction>): String? {
+    private fun getPeriod(transactions: List<Transaction>, periodRequest: PeriodServiceRequest): String? {
+        val fromDate = periodRequest.from
+        val toDate = periodRequest.to
         return when (transactions.size) {
-            0 -> null
-            1 -> formatToYearMonthDay(transactions.first().date)
+            0 ->
+                formatToYearMonthDay(fromDate ?: LocalDateTime.now()) + " to " +
+                    (formatToYearMonthDay(toDate ?: LocalDateTime.now()))
+            1 -> {
+                (formatToYearMonthDay(fromDate) ?: formatToYearMonthDay(transactions.first().date)) + " to " +
+                    (formatToYearMonthDay(toDate) ?: formatToYearMonthDay(LocalDateTime.now()))
+            }
             else -> {
-                formatToYearMonthDay(transactions.first().date) + " to " +
-                    formatToYearMonthDay(transactions.last().date)
+                (formatToYearMonthDay(fromDate) ?: formatToYearMonthDay(transactions.first().date)) + " to " +
+                    (formatToYearMonthDay(toDate) ?: formatToYearMonthDay(transactions.last().date))
             }
         }
     }
 
-    private fun getDateOfFinish(transactions: List<Transaction>): String? {
-        if (transactions.isEmpty()) return null
-        return "Total balance as of " + formatToYearMonthDay(transactions.last().date)
+    private fun getDateOfFinish(transactions: List<Transaction>, periodRequest: PeriodServiceRequest): String? {
+        return if (transactions.isEmpty()) {
+            formatToYearMonthDay(periodRequest.to ?: LocalDateTime.now())
+        } else {
+            formatToYearMonthDay(periodRequest.to) ?: formatToYearMonthDay(transactions.last().date)
+        }
     }
 
-    private fun formatToYearMonthDay(date: ZonedDateTime) =
-        date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+    private fun formatToYearMonthDay(date: LocalDateTime?): String? =
+        date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
 
     private fun getBalance(transactions: List<Transaction>): String {
         val balance = transactions.sumByLong { it.amountToCalculate() }

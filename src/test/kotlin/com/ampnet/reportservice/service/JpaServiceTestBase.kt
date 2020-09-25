@@ -15,6 +15,8 @@ import com.ampnet.walletservice.proto.WalletResponse
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -91,7 +93,7 @@ abstract class JpaServiceTestBase : TestBase() {
         toTxHash: String,
         amount: String,
         type: TransactionType,
-        date: String = ZonedDateTime.now().toInstant().toEpochMilli().toString(),
+        date: LocalDateTime = LocalDateTime.now().minusDays(1),
         state: TransactionState = TransactionState.MINED
     ): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()
@@ -99,7 +101,7 @@ abstract class JpaServiceTestBase : TestBase() {
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)
             .setAmount(amount)
-            .setDate(date)
+            .setDate(date.toInstant(ZoneOffset.UTC).toEpochMilli().toString())
             .setState(state)
             .build()
     }

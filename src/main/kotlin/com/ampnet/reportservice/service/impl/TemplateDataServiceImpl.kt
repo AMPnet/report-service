@@ -2,6 +2,7 @@ package com.ampnet.reportservice.service.impl
 
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
+import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.ResourceNotFoundException
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
@@ -21,6 +22,8 @@ import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
 import org.springframework.stereotype.Service
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.UUID
 
 @Service
@@ -33,14 +36,15 @@ class TemplateDataServiceImpl(
 
     companion object : KLogging()
 
-    override fun getUserTransactionsData(userUUID: UUID): TxSummary {
+    override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TxSummary {
         val wallet = walletService.getWalletsByOwner(listOf(userUUID)).firstOrNull()
             ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUUID")
         val transactions = blockchainService.getTransactions(wallet.hash)
+            .filter { inTimePeriod(periodRequest, it.date) }
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
         val userWithInfo = UserInfo(userUUID, userService.getUserWithInfo(userUUID))
-        return TxSummary(setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo)
+        return TxSummary(setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo, periodRequest)
     }
 
     private fun getWalletHashes(transactions: List<TransactionsResponse.Transaction>): Set<String> {
@@ -106,5 +110,13 @@ class TemplateDataServiceImpl(
 
     private fun getExpectedProjectFunding(ownerUuid: String?, projects: Map<String, ProjectResponse>): Long? {
         return projects[ownerUuid]?.expectedFunding
+    }
+
+    private fun inTimePeriod(periodRequest: PeriodServiceRequest, dateTime: String): Boolean {
+        val date = dateTime.toLong()
+        val fromDate = periodRequest.from?.toInstant(ZoneOffset.UTC)?.toEpochMilli() ?: 0
+        val toDate = periodRequest.to?.toInstant(ZoneOffset.UTC)?.toEpochMilli()
+            ?: Instant.now().toEpochMilli()
+        return date in fromDate..toDate
     }
 }

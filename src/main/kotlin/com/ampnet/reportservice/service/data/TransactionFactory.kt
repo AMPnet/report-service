@@ -5,8 +5,8 @@ import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.enums.TransactionStatusType
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 const val TO_PERCENTAGE = 100.0
@@ -39,8 +39,8 @@ abstract class Transaction(transaction: TransactionsResponse.Transaction) {
     val fromTxHash: String = transaction.fromTxHash
     val toTxHash: String = transaction.toTxHash
     val amount: Long = transaction.amount.toLong()
-    val date: ZonedDateTime =
-        ZonedDateTime.ofInstant(Instant.ofEpochMilli(transaction.date.toLong()), ZoneId.systemDefault())
+    val date: LocalDateTime =
+        Instant.ofEpochMilli(transaction.date.toLong()).atZone(ZoneId.systemDefault()).toLocalDateTime()
     val state: TransactionState = transaction.state
     val txDate: String = date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
     val amountInEuro: String = amount.toEurAmount()
