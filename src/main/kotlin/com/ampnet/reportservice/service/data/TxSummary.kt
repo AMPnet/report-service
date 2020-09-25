@@ -1,6 +1,6 @@
 package com.ampnet.reportservice.service.data
 
-import com.ampnet.crowdfunding.proto.TransactionsResponse
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import mu.KLogging
 import java.time.LocalDateTime
@@ -19,15 +19,15 @@ class TxSummary(
     val period: String? = getPeriod(transactions, periodRequest)
     val dateOfFinish: String? = getDateOfFinish(transactions, periodRequest)
     val balance: String = getBalance(transactions)
-    val deposits = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.DEPOSIT).toEurAmount()
-    val withdrawals = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.WITHDRAW).toEurAmount()
-    val revenueShare = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.SHARE_PAYOUT).toEurAmount()
+    val deposits = sumTransactionAmountsByType(TransactionType.DEPOSIT).toEurAmount()
+    val withdrawals = sumTransactionAmountsByType(TransactionType.WITHDRAW).toEurAmount()
+    val revenueShare = sumTransactionAmountsByType(TransactionType.SHARE_PAYOUT).toEurAmount()
     val investments = (
-        sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.INVEST) -
-            sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT)
+        sumTransactionAmountsByType(TransactionType.INVEST) -
+            sumTransactionAmountsByType(TransactionType.CANCEL_INVESTMENT)
         ).toEurAmount()
-    val sharesBought = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.UNRECOGNIZED).toEurAmount()
-    val sharesSold = sumTransactionAmountsByType(TransactionsResponse.Transaction.Type.UNRECOGNIZED).toEurAmount()
+    val sharesBought = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
+    val sharesSold = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
 
     private fun getPeriod(transactions: List<Transaction>, periodRequest: PeriodServiceRequest): String? {
         val fromDate = periodRequest.from
@@ -67,7 +67,7 @@ class TxSummary(
         return balance.toEurAmount()
     }
 
-    private fun sumTransactionAmountsByType(type: TransactionsResponse.Transaction.Type): Long {
+    private fun sumTransactionAmountsByType(type: TransactionType): Long {
         return transactionsByType[type]?.sumByLong { it.amount } ?: 0L
     }
 }

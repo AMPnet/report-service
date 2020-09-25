@@ -1,5 +1,7 @@
 package com.ampnet.reportservice.service.data
 
+import com.ampnet.crowdfunding.proto.TransactionState
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.enums.TransactionStatusType
 import java.time.Instant
@@ -13,14 +15,17 @@ const val LENGTH_OF_PERCENTAGE = 8
 class TransactionFactory private constructor() {
     companion object {
         fun createTransaction(transaction: TransactionsResponse.Transaction): Transaction? {
-            transaction.type?.let {
-                return when (it) {
-                    TransactionsResponse.Transaction.Type.DEPOSIT -> TransactionDeposit(transaction)
-                    TransactionsResponse.Transaction.Type.WITHDRAW -> TransactionWithdraw(transaction)
-                    TransactionsResponse.Transaction.Type.INVEST -> TransactionInvest(transaction)
-                    TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> TransactionSharePayout(transaction)
-                    TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT -> TransactionCancelInvestment(transaction)
-                    TransactionsResponse.Transaction.Type.UNRECOGNIZED -> null
+            if (transaction.state == TransactionState.MINED) {
+                transaction.type?.let {
+                    return when (it) {
+                        TransactionType.DEPOSIT -> TransactionDeposit(transaction)
+                        TransactionType.WITHDRAW -> TransactionWithdraw(transaction)
+                        TransactionType.INVEST -> TransactionInvest(transaction)
+                        TransactionType.SHARE_PAYOUT -> TransactionSharePayout(transaction)
+                        TransactionType.CANCEL_INVESTMENT ->
+                            TransactionCancelInvestment(transaction)
+                        else -> null
+                    }
                 }
             }
             return null
@@ -30,13 +35,13 @@ class TransactionFactory private constructor() {
 
 abstract class Transaction(transaction: TransactionsResponse.Transaction) {
 
-    val type: TransactionsResponse.Transaction.Type = transaction.type
+    val type: TransactionType = transaction.type
     val fromTxHash: String = transaction.fromTxHash
     val toTxHash: String = transaction.toTxHash
     val amount: Long = transaction.amount.toLong()
     val date: LocalDateTime =
         Instant.ofEpochMilli(transaction.date.toLong()).atZone(ZoneId.systemDefault()).toLocalDateTime()
-    val state: String = transaction.state
+    val state: TransactionState = transaction.state
     val txDate: String = date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
     val amountInEuro: String = amount.toEurAmount()
     abstract val txStatus: TransactionStatusType

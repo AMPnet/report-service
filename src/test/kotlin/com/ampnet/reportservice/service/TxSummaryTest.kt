@@ -1,5 +1,7 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.crowdfunding.proto.TransactionState
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
@@ -67,7 +69,7 @@ class TxSummaryTest : TestBase() {
 
     private fun createTransaction(
         date: LocalDateTime = LocalDateTime.now(),
-        type: TransactionsResponse.Transaction.Type = TransactionsResponse.Transaction.Type.DEPOSIT,
+        type: TransactionType = TransactionType.DEPOSIT,
         fromTxHash: String = "from-tx-hash",
         toTxHash: String = "to-tx-hash",
         amount: String = "700000"
@@ -78,7 +80,7 @@ class TxSummaryTest : TestBase() {
             .setToTxHash(toTxHash)
             .setAmount(amount)
             .setDate(date.toInstant(ZoneOffset.UTC).toEpochMilli().toString())
-            .setState("MINTED")
+            .setState(TransactionState.MINED)
             .build()
     }
 

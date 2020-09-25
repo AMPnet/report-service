@@ -11,7 +11,12 @@ import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.TemplateDataService
 import com.ampnet.reportservice.service.data.Transaction
+import com.ampnet.reportservice.service.data.TransactionCancelInvestment
+import com.ampnet.reportservice.service.data.TransactionDeposit
 import com.ampnet.reportservice.service.data.TransactionFactory
+import com.ampnet.reportservice.service.data.TransactionInvest
+import com.ampnet.reportservice.service.data.TransactionSharePayout
+import com.ampnet.reportservice.service.data.TransactionWithdraw
 import com.ampnet.reportservice.service.data.TxSummary
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.walletservice.proto.WalletResponse
@@ -66,27 +71,27 @@ class TemplateDataServiceImpl(
         transactions.forEach { transaction ->
             val ownerUuidFrom = walletsMap[transaction.fromTxHash]?.owner
             val ownerUuidTo = walletsMap[transaction.toTxHash]?.owner
-            when (transaction.type) {
-                TransactionsResponse.Transaction.Type.INVEST -> {
+            when (transaction) {
+                is TransactionInvest -> {
                     transaction.description = getProjectNameWithUuid(ownerUuidTo, projects)
                     getExpectedProjectFunding(ownerUuidTo, projects)?.let {
                         transaction.setPercentageInProject(it)
                     }
                 }
-                TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT -> {
+                is TransactionCancelInvestment -> {
                     transaction.description = getProjectNameWithUuid(ownerUuidFrom, projects)
                     getExpectedProjectFunding(ownerUuidFrom, projects)?.let {
                         transaction.setPercentageInProject(it)
                     }
                 }
-                TransactionsResponse.Transaction.Type.SHARE_PAYOUT -> {
+                is TransactionSharePayout -> {
                     transaction.description = getProjectNameWithUuid(ownerUuidFrom, projects)
                 }
-                TransactionsResponse.Transaction.Type.DEPOSIT, TransactionsResponse.Transaction.Type.WITHDRAW -> {
-                    // from and to data not needed
+                is TransactionDeposit -> {
+                    // skip
                 }
-                TransactionsResponse.Transaction.Type.UNRECOGNIZED -> {
-                    logger.warn { "Unrecognized transaction: $transaction" }
+                is TransactionWithdraw -> {
+                    // skip
                 }
             }
         }
