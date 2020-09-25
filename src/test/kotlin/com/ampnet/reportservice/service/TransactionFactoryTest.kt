@@ -1,5 +1,7 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.crowdfunding.proto.TransactionState
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.service.data.TransactionFactory
@@ -13,7 +15,7 @@ class TransactionFactoryTest : TestBase() {
     fun mustNotCreateApprovedInvestmentTransaction() {
         val tx = TransactionFactory.createTransaction(
             createTransaction(
-                type = TransactionsResponse.Transaction.Type.APPROVE_INVESTMENT
+                type = TransactionType.APPROVE_INVESTMENT
             )
         )
         assertThat(tx).isNull()
@@ -23,7 +25,7 @@ class TransactionFactoryTest : TestBase() {
     fun mustNotCreateUnrecognizedTransaction() {
         val tx = TransactionFactory.createTransaction(
             createTransaction(
-                type = TransactionsResponse.Transaction.Type.APPROVE_INVESTMENT
+                type = TransactionType.APPROVE_INVESTMENT
             )
         )
         assertThat(tx).isNull()
@@ -33,8 +35,8 @@ class TransactionFactoryTest : TestBase() {
     fun mustNotCreatePendingTransaction() {
         val tx = TransactionFactory.createTransaction(
             createTransaction(
-                type = TransactionsResponse.Transaction.Type.DEPOSIT,
-                state = TransactionsResponse.Transaction.State.PENDING
+                type = TransactionType.DEPOSIT,
+                state = TransactionState.PENDING
             )
         )
         assertThat(tx).isNull()
@@ -44,16 +46,16 @@ class TransactionFactoryTest : TestBase() {
     fun mustNotCreateFailedTransaction() {
         val tx = TransactionFactory.createTransaction(
             createTransaction(
-                type = TransactionsResponse.Transaction.Type.DEPOSIT,
-                state = TransactionsResponse.Transaction.State.FAILED
+                type = TransactionType.DEPOSIT,
+                state = TransactionState.FAILED
             )
         )
         assertThat(tx).isNull()
     }
 
     private fun createTransaction(
-        type: TransactionsResponse.Transaction.Type,
-        state: TransactionsResponse.Transaction.State = TransactionsResponse.Transaction.State.MINED
+        type: TransactionType,
+        state: TransactionState = TransactionState.MINED
     ): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()
             .setType(type)

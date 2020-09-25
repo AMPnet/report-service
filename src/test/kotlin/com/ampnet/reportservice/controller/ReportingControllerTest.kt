@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.controller
 
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.security.WithMockCrowdfundUser
@@ -81,7 +82,7 @@ class ReportingControllerTest : ControllerTestBase() {
         val investment = "30000"
         val deposits = MutableList(2) {
             createTransaction(
-                TransactionsResponse.Transaction.Type.DEPOSIT,
+                TransactionType.DEPOSIT,
                 mintHash,
                 userWalletHash,
                 amount = "1000000"
@@ -89,7 +90,7 @@ class ReportingControllerTest : ControllerTestBase() {
         }
         val invests = MutableList(2) {
             createTransaction(
-                TransactionsResponse.Transaction.Type.INVEST,
+                TransactionType.INVEST,
                 userWalletHash,
                 projectWalletHash,
                 amount = investment
@@ -97,7 +98,7 @@ class ReportingControllerTest : ControllerTestBase() {
         }
         val withdrawals = MutableList(2) {
             createTransaction(
-                TransactionsResponse.Transaction.Type.WITHDRAW,
+                TransactionType.WITHDRAW,
                 userWalletHash,
                 burnHash,
                 amount = "10000"
@@ -106,7 +107,7 @@ class ReportingControllerTest : ControllerTestBase() {
         val revenueShares =
             MutableList(2) {
                 createTransaction(
-                    TransactionsResponse.Transaction.Type.SHARE_PAYOUT,
+                    TransactionType.SHARE_PAYOUT,
                     projectWalletHash,
                     userWalletHash,
                     amount = "6670"
@@ -114,7 +115,7 @@ class ReportingControllerTest : ControllerTestBase() {
             }
         val cancelInvestments = MutableList(1) {
             createTransaction(
-                TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT,
+                TransactionType.CANCEL_INVESTMENT,
                 projectWalletHash,
                 userWalletHash,
                 amount = investment

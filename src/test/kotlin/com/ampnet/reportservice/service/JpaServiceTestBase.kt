@@ -1,5 +1,7 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.crowdfunding.proto.TransactionState
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.TestBase
@@ -88,9 +90,9 @@ abstract class JpaServiceTestBase : TestBase() {
         fromTxHash: String,
         toTxHash: String,
         amount: String,
-        type: TransactionsResponse.Transaction.Type,
+        type: TransactionType,
         date: String = ZonedDateTime.now().toInstant().toEpochMilli().toString(),
-        state: TransactionsResponse.Transaction.State = TransactionsResponse.Transaction.State.MINED
+        state: TransactionState = TransactionState.MINED
     ): TransactionsResponse.Transaction {
         return TransactionsResponse.Transaction.newBuilder()
             .setType(type)

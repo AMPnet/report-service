@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
@@ -38,23 +39,23 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             testContext.transactions = listOf(
                 createTransaction(
                     mintHash, userWalletHash, testContext.deposit.toString(),
-                    TransactionsResponse.Transaction.Type.DEPOSIT
+                    TransactionType.DEPOSIT
                 ),
                 createTransaction(
                     userWalletHash, projectWalletHash, testContext.invest.toString(),
-                    TransactionsResponse.Transaction.Type.INVEST
+                    TransactionType.INVEST
                 ),
                 createTransaction(
                     projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
-                    TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT
+                    TransactionType.CANCEL_INVESTMENT
                 ),
                 createTransaction(
                     projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
-                    TransactionsResponse.Transaction.Type.SHARE_PAYOUT
+                    TransactionType.SHARE_PAYOUT
                 ),
                 createTransaction(
                     userWalletHash, burnHash, testContext.withdraw.toString(),
-                    TransactionsResponse.Transaction.Type.WITHDRAW
+                    TransactionType.WITHDRAW
                 )
             )
             Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
@@ -100,12 +101,12 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
 
             val transactions = txSummary.transactions
             assertThat(transactions).hasSize(5)
-            val depositTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.DEPOSIT }
+            val depositTx = transactions.first { it.type == TransactionType.DEPOSIT }
             assertThat(depositTx.description).isNull()
             assertThat(depositTx.percentageInProject).isNull()
             assertThat(depositTx.txDate).isNotBlank()
             assertThat(depositTx.amountInEuro).isEqualTo(depositTx.amount.toEurAmount())
-            val investTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.INVEST }
+            val investTx = transactions.first { it.type == TransactionType.INVEST }
             assertThat(investTx.description).isEqualTo(project.name)
             assertThat(investTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, investTx.amount)
@@ -113,18 +114,18 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(investTx.txDate).isNotBlank()
             assertThat(investTx.amountInEuro).isEqualTo(investTx.amount.toEurAmount())
             val cancelInvestmentTx =
-                transactions.first { it.type == TransactionsResponse.Transaction.Type.CANCEL_INVESTMENT }
+                transactions.first { it.type == TransactionType.CANCEL_INVESTMENT }
             assertThat(cancelInvestmentTx.description).isEqualTo(project.name)
             assertThat(cancelInvestmentTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, cancelInvestmentTx.amount)
             )
             assertThat(cancelInvestmentTx.txDate).isNotBlank()
             assertThat(cancelInvestmentTx.amountInEuro).isEqualTo(cancelInvestmentTx.amount.toEurAmount())
-            val sharePayoutTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.SHARE_PAYOUT }
+            val sharePayoutTx = transactions.first { it.type == TransactionType.SHARE_PAYOUT }
             assertThat(sharePayoutTx.description).isEqualTo(project.name)
             assertThat(sharePayoutTx.txDate).isNotBlank()
             assertThat(sharePayoutTx.amountInEuro).isEqualTo(sharePayoutTx.amount.toEurAmount())
-            val withdrawTx = transactions.first { it.type == TransactionsResponse.Transaction.Type.WITHDRAW }
+            val withdrawTx = transactions.first { it.type == TransactionType.WITHDRAW }
             assertThat(withdrawTx.description).isNull()
             assertThat(withdrawTx.percentageInProject).isNull()
             assertThat(withdrawTx.txDate).isNotBlank()

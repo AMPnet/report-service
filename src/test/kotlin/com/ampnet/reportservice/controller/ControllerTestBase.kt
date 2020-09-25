@@ -1,5 +1,7 @@
 package com.ampnet.reportservice.controller
 
+import com.ampnet.crowdfunding.proto.TransactionState
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.TestBase
@@ -160,7 +162,7 @@ abstract class ControllerTestBase : TestBase() {
     }
 
     protected fun createTransaction(
-        type: TransactionsResponse.Transaction.Type,
+        type: TransactionType,
         fromTxHash: String,
         toTxHash: String,
         amount: String = "700000"
@@ -171,7 +173,7 @@ abstract class ControllerTestBase : TestBase() {
             .setToTxHash(toTxHash)
             .setAmount(amount)
             .setDate(ZonedDateTime.now().toInstant().toEpochMilli().toString())
-            .setState(TransactionsResponse.Transaction.State.MINED)
+            .setState(TransactionState.MINED)
             .build()
     }
 }
