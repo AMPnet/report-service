@@ -33,3 +33,9 @@ If documentation is missing generate it by running gradle task:
 ```sh
 ./gradlew test
 ```
+
+## Application Properties
+
+### JWT
+
+Set public key property to verify JWT: `com.ampnet.reportservice.jwt.public-key`
