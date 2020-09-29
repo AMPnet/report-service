@@ -16,6 +16,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -60,10 +61,13 @@ class TxSummaryTest : TestBase() {
             .build()
     }
 
-    private fun createUserWithInfoResponse(): UserWithInfoResponse {
+    private fun createUserWithInfoResponse(
+        createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
+    ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse())
             .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
+            .setCreatedAt(createdAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli().toString())
             .build()
     }
 
