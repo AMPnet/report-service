@@ -10,13 +10,13 @@ import com.ampnet.reportservice.service.data.Transaction
 import com.ampnet.reportservice.service.data.TransactionFactory
 import com.ampnet.reportservice.service.data.TxSummary
 import com.ampnet.reportservice.service.data.UserInfo
+import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -67,7 +67,7 @@ class TxSummaryTest : TestBase() {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse())
             .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
-            .setCreatedAt(createdAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli().toString())
+            .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }
 
