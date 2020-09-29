@@ -25,6 +25,7 @@ message UsersResponse {
 message UserWithInfoResponse {
     UserResponse user = 1;
     string address = 2;
+    string createdAt = 3;
 }
 
 service UserService {

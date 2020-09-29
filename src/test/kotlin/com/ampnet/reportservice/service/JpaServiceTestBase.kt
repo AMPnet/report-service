@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -106,10 +107,14 @@ abstract class JpaServiceTestBase : TestBase() {
             .build()
     }
 
-    protected fun createUserWithInfoResponse(userUUID: UUID): UserWithInfoResponse {
+    protected fun createUserWithInfoResponse(
+        userUUID: UUID,
+        createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
+    ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
             .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
+            .setCreatedAt(createdAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli().toString())
             .build()
     }
 }

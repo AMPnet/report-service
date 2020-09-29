@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -100,10 +101,14 @@ abstract class ControllerTestBase : TestBase() {
             .build()
     }
 
-    protected fun createUserWithInfoResponse(userUUID: UUID): UserWithInfoResponse {
+    protected fun createUserWithInfoResponse(
+        userUUID: UUID,
+        createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
+    ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
             .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
+            .setCreatedAt(createdAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli().toString())
             .build()
     }
 

@@ -2,6 +2,9 @@ package com.ampnet.reportservice.service.data
 
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import java.lang.StringBuilder
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.UUID
 
 class UserInfo(uuid: UUID, userWithInfo: UserWithInfoResponse) {
@@ -10,9 +13,11 @@ class UserInfo(uuid: UUID, userWithInfo: UserWithInfoResponse) {
     val firstName: String = userWithInfo.user.firstName
     val lastName: String = userWithInfo.user.lastName
     val address: List<String>
+    val createdAt: LocalDateTime
 
     init {
         address = setStreetCityCounty(userWithInfo.address)
+        createdAt = getLocalDateTime(userWithInfo.createdAt)
     }
 
     private fun setStreetCityCounty(address: String): List<String> {
@@ -27,5 +32,9 @@ class UserInfo(uuid: UUID, userWithInfo: UserWithInfoResponse) {
             formatted.append(" ")
         }
         return formatted
+    }
+
+    private fun getLocalDateTime(miliSeconds: String): LocalDateTime {
+        return Instant.ofEpochMilli(miliSeconds.toLong()).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 }

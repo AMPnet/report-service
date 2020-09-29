@@ -34,7 +34,7 @@ class TxSummary(
         val toDate = periodRequest.to
         return when (transactions.size) {
             0 ->
-                formatToYearMonthDay(fromDate ?: LocalDateTime.now()) + " to " +
+                formatToYearMonthDay(fromDate ?: userInfo.createdAt) + " to " +
                     (formatToYearMonthDay(toDate ?: LocalDateTime.now()))
             1 -> {
                 (formatToYearMonthDay(fromDate) ?: formatToYearMonthDay(transactions.first().date)) + " to " +
