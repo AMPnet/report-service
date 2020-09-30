@@ -101,7 +101,7 @@ abstract class JpaServiceTestBase : TestBase() {
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)
             .setAmount(amount)
-            .setDate(date.toMiliSeconds())
+            .setDate(date.toMiliSeconds().toString())
             .setState(state)
             .build()
     }

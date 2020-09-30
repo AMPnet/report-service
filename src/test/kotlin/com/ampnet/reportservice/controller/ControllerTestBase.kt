@@ -179,7 +179,7 @@ abstract class ControllerTestBase : TestBase() {
             .setToTxHash(toTxHash)
             .setAmount(amount)
             .setState(TransactionState.MINED)
-            .setDate(LocalDateTime.now().minusDays(1).toMiliSeconds())
+            .setDate(LocalDateTime.now().minusDays(1).toMiliSeconds().toString())
             .build()
     }
 }

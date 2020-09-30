@@ -34,7 +34,7 @@ class UserInfo(uuid: UUID, userWithInfo: UserWithInfoResponse) {
         return formatted
     }
 
-    private fun getLocalDateTime(miliSeconds: String): LocalDateTime {
-        return Instant.ofEpochMilli(miliSeconds.toLong()).atZone(ZoneId.systemDefault()).toLocalDateTime()
+    private fun getLocalDateTime(miliSeconds: Long): LocalDateTime {
+        return Instant.ofEpochMilli(miliSeconds).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 }
