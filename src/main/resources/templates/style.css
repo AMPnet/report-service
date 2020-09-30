@@ -125,6 +125,10 @@ table tr {
     page-break-inside: avoid;
 }
 
+table {
+    -fs-table-paginate: paginate;
+}
+
 @page {
     size: a4 portrait;
     margin: 150px 80px 100px 80px;
