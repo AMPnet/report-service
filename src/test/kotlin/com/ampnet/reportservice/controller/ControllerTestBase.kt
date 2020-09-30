@@ -9,6 +9,7 @@ import com.ampnet.reportservice.grpc.blockchain.BlockchainService
 import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
+import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
@@ -29,7 +30,6 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -100,10 +100,14 @@ abstract class ControllerTestBase : TestBase() {
             .build()
     }
 
-    protected fun createUserWithInfoResponse(userUUID: UUID): UserWithInfoResponse {
+    protected fun createUserWithInfoResponse(
+        userUUID: UUID,
+        createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
+    ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
             .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
+            .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }
 
@@ -175,7 +179,7 @@ abstract class ControllerTestBase : TestBase() {
             .setToTxHash(toTxHash)
             .setAmount(amount)
             .setState(TransactionState.MINED)
-            .setDate(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli().toString())
+            .setDate(LocalDateTime.now().minusDays(1).toMiliSeconds().toString())
             .build()
     }
 }

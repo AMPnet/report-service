@@ -10,6 +10,7 @@ import com.ampnet.reportservice.service.data.Transaction
 import com.ampnet.reportservice.service.data.TransactionFactory
 import com.ampnet.reportservice.service.data.TxSummary
 import com.ampnet.reportservice.service.data.UserInfo
+import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import org.assertj.core.api.Assertions.assertThat
@@ -34,9 +35,17 @@ class TxSummaryTest : TestBase() {
             createTransactions().mapNotNull { it },
             UserInfo(userUuid, createUserWithInfoResponse()),
             periodRequest
-
         )
         assertThat(txSummary.period).isEqualTo(getPeriod(periodRequest))
+        assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
+    }
+
+    @Test
+    fun mustSetCorrectPeriodAndDateOfFinishForZeroTransactionsAndNullPeriodRequest() {
+        val periodRequest = PeriodServiceRequest(null, null)
+        val userInfo = UserInfo(userUuid, createUserWithInfoResponse())
+        val txSummary = TxSummary(listOf(), userInfo, periodRequest)
+        assertThat(txSummary.period).isEqualTo(getPeriodZeroTx(userInfo.createdAt))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
     }
 
@@ -44,8 +53,13 @@ class TxSummaryTest : TestBase() {
         return formatToYearMonthDay(period.from) + " to " + formatToYearMonthDay(period.to)
     }
 
+    private fun getPeriodZeroTx(createdAt: LocalDateTime): String {
+        return formatToYearMonthDay(createdAt) + " to " + formatToYearMonthDay(LocalDateTime.now())
+    }
+
     private fun getDateOfFinish(period: PeriodServiceRequest): String {
-        return formatToYearMonthDay(period.to)
+        return if (period.to == null) formatToYearMonthDay(LocalDateTime.now())
+        else formatToYearMonthDay(period.to)
     }
 
     private fun formatToYearMonthDay(date: LocalDateTime?): String {
@@ -60,10 +74,13 @@ class TxSummaryTest : TestBase() {
             .build()
     }
 
-    private fun createUserWithInfoResponse(): UserWithInfoResponse {
+    private fun createUserWithInfoResponse(
+        createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
+    ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse())
             .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
+            .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }
 

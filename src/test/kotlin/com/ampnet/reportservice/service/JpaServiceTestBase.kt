@@ -9,6 +9,7 @@ import com.ampnet.reportservice.grpc.blockchain.BlockchainService
 import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
+import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -101,15 +101,19 @@ abstract class JpaServiceTestBase : TestBase() {
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)
             .setAmount(amount)
-            .setDate(date.toInstant(ZoneOffset.UTC).toEpochMilli().toString())
+            .setDate(date.toMiliSeconds().toString())
             .setState(state)
             .build()
     }
 
-    protected fun createUserWithInfoResponse(userUUID: UUID): UserWithInfoResponse {
+    protected fun createUserWithInfoResponse(
+        userUUID: UUID,
+        createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
+    ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
             .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
+            .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }
 }
