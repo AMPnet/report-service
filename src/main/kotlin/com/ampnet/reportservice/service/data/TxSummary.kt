@@ -16,7 +16,7 @@ class TxSummary(
     companion object : KLogging()
 
     private val transactionsByType = transactions.groupBy { it.type }
-    val period: String? = getPeriod(transactions, periodRequest)
+    val period: String = getPeriod(periodRequest)
     val dateOfFinish: String? = getDateOfFinish(transactions, periodRequest)
     val balance: String = getBalance(transactions)
     val deposits = sumTransactionAmountsByType(TransactionType.DEPOSIT).toEurAmount()
@@ -29,22 +29,10 @@ class TxSummary(
     val sharesBought = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
     val sharesSold = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
 
-    private fun getPeriod(transactions: List<Transaction>, periodRequest: PeriodServiceRequest): String? {
-        val fromDate = periodRequest.from
-        val toDate = periodRequest.to
-        return when (transactions.size) {
-            0 ->
-                formatToYearMonthDay(fromDate ?: userInfo.createdAt) + " to " +
-                    (formatToYearMonthDay(toDate ?: LocalDateTime.now()))
-            1 -> {
-                (formatToYearMonthDay(fromDate) ?: formatToYearMonthDay(transactions.first().date)) + " to " +
-                    (formatToYearMonthDay(toDate) ?: formatToYearMonthDay(LocalDateTime.now()))
-            }
-            else -> {
-                (formatToYearMonthDay(fromDate) ?: formatToYearMonthDay(transactions.first().date)) + " to " +
-                    (formatToYearMonthDay(toDate) ?: formatToYearMonthDay(transactions.last().date))
-            }
-        }
+    private fun getPeriod(periodRequest: PeriodServiceRequest): String {
+        val fromPeriod = formatToYearMonthDay(periodRequest.from ?: userInfo.createdAt)
+        val toPeriod = formatToYearMonthDay(periodRequest.to ?: LocalDateTime.now())
+        return "$fromPeriod to $toPeriod"
     }
 
     private fun getDateOfFinish(transactions: List<Transaction>, periodRequest: PeriodServiceRequest): String? {
