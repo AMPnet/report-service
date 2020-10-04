@@ -3,7 +3,7 @@
 
 name: Quality check
 
-on: [push]
+on: [pull_request]
 
 jobs:
   code-control:
