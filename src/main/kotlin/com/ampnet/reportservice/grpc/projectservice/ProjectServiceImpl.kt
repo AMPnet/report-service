@@ -39,7 +39,7 @@ class ProjectServiceImpl(
             logger.debug { "Fetched projects: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_PROJECT, "Failed to fetch projects. ${ex.localizedMessage}")
+            throw GrpcException(ErrorCode.INT_GRPC_PROJECT, "Failed to fetch projects.", ex)
         }
     }
 

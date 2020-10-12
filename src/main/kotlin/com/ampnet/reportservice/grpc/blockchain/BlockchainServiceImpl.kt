@@ -52,7 +52,7 @@ class BlockchainServiceImpl(
         val errorCode = ErrorCode.INT_GRPC_BLOCKCHAIN
         errorCode.specificCode = grpcErrorCode.code
         errorCode.message = grpcErrorCode.message
-        return GrpcException(errorCode, message)
+        return GrpcException(errorCode, message, ex)
     }
 
     // Status defined in ampenet-blockchain service, for more info see:
