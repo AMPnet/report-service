@@ -44,11 +44,9 @@ class BlockchainServiceImpl(
     private fun serviceWithTimeout() = blockchainService
         .withDeadlineAfter(applicationProperties.grpc.blockchainServiceTimeout, TimeUnit.MILLISECONDS)
 
-    private fun getInternalExceptionFromStatusException(
-        ex: StatusRuntimeException,
-        message: String
-    ): GrpcException {
+    private fun getInternalExceptionFromStatusException(ex: StatusRuntimeException, message: String): GrpcException {
         val grpcErrorCode = getErrorDescriptionFromExceptionStatus(ex)
+            ?: return GrpcException(ErrorCode.INT_GRPC_BLOCKCHAIN, "Failed call to blockchain service", ex)
         val errorCode = ErrorCode.INT_GRPC_BLOCKCHAIN
         errorCode.specificCode = grpcErrorCode.code
         errorCode.message = grpcErrorCode.message
@@ -57,13 +55,14 @@ class BlockchainServiceImpl(
 
     // Status defined in ampenet-blockchain service, for more info see:
     // ampnet-blockchain-service/src/main/kotlin/com/ampnet/crowdfunding/blockchain/enums/ErrorCode.kt
-    private fun getErrorDescriptionFromExceptionStatus(ex: StatusRuntimeException): GrpcErrorCode {
-        val description = ex.status.description?.split(" > ") ?: throw ex
-        if (description.size != 2) {
-            throw ex
+    private fun getErrorDescriptionFromExceptionStatus(ex: StatusRuntimeException): GrpcErrorCode? =
+        ex.status.description?.split(" > ")?.let { description ->
+            if (description.size == 2) {
+                GrpcErrorCode(description[0], description[1])
+            } else {
+                null
+            }
         }
-        return GrpcErrorCode(description[0], description[1])
-    }
 
     private data class GrpcErrorCode(val code: String, val message: String)
 }
