@@ -16,10 +16,23 @@ message UserResponse {
     string last_name = 3;
     string email = 4;
     bool enabled = 5;
+    string coop = 6;
 }
 
 message UsersResponse {
     repeated UserResponse users = 1;
+}
+
+message SetRoleRequest {
+    enum Role {
+        ADMIN = 0;
+        TOKEN_ISSUER = 1;
+        PLATFORM_MANAGER = 2;
+        USER = 3;
+    }
+    string uuid = 1;
+    Role role = 2;
+    string coop = 3; // coop is just for safety
 }
 
 message UserWithInfoResponse {
@@ -28,7 +41,14 @@ message UserWithInfoResponse {
     uint64 createdAt = 3;
 }
 
+message CoopRequest {
+    string coop = 1;
+}
+
 service UserService {
     rpc GetUsers(GetUsersRequest) returns (UsersResponse);
+    rpc SetUserRole(SetRoleRequest) returns (UserResponse);
+    rpc GetPlatformManagers(CoopRequest) returns (UsersResponse);
+    rpc GetTokenIssuers(CoopRequest) returns (UsersResponse);
     rpc GetUserWithInfo(GetUserRequest) returns (UserWithInfoResponse);
 }
