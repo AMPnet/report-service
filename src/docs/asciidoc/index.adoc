@@ -17,7 +17,8 @@ Source code is available on https://github.com/AMPnet/report-service[Github].
 All requests need header: `Authorization: Bearer JWT`.
 
 === Get user transactions report
+Query parameters `from` and `to` are both optional.
+
 .Request
 include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForAllUserTransactions/http-request.adoc[]
-.Response
-include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForAllUserTransactions/http-response.adoc[]
+Response is a PDF file data.

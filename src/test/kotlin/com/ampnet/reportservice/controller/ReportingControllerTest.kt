@@ -69,7 +69,7 @@ class ReportingControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                 get(userTransactionsPath)
                     .param("from", "2019-10-10")
-                    .param("to", null)
+                    .param("to", "2020-02-02")
             )
                 .andExpect(status().isOk)
                 .andReturn()
