@@ -38,7 +38,7 @@ class WalletServiceImpl(
             logger.debug { "Fetched wallets: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets. ${ex.localizedMessage}")
+            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets.", ex)
         }
     }
 
@@ -53,7 +53,7 @@ class WalletServiceImpl(
             logger.debug { "Fetched wallets: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets. ${ex.localizedMessage}")
+            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets.", ex)
         }
     }
 
