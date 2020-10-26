@@ -18,6 +18,6 @@ All requests need header: `Authorization: Bearer JWT`.
 
 === Get user transactions report
 .Request
-include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForUserTransactions/http-request.adoc[]
+include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForAllUserTransactions/http-request.adoc[]
 .Response
-include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForUserTransactions/http-response.adoc[]
+include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForAllUserTransactions/http-response.adoc[]
