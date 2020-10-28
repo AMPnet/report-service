@@ -39,7 +39,7 @@ class TemplateDataServiceImpl(
     override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TxSummary {
         val wallet = walletService.getWalletsByOwner(listOf(userUUID)).firstOrNull()
             ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUUID")
-        val transactions = blockchainService.getTransactions(wallet.hash)
+        val transactions = blockchainService.getTransactions(wallet.activationData)
             .filter { inTimePeriod(periodRequest, it.date) }
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)

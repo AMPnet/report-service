@@ -25,19 +25,19 @@ class BlockchainServiceImpl(
         BlockchainServiceGrpc.newBlockingStub(channel)
     }
 
-    override fun getTransactions(walletHash: String): List<TransactionsResponse.Transaction> {
-        logger.debug { "Get transactions for wallet hash: $walletHash" }
+    override fun getTransactions(walletAddress: String): List<TransactionsResponse.Transaction> {
+        logger.debug { "Get transactions for wallet address: $walletAddress" }
         try {
             val response = serviceWithTimeout()
                 .getTransactions(
                     TransactionsRequest.newBuilder()
-                        .setTxHash(walletHash)
+                        .setWalletData(walletAddress)
                         .build()
                 )
             logger.debug { "Transactions response: $response" }
             return response.transactionsList
         } catch (ex: StatusRuntimeException) {
-            throw getInternalExceptionFromStatusException(ex, "Could not get transactions for wallet: $walletHash")
+            throw getInternalExceptionFromStatusException(ex, "Could not get transactions for wallet: $walletAddress")
         }
     }
 

@@ -8,7 +8,7 @@ for example amount: 1550 is actually 15.50 EUR.
 ******************************************/
 
 message TransactionsRequest {
-    string tx_hash = 1;
+    string wallet_data = 1;
 }
 
 message TransactionsResponse {
