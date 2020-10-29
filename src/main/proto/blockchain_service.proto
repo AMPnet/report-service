@@ -19,6 +19,7 @@ message TransactionsResponse {
         string date = 4;
         TransactionType type = 5;
         TransactionState state = 6;
+        string tx_hash = 7;
     }
     repeated Transaction transactions = 1;
 }
