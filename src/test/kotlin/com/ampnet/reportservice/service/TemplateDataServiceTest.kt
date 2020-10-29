@@ -63,7 +63,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                     TransactionType.WITHDRAW
                 )
             )
-            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.activationData))
                 .thenReturn(testContext.transactions)
         }
 
@@ -147,7 +147,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                 )
 
             )
-            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.activationData))
                 .thenReturn(testContext.transactions)
         }
         verify("Template data service can get user transactions in selected period") {
