@@ -13,12 +13,12 @@ plugins {
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
 
-    id("org.springframework.boot") version "2.3.3.RELEASE"
+    id("org.springframework.boot") version "2.3.5.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
     id("org.asciidoctor.convert") version "1.5.8"
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("io.gitlab.arturbosch.detekt").version("1.11.0")
-    id("com.google.cloud.tools.jib") version "2.5.0"
+    id("com.google.cloud.tools.jib") version "2.6.0"
     id("com.google.protobuf") version "0.8.13"
     idea
     jacoco
@@ -47,13 +47,13 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.github.microutils:kotlin-logging:1.8.3")
+    implementation("io.github.microutils:kotlin-logging:1.11.5")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-    implementation("com.github.AMPnet:jwt:0.1.5")
+    implementation("com.github.AMPnet:jwt:0.1.6")
     implementation("net.devh:grpc-client-spring-boot-starter:2.10.1.RELEASE")
 
     val openHtmlToPdfVersion = "1.0.4"
@@ -117,7 +117,7 @@ jib {
     }
 }
 
-jacoco.toolVersion = "0.8.5"
+jacoco.toolVersion = "0.8.6"
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = true
@@ -142,7 +142,7 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = "0.2".toBigDecimal()
+                minimum = "0.7".toBigDecimal()
             }
         }
     }
