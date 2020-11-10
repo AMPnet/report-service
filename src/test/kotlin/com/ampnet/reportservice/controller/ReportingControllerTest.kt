@@ -78,7 +78,7 @@ class ReportingControllerTest : ControllerTestBase() {
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
-            File(getDownloadDirectory(transactions)).writeBytes(pdfContent)
+            // File(getDownloadDirectory(transactions)).writeBytes(pdfContent)
         }
     }
 
@@ -129,7 +129,7 @@ class ReportingControllerTest : ControllerTestBase() {
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
-            File(getDownloadDirectory(transaction)).writeBytes(pdfContent)
+            // File(getDownloadDirectory(transaction)).writeBytes(pdfContent)
         }
     }
 
