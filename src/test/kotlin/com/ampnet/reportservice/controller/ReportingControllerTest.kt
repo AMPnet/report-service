@@ -1,7 +1,7 @@
 package com.ampnet.reportservice.controller
 
+import com.ampnet.crowdfunding.proto.TransactionResponse
 import com.ampnet.crowdfunding.proto.TransactionType
-import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.security.WithMockCrowdfundUser
 import com.ampnet.userservice.proto.UserResponse
@@ -17,9 +17,11 @@ import java.util.UUID
 
 class ReportingControllerTest : ControllerTestBase() {
 
-    private val userTransactionsPath = "/report/user/transactions"
-    private val downloadDir = System.getProperty("user.home") + File.separator +
-        "Desktop" + File.separator + "transactions.pdf"
+    private val reportPath = "/report/user/"
+    private val transaction = "transaction"
+    private val transactions = "transactions"
+    private val userTransactionsPath = reportPath + transactions
+    private val userTransactionPath = reportPath + transaction
 
     private lateinit var testContext: TestContext
 
@@ -41,7 +43,7 @@ class ReportingControllerTest : ControllerTestBase() {
             Mockito.`when`(blockchainService.getTransactions(testContext.wallet.activationData))
                 .thenReturn(testContext.transactions)
         }
-        suppose("Blockchain service will return wallets for hashes") {
+        suppose("Wallet service will return wallets for hashes") {
             testContext.wallets = listOf(
                 createWalletResponse(UUID.randomUUID(), userUuid, hash = userWalletHash),
                 createWalletResponse(UUID.randomUUID(), projectUuid, hash = projectWalletHash)
@@ -59,7 +61,7 @@ class ReportingControllerTest : ControllerTestBase() {
             Mockito.`when`(projectService.getProjects(listOf(userUuid, projectUuid)))
                 .thenReturn(listOf(testContext.project))
         }
-        suppose("User service will the userWithInfo") {
+        suppose("User service will return userWithInfo") {
             testContext.userWithInfo = createUserWithInfoResponse(userUuid)
             Mockito.`when`(userService.getUserWithInfo(userUuid))
                 .thenReturn(testContext.userWithInfo)
@@ -69,18 +71,69 @@ class ReportingControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                 get(userTransactionsPath)
                     .param("from", "2019-10-10")
-                    .param("to", "2020-02-02")
+                    .param("to", "2020-12-12")
             )
                 .andExpect(status().isOk)
                 .andReturn()
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
-            // File(downloadDir).writeBytes(pdfContent)
+            File(getDownloadDirectory(transactions)).writeBytes(pdfContent)
         }
     }
 
-    private fun createTransactionsResponse(): List<TransactionsResponse.Transaction> {
+    @Test
+    @WithMockCrowdfundUser
+    fun mustBeAbleToGeneratePdfForUserTransaction() {
+        suppose("Blockchain service will return transaction info for txHash, fromTxHash and toTxHash") {
+            testContext.transaction = createTransaction(
+                TransactionType.DEPOSIT,
+                mintHash,
+                userWalletHash,
+                amount = "1000000"
+            )
+            Mockito.`when`(
+                blockchainService.getTransactionInfo(
+                    txHash, testContext.transaction.fromTxHash, testContext.transaction.toTxHash
+                )
+            ).thenReturn(testContext.transaction)
+        }
+        suppose("Wallet service will return wallets for hashes") {
+            testContext.wallets = listOf(
+                createWalletResponse(UUID.randomUUID(), userUuid, hash = userWalletHash),
+                createWalletResponse(UUID.randomUUID(), projectUuid, hash = projectWalletHash)
+            )
+            Mockito.`when`(walletService.getWalletsByHash(setOf(testContext.transaction.fromTxHash, testContext.transaction.toTxHash)))
+                .thenReturn(testContext.wallets)
+        }
+        suppose("Project service will return a list of projects") {
+            testContext.project = createProjectsResponse(projectUuid)
+            Mockito.`when`(projectService.getProjects(listOf(userUuid, projectUuid)))
+                .thenReturn(listOf(testContext.project))
+        }
+        suppose("User service will return userWithInfo") {
+            testContext.userWithInfo = createUserWithInfoResponse(userUuid)
+            Mockito.`when`(userService.getUserWithInfo(userUuid))
+                .thenReturn(testContext.userWithInfo)
+        }
+
+        verify("User can get pdf with single transaction") {
+            val result = mockMvc.perform(
+                get(userTransactionPath)
+                    .param("txHash", txHash)
+                    .param("fromTxHash", testContext.transaction.fromTxHash)
+                    .param("toTxHash", testContext.transaction.toTxHash)
+            )
+                .andExpect(status().isOk)
+                .andReturn()
+
+            val pdfContent = result.response.contentAsByteArray
+            verifyPdfFormat(pdfContent)
+            File(getDownloadDirectory(transaction)).writeBytes(pdfContent)
+        }
+    }
+
+    private fun createTransactionsResponse(): List<TransactionResponse> {
         val investment = "30000"
         val deposits = MutableList(2) {
             createTransaction(
@@ -126,10 +179,16 @@ class ReportingControllerTest : ControllerTestBase() {
         return deposits + invests + withdrawals + revenueShares + cancelInvestments
     }
 
+    private fun getDownloadDirectory(name: String): String {
+        return System.getProperty("user.home") + File.separator +
+            "Desktop" + File.separator + name + ".pdf"
+    }
+
     private class TestContext {
         lateinit var wallet: WalletResponse
         lateinit var wallets: List<WalletResponse>
-        lateinit var transactions: List<TransactionsResponse.Transaction>
+        lateinit var transactions: List<TransactionResponse>
+        lateinit var transaction: TransactionResponse
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
         lateinit var userWithInfo: UserWithInfoResponse

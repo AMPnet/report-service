@@ -1,8 +1,9 @@
 package com.ampnet.reportservice.service.impl
 
-import com.ampnet.crowdfunding.proto.TransactionsResponse
+import com.ampnet.crowdfunding.proto.TransactionResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
+import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.ResourceNotFoundException
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
@@ -10,6 +11,7 @@ import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.TemplateDataService
+import com.ampnet.reportservice.service.data.SingleTransactionSummary
 import com.ampnet.reportservice.service.data.Transaction
 import com.ampnet.reportservice.service.data.TransactionCancelInvestment
 import com.ampnet.reportservice.service.data.TransactionDeposit
@@ -17,7 +19,7 @@ import com.ampnet.reportservice.service.data.TransactionFactory
 import com.ampnet.reportservice.service.data.TransactionInvest
 import com.ampnet.reportservice.service.data.TransactionSharePayout
 import com.ampnet.reportservice.service.data.TransactionWithdraw
-import com.ampnet.reportservice.service.data.TxSummary
+import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
@@ -36,18 +38,31 @@ class TemplateDataServiceImpl(
 
     companion object : KLogging()
 
-    override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TxSummary {
-        val wallet = walletService.getWalletsByOwner(listOf(userUUID)).firstOrNull()
-            ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUUID")
+    override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TransactionsSummary {
+        val wallet = getWalletByUser(userUUID)
         val transactions = blockchainService.getTransactions(wallet.activationData)
             .filter { inTimePeriod(periodRequest, it.date) }
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
         val userWithInfo = UserInfo(userUUID, userService.getUserWithInfo(userUUID))
-        return TxSummary(setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo, periodRequest)
+        return TransactionsSummary(
+            setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo, periodRequest
+        )
     }
 
-    private fun getWalletHashes(transactions: List<TransactionsResponse.Transaction>): Set<String> {
+    override fun getUserTransactionData(txServiceRequest: TransactionServiceRequest): SingleTransactionSummary {
+        val userUUUID = txServiceRequest.userUUID
+        val txHash = txServiceRequest.txHash
+        val fromTxHash = txServiceRequest.fromTxHash
+        val toTxHash = txServiceRequest.toTxHash
+        val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
+        val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
+        val userWithInfo = UserInfo(userUUUID, userService.getUserWithInfo(userUUUID))
+        val mappedTransaction = setBlockchainTransactionFromToNames(listOf(transaction), wallets).first()
+        return SingleTransactionSummary(mappedTransaction, userWithInfo)
+    }
+
+    private fun getWalletHashes(transactions: List<TransactionResponse>): Set<String> {
         val walletHashes: MutableSet<String> = mutableSetOf()
         transactions.forEach { transaction ->
             walletHashes.add(transaction.fromTxHash)
@@ -57,7 +72,7 @@ class TemplateDataServiceImpl(
     }
 
     private fun setBlockchainTransactionFromToNames(
-        transactionsResponse: List<TransactionsResponse.Transaction>,
+        transactionsResponse: List<TransactionResponse>,
         wallets: List<WalletResponse>
     ): List<Transaction> {
         val walletOwners = wallets.map { it.owner }
@@ -119,4 +134,8 @@ class TemplateDataServiceImpl(
             ?: Instant.now().toEpochMilli()
         return date in fromDate..toDate
     }
+
+    private fun getWalletByUser(userUuid: UUID): WalletResponse =
+        walletService.getWalletsByOwner(listOf(userUuid)).firstOrNull()
+            ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUuid")
 }

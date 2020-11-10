@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 
 const val DATE_FORMAT = "MMM dd, yyyy"
 
-class TxSummary(
+class TransactionsSummary(
     val transactions: List<Transaction>,
     val userInfo: UserInfo,
     val periodRequest: PeriodServiceRequest

@@ -1,14 +1,14 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.crowdfunding.proto.TransactionResponse
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
-import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.service.data.DATE_FORMAT
 import com.ampnet.reportservice.service.data.Transaction
 import com.ampnet.reportservice.service.data.TransactionFactory
-import com.ampnet.reportservice.service.data.TxSummary
+import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
@@ -21,7 +21,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class TxSummaryTest : TestBase() {
+class TransactionsSummaryTest : TestBase() {
 
     private val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
 
@@ -31,7 +31,7 @@ class TxSummaryTest : TestBase() {
             LocalDate.of(2020, 7, 1),
             LocalDate.of(2020, 9, 1)
         )
-        val txSummary = TxSummary(
+        val txSummary = TransactionsSummary(
             createTransactions().mapNotNull { it },
             UserInfo(userUuid, createUserWithInfoResponse()),
             periodRequest
@@ -44,7 +44,7 @@ class TxSummaryTest : TestBase() {
     fun mustSetCorrectPeriodAndDateOfFinishForZeroTransactionsAndNullPeriodRequest() {
         val periodRequest = PeriodServiceRequest(null, null)
         val userInfo = UserInfo(userUuid, createUserWithInfoResponse())
-        val txSummary = TxSummary(listOf(), userInfo, periodRequest)
+        val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest)
         assertThat(txSummary.period).isEqualTo(getPeriodZeroTx(userInfo.createdAt))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
     }
@@ -90,8 +90,8 @@ class TxSummaryTest : TestBase() {
         fromTxHash: String = "from-tx-hash",
         toTxHash: String = "to-tx-hash",
         amount: String = "700000"
-    ): TransactionsResponse.Transaction {
-        return TransactionsResponse.Transaction.newBuilder()
+    ): TransactionResponse {
+        return TransactionResponse.newBuilder()
             .setType(type)
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)

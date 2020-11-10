@@ -1,8 +1,8 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.crowdfunding.proto.TransactionResponse
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
-import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
@@ -30,6 +30,7 @@ abstract class JpaServiceTestBase : TestBase() {
     protected val projectWalletHash: String = "project wallet hash"
     protected val mintHash: String = "mint"
     protected val burnHash: String = "burn"
+    protected val txHash: String = "tx_hash"
 
     @Mock
     protected lateinit var walletService: WalletService
@@ -95,8 +96,8 @@ abstract class JpaServiceTestBase : TestBase() {
         type: TransactionType,
         date: LocalDateTime = LocalDateTime.now().minusDays(1),
         state: TransactionState = TransactionState.MINED
-    ): TransactionsResponse.Transaction {
-        return TransactionsResponse.Transaction.newBuilder()
+    ): TransactionResponse {
+        return TransactionResponse.newBuilder()
             .setType(type)
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)

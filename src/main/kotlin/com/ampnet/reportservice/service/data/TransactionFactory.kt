@@ -1,8 +1,8 @@
 package com.ampnet.reportservice.service.data
 
+import com.ampnet.crowdfunding.proto.TransactionResponse
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
-import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.enums.TransactionStatusType
 import java.time.Instant
 import java.time.LocalDateTime
@@ -14,7 +14,7 @@ const val LENGTH_OF_PERCENTAGE = 8
 
 class TransactionFactory private constructor() {
     companion object {
-        fun createTransaction(transaction: TransactionsResponse.Transaction): Transaction? {
+        fun createTransaction(transaction: TransactionResponse): Transaction? {
             if (transaction.state == TransactionState.MINED) {
                 transaction.type?.let {
                     return when (it) {
@@ -33,7 +33,7 @@ class TransactionFactory private constructor() {
     }
 }
 
-abstract class Transaction(transaction: TransactionsResponse.Transaction) {
+abstract class Transaction(transaction: TransactionResponse) {
 
     val type: TransactionType = transaction.type
     val fromTxHash: String = transaction.fromTxHash
@@ -66,27 +66,27 @@ abstract class Transaction(transaction: TransactionsResponse.Transaction) {
     }
 }
 
-class TransactionInvest(transaction: TransactionsResponse.Transaction) : Transaction(transaction) {
+class TransactionInvest(transaction: TransactionResponse) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_OUT
     override val name = "Investment"
 }
 
-class TransactionCancelInvestment(transaction: TransactionsResponse.Transaction) : Transaction(transaction) {
+class TransactionCancelInvestment(transaction: TransactionResponse) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name = "Investment cancel"
 }
 
-class TransactionSharePayout(transaction: TransactionsResponse.Transaction) : Transaction(transaction) {
+class TransactionSharePayout(transaction: TransactionResponse) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name = "Revenue share payout"
 }
 
-class TransactionDeposit(transaction: TransactionsResponse.Transaction) : Transaction(transaction) {
+class TransactionDeposit(transaction: TransactionResponse) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name = "Deposit"
 }
 
-class TransactionWithdraw(transaction: TransactionsResponse.Transaction) : Transaction(transaction) {
+class TransactionWithdraw(transaction: TransactionResponse) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_OUT
     override val name = "Withdraw"
 }

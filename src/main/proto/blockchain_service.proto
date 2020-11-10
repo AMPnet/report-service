@@ -12,16 +12,23 @@ message TransactionsRequest {
 }
 
 message TransactionsResponse {
-    message Transaction {
-        string from_tx_hash = 1;
-        string to_tx_hash = 2;
-        string amount = 3;
-        string date = 4;
-        TransactionType type = 5;
-        TransactionState state = 6;
-        string tx_hash = 7;
-    }
-    repeated Transaction transactions = 1;
+    repeated TransactionResponse transactions = 1;
+}
+
+message TransactionInfoRequest {
+    string tx_hash = 1;
+    string from = 2;
+    string to = 3;
+}
+
+message TransactionResponse {
+    string from_tx_hash = 1;
+    string to_tx_hash = 2;
+    string amount = 3;
+    string date = 4;
+    TransactionType type = 5;
+    TransactionState state = 6;
+    string tx_hash = 7;
 }
 
 ////////// Types ///////////////////////////
@@ -56,4 +63,5 @@ enum TransactionType {
 
 service BlockchainService {
     rpc GetTransactions (TransactionsRequest) returns (TransactionsResponse);
+    rpc GetTransactionInfo(TransactionInfoRequest) returns (TransactionResponse);
 }

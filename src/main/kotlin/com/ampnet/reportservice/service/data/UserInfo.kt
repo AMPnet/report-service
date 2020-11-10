@@ -21,7 +21,7 @@ class UserInfo(uuid: UUID, userWithInfo: UserWithInfoResponse) {
     }
 
     private fun setStreetCityCounty(address: String): List<String> {
-        val listValues = address.split(",").map { it -> StringBuilder(it.toLowerCase()) }
+        val listValues = address.split(",").map { StringBuilder(it.toLowerCase()) }
         return listValues.map { capitalizeEachLetter(it).trim().toString() }.reversed()
     }
 
