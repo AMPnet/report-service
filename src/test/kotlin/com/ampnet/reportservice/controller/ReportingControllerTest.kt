@@ -1,6 +1,6 @@
 package com.ampnet.reportservice.controller
 
-import com.ampnet.crowdfunding.proto.TransactionResponse
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.security.WithMockCrowdfundUser
@@ -13,6 +13,7 @@ import org.mockito.Mockito
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.io.File
+import java.time.LocalDate
 import java.util.UUID
 
 class ReportingControllerTest : ControllerTestBase() {
@@ -71,7 +72,7 @@ class ReportingControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                 get(userTransactionsPath)
                     .param("from", "2019-10-10")
-                    .param("to", "2020-12-12")
+                    .param("to", LocalDate.now().plusDays(1).toString())
             )
                 .andExpect(status().isOk)
                 .andReturn()
@@ -85,12 +86,17 @@ class ReportingControllerTest : ControllerTestBase() {
     @Test
     @WithMockCrowdfundUser
     fun mustBeAbleToGeneratePdfForUserTransaction() {
+        suppose("Wallet service will return wallet for the user") {
+            testContext.wallet = createWalletResponse(walletUuid, userUuid, hash = userWalletHash)
+            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid)))
+                .thenReturn(listOf(testContext.wallet))
+        }
         suppose("Blockchain service will return transaction info for txHash, fromTxHash and toTxHash") {
             testContext.transaction = createTransaction(
                 TransactionType.DEPOSIT,
                 mintHash,
                 userWalletHash,
-                amount = "1000000"
+                "1000000"
             )
             Mockito.`when`(
                 blockchainService.getTransactionInfo(
@@ -133,7 +139,7 @@ class ReportingControllerTest : ControllerTestBase() {
         }
     }
 
-    private fun createTransactionsResponse(): List<TransactionResponse> {
+    private fun createTransactionsResponse(): List<TransactionInfo> {
         val investment = "30000"
         val deposits = MutableList(2) {
             createTransaction(
@@ -187,8 +193,8 @@ class ReportingControllerTest : ControllerTestBase() {
     private class TestContext {
         lateinit var wallet: WalletResponse
         lateinit var wallets: List<WalletResponse>
-        lateinit var transactions: List<TransactionResponse>
-        lateinit var transaction: TransactionResponse
+        lateinit var transactions: List<TransactionInfo>
+        lateinit var transaction: TransactionInfo
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
         lateinit var userWithInfo: UserWithInfoResponse

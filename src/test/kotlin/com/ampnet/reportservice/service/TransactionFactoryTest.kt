@@ -1,6 +1,6 @@
 package com.ampnet.reportservice.service
 
-import com.ampnet.crowdfunding.proto.TransactionResponse
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.reportservice.TestBase
@@ -56,8 +56,8 @@ class TransactionFactoryTest : TestBase() {
     private fun createTransaction(
         type: TransactionType,
         state: TransactionState = TransactionState.MINED
-    ): TransactionResponse {
-        return TransactionResponse.newBuilder()
+    ): TransactionInfo {
+        return TransactionInfo.newBuilder()
             .setType(type)
             .setFromTxHash("fromTxHash")
             .setToTxHash("toTxHash")

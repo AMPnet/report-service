@@ -1,6 +1,6 @@
 package com.ampnet.reportservice.service
 
-import com.ampnet.crowdfunding.proto.TransactionResponse
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.projectservice.proto.ProjectResponse
@@ -96,8 +96,8 @@ abstract class JpaServiceTestBase : TestBase() {
         type: TransactionType,
         date: LocalDateTime = LocalDateTime.now().minusDays(1),
         state: TransactionState = TransactionState.MINED
-    ): TransactionResponse {
-        return TransactionResponse.newBuilder()
+    ): TransactionInfo {
+        return TransactionInfo.newBuilder()
             .setType(type)
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)

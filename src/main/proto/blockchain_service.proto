@@ -12,7 +12,7 @@ message TransactionsRequest {
 }
 
 message TransactionsResponse {
-    repeated TransactionResponse transactions = 1;
+    repeated TransactionInfo transactions = 1;
 }
 
 message TransactionInfoRequest {
@@ -21,7 +21,7 @@ message TransactionInfoRequest {
     string to = 3;
 }
 
-message TransactionResponse {
+message TransactionInfo {
     string from_tx_hash = 1;
     string to_tx_hash = 2;
     string amount = 3;
@@ -29,6 +29,7 @@ message TransactionResponse {
     TransactionType type = 5;
     TransactionState state = 6;
     string tx_hash = 7;
+    SupervisorStatus supervisor_status = 8;
 }
 
 ////////// Types ///////////////////////////
@@ -61,7 +62,13 @@ enum TransactionType {
     SHARES_SOLD = 18;
 }
 
+enum SupervisorStatus {
+    NOT_REQUIRED = 0;
+    REQUIRED = 1;
+    PROCESSED = 2;
+}
+
 service BlockchainService {
     rpc GetTransactions (TransactionsRequest) returns (TransactionsResponse);
-    rpc GetTransactionInfo(TransactionInfoRequest) returns (TransactionResponse);
+    rpc GetTransactionInfo(TransactionInfoRequest) returns (TransactionInfo);
 }

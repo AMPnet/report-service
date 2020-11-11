@@ -1,8 +1,8 @@
 package com.ampnet.reportservice.grpc.blockchain
 
 import com.ampnet.crowdfunding.proto.BlockchainServiceGrpc
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionInfoRequest
-import com.ampnet.crowdfunding.proto.TransactionResponse
 import com.ampnet.crowdfunding.proto.TransactionsRequest
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
@@ -26,7 +26,7 @@ class BlockchainServiceImpl(
         BlockchainServiceGrpc.newBlockingStub(channel)
     }
 
-    override fun getTransactions(walletAddress: String): List<TransactionResponse> {
+    override fun getTransactions(walletAddress: String): List<TransactionInfo> {
         logger.debug { "Get transactions for wallet address: $walletAddress" }
         try {
             val response = serviceWithTimeout()
@@ -42,11 +42,17 @@ class BlockchainServiceImpl(
         }
     }
 
-    override fun getTransactionInfo(txHash: String, fromTxHash: String, toTxHash: String): TransactionResponse {
+    override fun getTransactionInfo(txHash: String, fromTxHash: String, toTxHash: String): TransactionInfo {
         logger.debug { "Get info for transaction with hash: $txHash" }
         try {
             val response = serviceWithTimeout()
-                .getTransactionInfo(getTransactionInfoRequest(txHash, fromTxHash, toTxHash))
+                .getTransactionInfo(
+                    TransactionInfoRequest.newBuilder()
+                        .setTxHash(txHash)
+                        .setFrom(fromTxHash)
+                        .setTo(toTxHash)
+                        .build()
+                )
             logger.debug { "TransactionInfoResponse response: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
@@ -79,16 +85,4 @@ class BlockchainServiceImpl(
     }
 
     private data class GrpcErrorCode(val code: String, val message: String)
-
-    private fun getTransactionInfoRequest(
-        txHash: String,
-        fromTxHash: String,
-        toTxHash: String
-    ): TransactionInfoRequest {
-        return TransactionInfoRequest.newBuilder()
-            .setTxHash(txHash)
-            .setFrom(fromTxHash)
-            .setTo(toTxHash)
-            .build()
-    }
 }

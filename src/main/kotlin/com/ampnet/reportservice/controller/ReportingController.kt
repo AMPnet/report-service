@@ -32,6 +32,7 @@ class ReportingController(
         val pdfContents = reportingService.generatePdfReportForUserTransactions(userPrincipal.uuid, periodRequest)
         return ResponseEntity(pdfContents, getHttpHeadersForPdf(), HttpStatus.OK)
     }
+
     @GetMapping("/report/user/transaction")
     fun getUserTransactionReport(
         @RequestParam(name = "txHash") txHash: String,
@@ -40,7 +41,7 @@ class ReportingController(
     ): ResponseEntity<ByteArray> {
         val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
         logger.debug {
-            "Received request to get report for transaction with uuid: $txHash " +
+            "Received request to get the report for a transaction: $txHash " +
                 "for user with uuid: ${userPrincipal.uuid}"
         }
         val transactionServiceRequest = TransactionServiceRequest(userPrincipal.uuid, txHash, fromTxHash, toTxHash)

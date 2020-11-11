@@ -1,10 +1,11 @@
 package com.ampnet.reportservice.service.impl
 
-import com.ampnet.crowdfunding.proto.TransactionResponse
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
+import com.ampnet.reportservice.exception.InvalidRequestException
 import com.ampnet.reportservice.exception.ResourceNotFoundException
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
 import com.ampnet.reportservice.grpc.projectservice.ProjectService
@@ -51,18 +52,22 @@ class TemplateDataServiceImpl(
     }
 
     override fun getUserTransactionData(txServiceRequest: TransactionServiceRequest): SingleTransactionSummary {
-        val userUUUID = txServiceRequest.userUUID
+        val user = txServiceRequest.userUuid
         val txHash = txServiceRequest.txHash
         val fromTxHash = txServiceRequest.fromTxHash
         val toTxHash = txServiceRequest.toTxHash
+        validateWalletTxHash(getWalletByUser(user), fromTxHash, toTxHash)
         val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
         val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
-        val userWithInfo = UserInfo(userUUUID, userService.getUserWithInfo(userUUUID))
-        val mappedTransaction = setBlockchainTransactionFromToNames(listOf(transaction), wallets).first()
+        val userWithInfo = UserInfo(user, userService.getUserWithInfo(user))
+        val mappedTransaction = setBlockchainTransactionFromToNames(listOf(transaction), wallets).firstOrNull()
+            ?: throw InvalidRequestException(
+                ErrorCode.INT_UNSUPPORTED_TX, "Transaction with hash:$txHash is not supported in report"
+            )
         return SingleTransactionSummary(mappedTransaction, userWithInfo)
     }
 
-    private fun getWalletHashes(transactions: List<TransactionResponse>): Set<String> {
+    private fun getWalletHashes(transactions: List<TransactionInfo>): Set<String> {
         val walletHashes: MutableSet<String> = mutableSetOf()
         transactions.forEach { transaction ->
             walletHashes.add(transaction.fromTxHash)
@@ -72,7 +77,7 @@ class TemplateDataServiceImpl(
     }
 
     private fun setBlockchainTransactionFromToNames(
-        transactionsResponse: List<TransactionResponse>,
+        transactionsResponse: List<TransactionInfo>,
         wallets: List<WalletResponse>
     ): List<Transaction> {
         val walletOwners = wallets.map { it.owner }
@@ -138,4 +143,13 @@ class TemplateDataServiceImpl(
     private fun getWalletByUser(userUuid: UUID): WalletResponse =
         walletService.getWalletsByOwner(listOf(userUuid)).firstOrNull()
             ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUuid")
+
+    private fun validateWalletTxHash(userWallet: WalletResponse, fromTxHash: String, toTxHash: String) {
+        val txHash = userWallet.hash
+        if (txHash != fromTxHash && txHash != toTxHash) {
+            throw InvalidRequestException(
+                ErrorCode.INT_REQUEST, "Transaction doesn't belong to user wallet with hash: $txHash"
+            )
+        }
+    }
 }

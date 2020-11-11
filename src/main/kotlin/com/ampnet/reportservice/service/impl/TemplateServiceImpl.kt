@@ -36,7 +36,7 @@ class TemplateServiceImpl(
 
     private fun processThymeleafTemplate(data: Any, templateName: String): String {
         val context = Context()
-        context.setVariable(data.javaClass.simpleName.decapitalize(), data)
+        context.setVariable("data", data)
         try {
             return templateEngine.process(templateName, context)
         } catch (ex: TemplateEngineException) {

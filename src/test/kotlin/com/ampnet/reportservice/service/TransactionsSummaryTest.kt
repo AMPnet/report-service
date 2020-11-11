@@ -1,6 +1,6 @@
 package com.ampnet.reportservice.service
 
-import com.ampnet.crowdfunding.proto.TransactionResponse
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.reportservice.TestBase
@@ -90,8 +90,8 @@ class TransactionsSummaryTest : TestBase() {
         fromTxHash: String = "from-tx-hash",
         toTxHash: String = "to-tx-hash",
         amount: String = "700000"
-    ): TransactionResponse {
-        return TransactionResponse.newBuilder()
+    ): TransactionInfo {
+        return TransactionInfo.newBuilder()
             .setType(type)
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)

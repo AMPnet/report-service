@@ -1,6 +1,6 @@
 package com.ampnet.reportservice.service
 
-import com.ampnet.crowdfunding.proto.TransactionResponse
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
@@ -37,10 +37,12 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
 
     @Test
     fun mustGenerateCorrectTxSummary() {
-        mockWalletServiceGetWalletByOwner()
-        mockWalletServiceGetWalletsByHash()
-        mockUserService()
-        mockProjectService()
+        suppose("gRPCs service will return required data") {
+            mockWalletServiceGetWalletByOwner()
+            mockWalletServiceGetWalletsByHash()
+            mockUserService()
+            mockProjectService()
+        }
         suppose("Blockchain service will return transactions for wallet") {
             testContext.transactions = listOf(
                 createTransaction(
@@ -119,10 +121,12 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
 
     @Test
     fun mustNotIncludeTransactionsOutsideOfSelectedPeriod() {
-        mockWalletServiceGetWalletByOwner()
-        mockWalletServiceGetWalletsByHash()
-        mockUserService()
-        mockProjectService()
+        suppose("gRPCs service will return required data") {
+            mockWalletServiceGetWalletByOwner()
+            mockWalletServiceGetWalletsByHash()
+            mockUserService()
+            mockProjectService()
+        }
         suppose("Blockchain service will return transactions for wallet") {
             testContext.transactions = listOf(
                 createTransaction(
@@ -169,6 +173,9 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
 
     @Test
     fun mustGenerateCorrectSingleTransactionSummary() {
+        suppose("Wallet service will return wallet for the user") {
+            mockWalletServiceGetWalletByOwner()
+        }
         suppose("Blockchain service will return transaction info for txHash, fromTxHash and toTxHash") {
             testContext.transaction = createTransaction(
                 mintHash, userWalletHash, testContext.deposit.toString(),
@@ -224,8 +231,8 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         return date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
     }
 
-    private fun mockWalletServiceGetWalletByOwner() {
-        testContext.wallet = createWalletResponse(walletUuid, userUuid)
+    private fun mockWalletServiceGetWalletByOwner(walletHash: String = userWalletHash) {
+        testContext.wallet = createWalletResponse(walletUuid, userUuid, hash = walletHash)
         Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid))).thenReturn(listOf(testContext.wallet))
     }
 
@@ -260,8 +267,8 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     private class TestContext {
         lateinit var wallet: WalletResponse
         lateinit var wallets: List<WalletResponse>
-        lateinit var transactions: List<TransactionResponse>
-        lateinit var transaction: TransactionResponse
+        lateinit var transactions: List<TransactionInfo>
+        lateinit var transaction: TransactionInfo
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
         lateinit var userWithInfo: UserWithInfoResponse
