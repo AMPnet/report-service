@@ -5,6 +5,8 @@ import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
+import com.ampnet.reportservice.exception.ErrorCode
+import com.ampnet.reportservice.exception.InvalidRequestException
 import com.ampnet.reportservice.service.data.DATE_FORMAT
 import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
 import com.ampnet.reportservice.service.data.TO_PERCENTAGE
@@ -16,6 +18,7 @@ import com.ampnet.walletservice.proto.WalletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -218,6 +221,24 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(tx.description).isNull()
             assertThat(tx.percentageInProject).isNull()
             assertThat(userInfo.userUuid).isEqualTo(UUID.fromString(testContext.userWithInfo.user.uuid))
+        }
+    }
+
+    @Test
+    fun mustThrowExceptionIfTransactionDoesNotBelongToUser() {
+        suppose("Wallet service will return wallet for the user") {
+            mockWalletServiceGetWalletByOwner()
+        }
+
+        verify("Template data service will throw exception if tx doesn't belong to user wallet") {
+            val transactionServiceRequest = TransactionServiceRequest(
+                userUuid, txHash, mintHash,
+                projectWalletHash
+            )
+            val exception = assertThrows<InvalidRequestException> {
+                templateDataService.getUserTransactionData(transactionServiceRequest)
+            }
+            assertThat(exception.errorCode).isEqualTo(ErrorCode.INT_REQUEST)
         }
     }
 

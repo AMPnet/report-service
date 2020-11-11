@@ -56,7 +56,7 @@ class TemplateDataServiceImpl(
         val txHash = txServiceRequest.txHash
         val fromTxHash = txServiceRequest.fromTxHash
         val toTxHash = txServiceRequest.toTxHash
-        validateWalletTxHash(getWalletByUser(user), fromTxHash, toTxHash)
+        validateTransactionBelongsToUser(getWalletByUser(user), fromTxHash, toTxHash)
         val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
         val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
         val userWithInfo = UserInfo(user, userService.getUserWithInfo(user))
@@ -144,7 +144,7 @@ class TemplateDataServiceImpl(
         walletService.getWalletsByOwner(listOf(userUuid)).firstOrNull()
             ?: throw ResourceNotFoundException(ErrorCode.WALLET_MISSING, "Missing wallet for user with uuid: $userUuid")
 
-    private fun validateWalletTxHash(userWallet: WalletResponse, fromTxHash: String, toTxHash: String) {
+    private fun validateTransactionBelongsToUser(userWallet: WalletResponse, fromTxHash: String, toTxHash: String) {
         val txHash = userWallet.hash
         if (txHash != fromTxHash && txHash != toTxHash) {
             throw InvalidRequestException(
