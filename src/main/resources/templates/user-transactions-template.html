@@ -1,25 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
         "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"></meta>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-    <link rel="stylesheet" href="style.css"></link>
-    <title>Report</title>
-</head>
+<div th:replace="fragments/head.html :: head"></div>
 <body>
 <div class="container">
     <div class="page-1">
         <div class="client-info">
             <table>
-                <tr>
-                    <td>
-                        <div class="address">
-                            <p id="client-name" th:text="${txSummary.userInfo.firstName + ' ' + txSummary.userInfo.lastName}">Filip Dujmušić</p>
-                            <p th:each="item : ${txSummary.userInfo.address}" th:text="${item}"></p>
-                        </div>
-                    </td>
-                </tr>
+                <div th:replace="fragments/userInfo.html :: userInfo(data=${data})"></div>
                 <tr>
                     <td>
                         <div class="text-left">
@@ -29,8 +17,8 @@
                     </td>
                     <td>
                         <div>
-                            <p th:text="${txSummary.userInfo.userUuid}">1717809e-0cb5-452d-9435-bbcfedd3db16</p>
-                            <p th:text="${txSummary.period} ?: ''">Aug 1, 2020 to Aug 31, 2020</p>
+                            <p th:text="${data.userInfo.userUuid}">1717809e-0cb5-452d-9435-bbcfedd3db16</p>
+                            <p th:text="${data.period} ?: ''">Aug 1, 2020 to Aug 31, 2020</p>
                         </div>
                     </td>
                 </tr>
@@ -44,12 +32,12 @@
                         <td valign="bottom">
                             <div class="summary-left">
                                 <h2>Account Summary</h2>
-                                <p th:text="'Total balance as of ' + ${txSummary.dateOfFinish} ?: ''">Total balance as of Aug 31, 2020</p>
+                                <p th:text="'Total balance as of ' + ${data.dateOfFinish} ?: ''">Total balance as of Aug 31, 2020</p>
                             </div>
                         </td>
                         <td valign="bottom">
                             <div class="summary-right">
-                                <p th:text="'€' +${txSummary.balance}">€1,360.00</p>
+                                <p th:text="'€' +${data.balance}">€1,360.00</p>
                             </div>
                         </td>
                     </tr>
@@ -66,32 +54,32 @@
                 <tbody>
                     <tr>
                         <td class="text-left table-border-right">Deposits</td>
-                        <td th:text="'€' + ${txSummary.deposits}" class="table-border-right">€725.00</td>
+                        <td th:text="'€' + ${data.deposits}" class="table-border-right">€725.00</td>
                         <td></td>
                     </tr>
                     <tr class="table-grey-background">
                         <td class="text-left table-border-right">Withdrawals</td>
                         <td class="table-border-right"></td>
-                        <td th:text="'€' + ${txSummary.withdrawals}">€350.00</td>
+                        <td th:text="'€' + ${data.withdrawals}">€350.00</td>
                     </tr>
                     <tr>
                         <td class="text-left table-border-right">Total revenue share received</td>
-                        <td th:text="'€' + ${txSummary.revenueShare}" class="table-border-right">€35.00</td>
+                        <td th:text="'€' + ${data.revenueShare}" class="table-border-right">€35.00</td>
                         <td></td>
                     </tr>
                     <tr class="table-grey-background">
                         <td class="text-left table-border-right">Total investments placed</td>
                         <td class="table-border-right"></td>
-                        <td th:text="'€' + ${txSummary.investments}">€1000.00</td>
+                        <td th:text="'€' + ${data.investments}">€1000.00</td>
                     </tr>
                     <tr>
                         <td class="text-left table-border-right">Marketplace shares bought</td>
                         <td class="table-border-right"></td>
-                        <td th:text="'€' + ${txSummary.sharesBought}">€371.00</td>
+                        <td th:text="'€' + ${data.sharesBought}">€371.00</td>
                     </tr>
                     <tr class="table-grey-background table-border-bottom">
                         <td class="text-left table-border-right table-no-bottom-border">Marketplace shares sold</td>
-                        <td th:text="'€' + ${txSummary.sharesSold}" class="table-border-right table-no-bottom-border">€3,571.00</td>
+                        <td th:text="'€' + ${data.sharesSold}" class="table-border-right table-no-bottom-border">€3,571.00</td>
                         <td class="table-no-bottom-border"></td>
                     </tr>
                 </tbody>
@@ -102,17 +90,9 @@
         <div class="transactions">
             <h2>Transactions</h2>
             <table id="transactions-summary-table">
-                <thead>
-                    <tr>
-                        <th class="text-left table-border-right">Date</th>
-                        <th class="text-left table-border-right">Type</th>
-                        <th class="table-border-right">Paid In</th>
-                        <th class="table-border-right">Pending</th>
-                        <th>Paid Out</th>
-                    </tr>
-                </thead>
+                <div th:replace = "fragments/transactionsTableHead.html ::transactionsTableHead"></div>
                 <tbody>
-                    <tr th:each="tx,iStat : ${txSummary.transactions}" th:classappend="${(iStat.even? 'table-grey-background': '') + ' ' + (iStat.last? 'table-border-bottom': '')}">
+                    <tr th:each="tx,iStat : ${data.transactions}" th:classappend="${(iStat.even? 'table-grey-background': '') + ' ' + (iStat.last? 'table-border-bottom': '')}">
                         <td th:text="${tx.txDate}" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Aug 1, 2020 13:30</td>
                         <td th:utext="${tx.name} + (${tx.description != null} ? ('<br/>' + ${tx.description}) : '') + (${tx.percentageInProject != null} ? (' | ' +${tx.percentageInProject}) + '%' : '')" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Deposit</td>
                         <td th:utext="${tx.txStatus.name() == 'PAID_IN'} ? ('€' + ${tx.amountInEuro}) : ''" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="table-border-right">Deposit</td>

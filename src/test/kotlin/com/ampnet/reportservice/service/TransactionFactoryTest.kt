@@ -1,8 +1,8 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
-import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.service.data.TransactionFactory
 import org.assertj.core.api.Assertions.assertThat
@@ -56,8 +56,8 @@ class TransactionFactoryTest : TestBase() {
     private fun createTransaction(
         type: TransactionType,
         state: TransactionState = TransactionState.MINED
-    ): TransactionsResponse.Transaction {
-        return TransactionsResponse.Transaction.newBuilder()
+    ): TransactionInfo {
+        return TransactionInfo.newBuilder()
             .setType(type)
             .setFromTxHash("fromTxHash")
             .setToTxHash("toTxHash")

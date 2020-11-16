@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+        "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<div th:replace="fragments/head.html :: head"></div>
+<body>
+<div class="container">
+    <div class="page-1">
+        <div class="client-info">
+            <table>
+                <div th:replace="fragments/userInfo.html :: userInfo(data=${data})"></div>
+                <tr>
+                    <td>
+                        <div class="text-left">
+                            <p>Account ID:</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <p th:text="${data.userInfo.userUuid}">1717809e-0cb5-452d-9435-bbcfedd3db16</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="transactions">
+            <h2>Transactions</h2>
+            <table id="transactions-summary-table">
+                <div th:replace = "fragments/transactionsTableHead.html ::transactionsTableHead"></div>
+                <tbody>
+                    <tr class="table-grey-background table-border-bottom">
+                        <td th:text="${data.transaction.txDate}" class="table-no-bottom-border text-left table-border-right">Aug 1, 2020 13:30</td>
+                        <td th:utext="${data.transaction.name} + (${data.transaction.description != null} ? ('<br/>' + ${data.transaction.description}) : '') + (${data.transaction.percentageInProject != null} ? (' | ' +${data.transaction.percentageInProject}) + '%' : '')" class="table-no-bottom-border text-left table-border-right">Deposit</td>
+                        <td th:utext="${data.transaction.txStatus.name() == 'PAID_IN'} ? ('€' + ${data.transaction.amountInEuro}) : ''" class="table-no-bottom-border table-border-right">Amount</td>
+                        <td th:utext="${data.transaction.txStatus.name() == 'PENDING'} ? ('€' + ${data.transaction.amountInEuro}) : ''" class="table-no-bottom-border table-border-right">Amount</td>
+                        <td th:utext="${data.transaction.txStatus.name() == 'PAID_OUT'} ? ('€' + ${data.transaction.amountInEuro}) : ''" class="table-no-bottom-border">Amount</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

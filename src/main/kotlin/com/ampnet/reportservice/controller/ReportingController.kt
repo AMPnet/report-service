@@ -1,6 +1,7 @@
 package com.ampnet.reportservice.controller
 
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
+import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.service.ReportingService
 import mu.KLogging
 import org.springframework.format.annotation.DateTimeFormat
@@ -28,9 +29,29 @@ class ReportingController(
         val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
         logger.debug { "Received request to get report of transactions for user with uuid: ${userPrincipal.uuid}" }
         val periodRequest = PeriodServiceRequest(from, to)
+        val pdfContents = reportingService.generatePdfReportForUserTransactions(userPrincipal.uuid, periodRequest)
+        return ResponseEntity(pdfContents, getHttpHeadersForPdf(), HttpStatus.OK)
+    }
+
+    @GetMapping("/report/user/transaction")
+    fun getUserTransactionReport(
+        @RequestParam(name = "txHash") txHash: String,
+        @RequestParam(name = "fromTxHash") fromTxHash: String,
+        @RequestParam(name = "toTxHash") toTxHash: String
+    ): ResponseEntity<ByteArray> {
+        val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
+        logger.debug {
+            "Received request to get the report for a transaction: $txHash " +
+                "for user with uuid: ${userPrincipal.uuid}"
+        }
+        val transactionServiceRequest = TransactionServiceRequest(userPrincipal.uuid, txHash, fromTxHash, toTxHash)
+        val pdfContents = reportingService.generatePdfReportForUserTransaction(transactionServiceRequest)
+        return ResponseEntity(pdfContents, getHttpHeadersForPdf(), HttpStatus.OK)
+    }
+
+    private fun getHttpHeadersForPdf(): HttpHeaders {
         val httpHeaders = HttpHeaders()
         httpHeaders.contentType = MediaType.APPLICATION_PDF
-        val pdfContents = reportingService.generatePdfReportForUserTransactions(userPrincipal.uuid, periodRequest)
-        return ResponseEntity(pdfContents, httpHeaders, HttpStatus.OK)
+        return httpHeaders
     }
 }

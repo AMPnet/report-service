@@ -1,11 +1,11 @@
 package com.ampnet.reportservice.service.impl
 
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
+import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.InternalException
 import com.ampnet.reportservice.service.TemplateDataService
 import com.ampnet.reportservice.service.TemplateService
-import com.ampnet.reportservice.service.data.TxSummary
 import mu.KLogging
 import org.springframework.stereotype.Service
 import org.thymeleaf.TemplateEngine
@@ -22,22 +22,28 @@ class TemplateServiceImpl(
     companion object : KLogging()
 
     internal val userTransactionsTemplate = "user-transactions-template"
+    internal val userTransactionTemplate = "user-transaction-template"
 
     override fun generateTemplateForUserTransactions(userUUID: UUID, periodRequest: PeriodServiceRequest): String {
         val transactions = templateDataService.getUserTransactionsData(userUUID, periodRequest)
-        return processThymeleafTemplate(transactions)
+        return processThymeleafTemplate(transactions, userTransactionsTemplate)
     }
 
-    private fun processThymeleafTemplate(txSummary: TxSummary): String {
+    override fun generateTemplateForUserTransaction(transactionServiceRequest: TransactionServiceRequest): String {
+        val transaction = templateDataService.getUserTransactionData(transactionServiceRequest)
+        return processThymeleafTemplate(transaction, userTransactionTemplate)
+    }
+
+    private fun processThymeleafTemplate(data: Any, templateName: String): String {
         val context = Context()
-        context.setVariable("txSummary", txSummary)
+        context.setVariable("data", data)
         try {
-            return templateEngine.process(userTransactionsTemplate, context)
+            return templateEngine.process(templateName, context)
         } catch (ex: TemplateEngineException) {
             logger.warn { ex.message }
             throw InternalException(
                 ErrorCode.INT_GENERATING_PDF,
-                "Could not process template with thymeleaf.",
+                "Could not process $templateName with thymeleaf.",
                 ex
             )
         }

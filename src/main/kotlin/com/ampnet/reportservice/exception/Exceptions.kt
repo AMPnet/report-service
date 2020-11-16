@@ -6,3 +6,9 @@ class ResourceNotFoundException(val errorCode: ErrorCode, exceptionMessage: Stri
 
 class InternalException(val errorCode: ErrorCode, exceptionMessage: String, throwable: Throwable? = null) :
     Exception(exceptionMessage, throwable)
+
+class InvalidRequestException(
+    val errorCode: ErrorCode,
+    exceptionMessage: String,
+    throwable: Throwable? = null
+) : Exception(exceptionMessage, throwable)

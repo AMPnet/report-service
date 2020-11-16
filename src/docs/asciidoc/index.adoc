@@ -22,3 +22,10 @@ Query parameters `from` and `to` are both optional.
 .Request
 include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForAllUserTransactions/http-request.adoc[]
 Response is a PDF file data.
+
+=== Get user transaction report
+Query parameters `txHash`, `fromTxHash` and `toTxHash` are required.
+
+.Request
+include::{snippets}/ReportingControllerTest/mustBeAbleToGeneratePdfForUserTransaction/http-request.adoc[]
+Response is a PDF file data.

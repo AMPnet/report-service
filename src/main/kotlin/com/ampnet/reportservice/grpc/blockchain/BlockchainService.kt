@@ -1,7 +1,8 @@
 package com.ampnet.reportservice.grpc.blockchain
 
-import com.ampnet.crowdfunding.proto.TransactionsResponse
+import com.ampnet.crowdfunding.proto.TransactionInfo
 
 interface BlockchainService {
-    fun getTransactions(walletAddress: String): List<TransactionsResponse.Transaction>
+    fun getTransactions(walletAddress: String): List<TransactionInfo>
+    fun getTransactionInfo(txHash: String, fromTxHash: String, toTxHash: String): TransactionInfo
 }

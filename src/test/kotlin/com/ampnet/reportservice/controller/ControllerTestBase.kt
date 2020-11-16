@@ -1,8 +1,8 @@
 package com.ampnet.reportservice.controller
 
+import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
-import com.ampnet.crowdfunding.proto.TransactionsResponse
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
@@ -44,6 +44,7 @@ abstract class ControllerTestBase : TestBase() {
     protected val projectWalletHash: String = "project wallet hash"
     protected val mintHash: String = "mint"
     protected val burnHash: String = "burn"
+    protected val txHash = "tx_hash"
 
     @MockBean
     protected lateinit var walletService: WalletService
@@ -172,8 +173,8 @@ abstract class ControllerTestBase : TestBase() {
         fromTxHash: String,
         toTxHash: String,
         amount: String = "700000"
-    ): TransactionsResponse.Transaction {
-        return TransactionsResponse.Transaction.newBuilder()
+    ): TransactionInfo {
+        return TransactionInfo.newBuilder()
             .setType(type)
             .setFromTxHash(fromTxHash)
             .setToTxHash(toTxHash)
