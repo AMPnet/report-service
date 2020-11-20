@@ -146,10 +146,14 @@ class TemplateDataServiceImpl(
 
     private fun validateTransactionBelongsToUser(userWallet: WalletResponse, fromTxHash: String, toTxHash: String) {
         val txHash = userWallet.hash
-        if (txHash != fromTxHash && txHash != toTxHash) {
+        // activationData is used only temporary to enable admin transactions.
+        // When coop_id gets integrated in blockchain service,
+        // all accounts are going to have tx_hash data (including admin) and then we'll standardize these calls
+        val activationData = userWallet.activationData
+        val hashes = listOf(fromTxHash, toTxHash)
+        if (txHash !in hashes && activationData !in hashes)
             throw InvalidRequestException(
                 ErrorCode.INT_REQUEST, "Transaction doesn't belong to user wallet with hash: $txHash"
             )
-        }
     }
 }
