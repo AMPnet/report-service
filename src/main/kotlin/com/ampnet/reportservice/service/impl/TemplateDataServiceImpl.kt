@@ -146,10 +146,11 @@ class TemplateDataServiceImpl(
 
     private fun validateTransactionBelongsToUser(userWallet: WalletResponse, fromTxHash: String, toTxHash: String) {
         val txHash = userWallet.hash
-        if (txHash != fromTxHash && txHash != toTxHash) {
+        val activationData = userWallet.activationData
+        val hashes = listOf(fromTxHash, toTxHash)
+        if (txHash !in hashes && activationData !in hashes)
             throw InvalidRequestException(
                 ErrorCode.INT_REQUEST, "Transaction doesn't belong to user wallet with hash: $txHash"
             )
-        }
     }
 }
