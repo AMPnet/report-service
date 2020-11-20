@@ -147,6 +147,8 @@ class TemplateDataServiceImpl(
     private fun validateTransactionBelongsToUser(userWallet: WalletResponse, fromTxHash: String, toTxHash: String) {
         val txHash = userWallet.hash
         val activationData = userWallet.activationData
+        // Blockchain service may return wallet's hash or wallet's activation data as a fromTxHash or toTxHash,
+        // this needs to be standardized on blockchain, until then this comparison is used
         val hashes = listOf(fromTxHash, toTxHash)
         if (txHash !in hashes && activationData !in hashes)
             throw InvalidRequestException(
