@@ -17,6 +17,7 @@ import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
@@ -225,6 +226,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     }
 
     @Test
+    @Disabled("Waiting for standardization on blockchain to validate user wallet hash correctly")
     fun mustThrowExceptionIfTransactionDoesNotBelongToUser() {
         suppose("Wallet service will return wallet for the user") {
             mockWalletServiceGetWalletByOwner()

@@ -56,7 +56,8 @@ class TemplateDataServiceImpl(
         val txHash = txServiceRequest.txHash
         val fromTxHash = txServiceRequest.fromTxHash
         val toTxHash = txServiceRequest.toTxHash
-        validateTransactionBelongsToUser(getWalletByUser(user), fromTxHash, toTxHash)
+        // fromTxHash and toTxHash can be empty string, needs to be standardized on blockchain
+        // validateTransactionBelongsToUser(getWalletByUser(user), fromTxHash, toTxHash)
         val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
         val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
         val userWithInfo = UserInfo(user, userService.getUserWithInfo(user))
