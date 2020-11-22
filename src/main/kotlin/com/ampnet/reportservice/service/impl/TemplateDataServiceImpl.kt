@@ -41,7 +41,7 @@ class TemplateDataServiceImpl(
 
     override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TransactionsSummary {
         val wallet = getWalletByUser(userUUID)
-        val transactions = blockchainService.getTransactions(wallet.activationData)
+        val transactions = blockchainService.getTransactions(wallet.hash)
             .filter { inTimePeriod(periodRequest, it.date) }
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)

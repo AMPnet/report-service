@@ -41,7 +41,7 @@ class ReportingControllerTest : ControllerTestBase() {
         }
         suppose("Blockchain service will return transactions for wallet") {
             testContext.transactions = createTransactionsResponse()
-            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.activationData))
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
                 .thenReturn(testContext.transactions)
         }
         suppose("Wallet service will return wallets for hashes") {
