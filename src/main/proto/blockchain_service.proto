@@ -8,7 +8,7 @@ for example amount: 1550 is actually 15.50 EUR.
 ******************************************/
 
 message TransactionsRequest {
-    string wallet_data = 1;
+    string wallet_hash = 1;
 }
 
 message TransactionsResponse {
@@ -70,5 +70,5 @@ enum SupervisorStatus {
 
 service BlockchainService {
     rpc GetTransactions (TransactionsRequest) returns (TransactionsResponse);
-    rpc GetTransactionInfo(TransactionInfoRequest) returns (TransactionInfo);
+    rpc GetTransactionInfo (TransactionInfoRequest) returns (TransactionInfo);
 }

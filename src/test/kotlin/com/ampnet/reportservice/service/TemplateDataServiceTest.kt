@@ -69,7 +69,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                     TransactionType.WITHDRAW
                 )
             )
-            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.activationData))
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
                 .thenReturn(testContext.transactions)
         }
 
@@ -157,9 +157,8 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                     TransactionType.INVEST,
                     LocalDateTime.of(2020, 6, 1, 1, 0, 0, 0)
                 )
-
             )
-            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.activationData))
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
                 .thenReturn(testContext.transactions)
         }
 
