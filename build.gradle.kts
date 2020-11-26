@@ -25,7 +25,7 @@ plugins {
 }
 
 group = "com.ampnet"
-version = "0.2.0"
+version = "0.2.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
@@ -53,7 +53,7 @@ dependencies {
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-    implementation("com.github.AMPnet:jwt:0.1.6")
+    implementation("com.github.AMPnet:jwt:0.2.0")
     implementation("net.devh:grpc-client-spring-boot-starter:2.10.1.RELEASE")
 
     val openHtmlToPdfVersion = "1.0.4"
