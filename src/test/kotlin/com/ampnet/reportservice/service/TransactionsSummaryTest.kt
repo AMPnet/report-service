@@ -50,11 +50,11 @@ class TransactionsSummaryTest : TestBase() {
     }
 
     private fun getPeriod(period: PeriodServiceRequest): String {
-        return formatToYearMonthDay(period.from) + " to " + formatToYearMonthDay(period.to)
+        return formatToYearMonthDay(period.from) + " - " + formatToYearMonthDay(period.to)
     }
 
     private fun getPeriodZeroTx(createdAt: LocalDateTime): String {
-        return formatToYearMonthDay(createdAt) + " to " + formatToYearMonthDay(LocalDateTime.now())
+        return formatToYearMonthDay(createdAt) + " - " + formatToYearMonthDay(LocalDateTime.now())
     }
 
     private fun getDateOfFinish(period: PeriodServiceRequest): String {

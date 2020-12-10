@@ -23,8 +23,7 @@ class TransactionFactory private constructor() {
                         TransactionType.WITHDRAW -> TransactionWithdraw(transaction)
                         TransactionType.INVEST -> TransactionInvest(transaction)
                         TransactionType.SHARE_PAYOUT -> TransactionSharePayout(transaction)
-                        TransactionType.CANCEL_INVESTMENT ->
-                            TransactionCancelInvestment(transaction)
+                        TransactionType.CANCEL_INVESTMENT -> TransactionCancelInvestment(transaction)
                         else -> null
                     }
                 }
@@ -72,6 +71,7 @@ abstract class Transaction(transaction: TransactionInfo) {
     fun translate(translations: Translations, locale: Locale) {
         this.translations = translations
         this.locale = locale
+        val locale = Locale.forLanguageTag("fr-FR")
     }
 }
 
