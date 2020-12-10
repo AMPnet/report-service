@@ -11,7 +11,8 @@ const val DATE_FORMAT = "MMM dd, yyyy"
 class TransactionsSummary(
     val transactions: List<Transaction>,
     val userInfo: UserInfo,
-    val periodRequest: PeriodServiceRequest
+    val periodRequest: PeriodServiceRequest,
+    val translations: Translations = Translations()
 ) {
     companion object : KLogging()
 

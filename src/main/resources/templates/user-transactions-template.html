@@ -11,8 +11,8 @@
                 <tr>
                     <td>
                         <div class="text-left">
-                            <p>Account ID:</p>
-                            <p>Period:</p>
+                            <p th:text="${data.translations.accountId}">Account ID:</p>
+                            <p th:text="${data.translations.period}">Period:</p>
                         </div>
                     </td>
                     <td>
@@ -25,14 +25,14 @@
             </table>
         </div>
         <div class="account-summary">
-            <h1>Transactions Statement</h1>
+            <h1 th:text="${data.translations.transactionsStatement}">Transactions Statement</h1>
             <div class="summary-info">
                 <table>
                     <tr>
                         <td valign="bottom">
                             <div class="summary-left">
-                                <h2>Account Summary</h2>
-                                <p th:text="'Total balance as of ' + ${data.dateOfFinish} ?: ''">Total balance as of Aug 31, 2020</p>
+                                <h2 th:text="${data.translations.accountSummary}">Account Summary</h2>
+                                <p th:text="${data.translations.totalBalanceAsOf} + ${data.dateOfFinish} ?: ''">Total balance as of Aug 31, 2020</p>
                             </div>
                         </td>
                         <td valign="bottom">
@@ -46,39 +46,39 @@
             <table id="account-summary-table">
                 <thead>
                     <tr>
-                        <th class="text-left table-border-right">Type</th>
-                        <th class="table-border-right">Paid In</th>
-                        <th>Paid Out</th>
+                        <th th:text="${data.translations.type}" class="text-left table-border-right">Type</th>
+                        <th th:text="${data.translations.paidIn}" class="table-border-right">Paid In</th>
+                        <th th:text="${data.translations.paidOut}">Paid Out</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="text-left table-border-right">Deposits</td>
+                        <td th:text="${data.translations.deposits}" class="text-left table-border-right">Deposits</td>
                         <td th:text="'€' + ${data.deposits}" class="table-border-right">€725.00</td>
                         <td></td>
                     </tr>
                     <tr class="table-grey-background">
-                        <td class="text-left table-border-right">Withdrawals</td>
+                        <td th:text="${data.translations.withdrawals}" class="text-left table-border-right">Withdrawals</td>
                         <td class="table-border-right"></td>
                         <td th:text="'€' + ${data.withdrawals}">€350.00</td>
                     </tr>
                     <tr>
-                        <td class="text-left table-border-right">Total revenue share received</td>
+                        <td th:text="${data.translations.totalRevenue}" class="text-left table-border-right">Total revenue share received</td>
                         <td th:text="'€' + ${data.revenueShare}" class="table-border-right">€35.00</td>
                         <td></td>
                     </tr>
                     <tr class="table-grey-background">
-                        <td class="text-left table-border-right">Total investments placed</td>
+                        <td th:text="${data.translations.totalInvestments}" class="text-left table-border-right">Total investments placed</td>
                         <td class="table-border-right"></td>
                         <td th:text="'€' + ${data.investments}">€1000.00</td>
                     </tr>
                     <tr>
-                        <td class="text-left table-border-right">Marketplace shares bought</td>
+                        <td th:text="${data.translations.marketplaceBought}" class="text-left table-border-right">Marketplace shares bought</td>
                         <td class="table-border-right"></td>
                         <td th:text="'€' + ${data.sharesBought}">€371.00</td>
                     </tr>
                     <tr class="table-grey-background table-border-bottom">
-                        <td class="text-left table-border-right table-no-bottom-border">Marketplace shares sold</td>
+                        <td th:text="${data.translations.marketplaceSold}" class="text-left table-border-right table-no-bottom-border">Marketplace shares sold</td>
                         <td th:text="'€' + ${data.sharesSold}" class="table-border-right table-no-bottom-border">€3,571.00</td>
                         <td class="table-no-bottom-border"></td>
                     </tr>
@@ -88,9 +88,9 @@
     </div>
     <div class="page-2">
         <div class="transactions">
-            <h2>Transactions</h2>
+            <h2 th:text="${data.translations.transactions}">Transactions</h2>
             <table id="transactions-summary-table">
-                <div th:replace = "fragments/transactionsTableHead.html ::transactionsTableHead"></div>
+                <div th:replace = "fragments/transactionsTableHead.html :: transactionsTableHead(data=${data})"></div>
                 <tbody>
                     <tr th:each="tx,iStat : ${data.transactions}" th:classappend="${(iStat.even? 'table-grey-background': '') + ' ' + (iStat.last? 'table-border-bottom': '')}">
                         <td th:text="${tx.txDate}" th:classappend="${iStat.last? 'table-no-bottom-border': ''}" class="text-left table-border-right">Aug 1, 2020 13:30</td>
