@@ -10,6 +10,7 @@ data class Translations(
     val paidIn: String = "X-Paid In",
     val paidOut: String = "X-Paid Out",
     val pending: String = "X-Pending",
+
     val period: String = "X-Period",
     val transactionsStatement: String = "X-Transactions Statement",
     val accountSummary: String = "X-Account Summary",
@@ -19,5 +20,10 @@ data class Translations(
     val totalInvestments: String = "X-Total investments placed",
     val marketplaceBought: String = "X-Marketplace shares bought",
     val marketplaceSold: String = "X-Marketplace shares sold",
-    val totalBalanceAsOf: String = "X-Total balance as of "
+    val totalBalanceAsOf: String = "X-Total balance as of ",
+
+    val investment: String = "X-Investment",
+    val investmentCancel: String = "X-Investment cancel",
+    val revenueSharePayout: String = "X-Revenue share payout",
+    val withdraw: String = "X-Withdraw"
 )
