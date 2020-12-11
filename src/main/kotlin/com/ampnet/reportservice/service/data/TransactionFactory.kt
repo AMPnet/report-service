@@ -69,11 +69,9 @@ abstract class Transaction(transaction: TransactionInfo) {
     }
 
     fun setLanguage(language: String) {
-        this.translations = Translations.forLanguage(language)
-        this.locale = try {
-            Locale.forLanguageTag(language)
-        } catch (ex: NullPointerException) {
-            Locale.ENGLISH
+        if (language.isNotBlank()) {
+            this.translations = Translations.forLanguage(language)
+            this.locale = Locale.forLanguageTag(language)
         }
     }
 }

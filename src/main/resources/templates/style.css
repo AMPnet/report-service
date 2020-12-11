@@ -6,7 +6,7 @@
 
 body {
     width: 100%;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'OpenSans', sans-serif;
     font-size: 12px
 }
 
@@ -145,7 +145,7 @@ table {
     }
 
     @top-right {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'OpenSans', sans-serif;
         font-size: 12px;
         content: "Page " counter(page) "/" counter(pages);
     }

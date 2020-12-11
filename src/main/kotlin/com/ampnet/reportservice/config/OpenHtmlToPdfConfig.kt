@@ -13,9 +13,9 @@ class OpenHtmlToPdfConfig {
 
     @Bean
     fun pdfRenderer(): PdfRendererBuilder {
-        val poppinsRegular = ResourceUtils.getFile("classpath:fonts/Poppins-Regular.ttf")
+        val openSansRegular = ResourceUtils.getFile("classpath:fonts/OpenSans-Regular.ttf")
         return PdfRendererBuilder().useFastMode()
-            .useFont(poppinsRegular, "Poppins")
+            .useFont(openSansRegular, "OpenSans")
     }
 
     @PostConstruct
