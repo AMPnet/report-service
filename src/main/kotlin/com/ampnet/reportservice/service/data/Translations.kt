@@ -1,29 +1,43 @@
 package com.ampnet.reportservice.service.data
 
-data class Translations(
-    val transactions: String = "Transactions",
-    val accountId: String = "Account ID",
-    val deposit: String = "Deposit",
-    val amount: String = "Amount",
-    val date: String = "Date",
-    val type: String = "Type",
-    val paidIn: String = "Paid In",
-    val paidOut: String = "Paid Out",
-    val pending: String = "Pending",
+open class Translations {
 
-    val period: String = "Period",
-    val transactionsStatement: String = "Transactions Statement",
-    val accountSummary: String = "Account Summary",
-    val deposits: String = "Deposits",
-    val withdrawals: String = "Withdrawals",
-    val totalRevenue: String = "Total revenue share received",
-    val totalInvestments: String = "Total investments placed",
-    val marketplaceBought: String = "Marketplace shares bought",
-    val marketplaceSold: String = "Marketplace shares sold",
-    val totalBalanceAsOf: String = "Total balance as of ",
+    companion object {
+        fun forLanguage(language: String): Translations =
+            when (language) {
+                "el" -> GreekTranslations()
+                else -> Translations()
+            }
+    }
 
-    val investment: String = "Investment",
-    val investmentCancel: String = "Investment cancel",
-    val revenueSharePayout: String = "Revenue share payout",
-    val withdraw: String = "Withdraw"
-)
+    open val transactions: String = "Transactions"
+    open val accountId: String = "Account ID"
+    open val deposit: String = "Deposit"
+    open val amount: String = "Amount"
+    open val date: String = "Date"
+    open val type: String = "Type"
+    open val paidIn: String = "Paid In"
+    open val paidOut: String = "Paid Out"
+    open val pending: String = "Pending"
+
+    open val period: String = "Period"
+    open val transactionsStatement: String = "Transactions Statement"
+    open val accountSummary: String = "Account Summary"
+    open val deposits: String = "Deposits"
+    open val withdrawals: String = "Withdrawals"
+    open val totalRevenue: String = "Total revenue share received"
+    open val totalInvestments: String = "Total investments placed"
+    open val marketplaceBought: String = "Marketplace shares bought"
+    open val marketplaceSold: String = "Marketplace shares sold"
+    open val totalBalanceAsOf: String = "Total balance as of "
+
+    open val investment: String = "Investment"
+    open val investmentCancel: String = "Investment cancel"
+    open val revenueSharePayout: String = "Revenue share payout"
+    open val withdraw: String = "Withdraw"
+}
+
+class GreekTranslations : Translations() {
+    override val transactions: String
+        get() = "need_translation"
+}

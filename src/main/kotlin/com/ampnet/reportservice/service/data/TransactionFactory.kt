@@ -68,10 +68,13 @@ abstract class Transaction(transaction: TransactionInfo) {
         }
     }
 
-    fun translate(translations: Translations, locale: Locale) {
-        this.translations = translations
-        this.locale = locale
-        val locale = Locale.forLanguageTag("fr-FR")
+    fun setLanguage(language: String) {
+        this.translations = Translations.forLanguage(language)
+        this.locale = try {
+            Locale.forLanguageTag(language)
+        } catch (ex: NullPointerException) {
+            Locale.ENGLISH
+        }
     }
 }
 

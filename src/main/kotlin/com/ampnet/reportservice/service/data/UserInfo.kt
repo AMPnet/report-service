@@ -11,6 +11,7 @@ class UserInfo(userWithInfo: UserWithInfoResponse) {
     val firstName: String = userWithInfo.user.firstName
     val lastName: String = userWithInfo.user.lastName
     val createdAt: LocalDateTime = getLocalDateTime(userWithInfo.createdAt)
+    val language: String = userWithInfo.user.language
 
     private fun getLocalDateTime(milliSeconds: Long): LocalDateTime {
         return Instant.ofEpochMilli(milliSeconds).atZone(ZoneId.systemDefault()).toLocalDateTime()

@@ -46,9 +46,8 @@ class TemplateDataServiceImpl(
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
         val userWithInfo = UserInfo(userService.getUserWithInfo(userUUID))
-        return TransactionsSummary(
-            setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo, periodRequest
-        )
+        val transactionsWithNames = setBlockchainTransactionFromToNames(transactions, wallets, userWithInfo.language)
+        return TransactionsSummary(transactionsWithNames, userWithInfo, periodRequest)
     }
 
     override fun getUserTransactionData(txServiceRequest: TransactionServiceRequest): SingleTransactionSummary {
@@ -60,7 +59,8 @@ class TemplateDataServiceImpl(
         val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
         val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
         val userWithInfo = UserInfo(userService.getUserWithInfo(user))
-        val mappedTransaction = setBlockchainTransactionFromToNames(listOf(transaction), wallets).firstOrNull()
+        val mappedTransaction = setBlockchainTransactionFromToNames(listOf(transaction), wallets, userWithInfo.language)
+            .firstOrNull()
             ?: throw InvalidRequestException(
                 ErrorCode.INT_UNSUPPORTED_TX, "Transaction with hash:$txHash is not supported in report"
             )
@@ -78,7 +78,8 @@ class TemplateDataServiceImpl(
 
     private fun setBlockchainTransactionFromToNames(
         transactionsResponse: List<TransactionInfo>,
-        wallets: List<WalletResponse>
+        wallets: List<WalletResponse>,
+        language: String
     ): List<Transaction> {
         val walletOwners = wallets.map { it.owner }
         val walletsMap = wallets.associateBy { it.hash }
@@ -89,6 +90,7 @@ class TemplateDataServiceImpl(
             .associateBy { it.uuid }
         val transactions = transactionsResponse.mapNotNull { TransactionFactory.createTransaction(it) }
         transactions.forEach { transaction ->
+            transaction.setLanguage(language)
             val ownerUuidFrom = walletsMap[transaction.fromTxHash]?.owner
             val ownerUuidTo = walletsMap[transaction.toTxHash]?.owner
             when (transaction) {
