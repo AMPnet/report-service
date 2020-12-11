@@ -107,7 +107,6 @@ abstract class ControllerTestBase : TestBase() {
     ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
-            .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
             .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }

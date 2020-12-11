@@ -1,40 +1,18 @@
 package com.ampnet.reportservice.service.data
 
 import com.ampnet.userservice.proto.UserWithInfoResponse
-import java.lang.StringBuilder
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.UUID
 
-class UserInfo(uuid: UUID, userWithInfo: UserWithInfoResponse) {
+class UserInfo(userWithInfo: UserWithInfoResponse) {
 
-    val userUuid: UUID = uuid
+    val userUuid: String = userWithInfo.user.uuid
     val firstName: String = userWithInfo.user.firstName
     val lastName: String = userWithInfo.user.lastName
-    val address: List<String>
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime = getLocalDateTime(userWithInfo.createdAt)
 
-    init {
-        address = setStreetCityCounty(userWithInfo.address)
-        createdAt = getLocalDateTime(userWithInfo.createdAt)
-    }
-
-    private fun setStreetCityCounty(address: String): List<String> {
-        val listValues = address.split(",").map { StringBuilder(it.toLowerCase()) }
-        return listValues.map { capitalizeEachLetter(it).trim().toString() }.reversed()
-    }
-
-    private fun capitalizeEachLetter(address: StringBuilder): StringBuilder {
-        val formatted = StringBuilder()
-        address.split(" ").forEach {
-            formatted.append(it.capitalize())
-            formatted.append(" ")
-        }
-        return formatted
-    }
-
-    private fun getLocalDateTime(miliSeconds: Long): LocalDateTime {
-        return Instant.ofEpochMilli(miliSeconds).atZone(ZoneId.systemDefault()).toLocalDateTime()
+    private fun getLocalDateTime(milliSeconds: Long): LocalDateTime {
+        return Instant.ofEpochMilli(milliSeconds).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 }

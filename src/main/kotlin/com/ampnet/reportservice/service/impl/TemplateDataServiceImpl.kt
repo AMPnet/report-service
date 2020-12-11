@@ -45,7 +45,7 @@ class TemplateDataServiceImpl(
             .filter { inTimePeriod(periodRequest, it.date) }
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
-        val userWithInfo = UserInfo(userUUID, userService.getUserWithInfo(userUUID))
+        val userWithInfo = UserInfo(userService.getUserWithInfo(userUUID))
         return TransactionsSummary(
             setBlockchainTransactionFromToNames(transactions, wallets), userWithInfo, periodRequest
         )
@@ -59,7 +59,7 @@ class TemplateDataServiceImpl(
         validateTransactionBelongsToUser(getWalletByUser(user), fromTxHash, toTxHash)
         val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
         val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
-        val userWithInfo = UserInfo(user, userService.getUserWithInfo(user))
+        val userWithInfo = UserInfo(userService.getUserWithInfo(user))
         val mappedTransaction = setBlockchainTransactionFromToNames(listOf(transaction), wallets).firstOrNull()
             ?: throw InvalidRequestException(
                 ErrorCode.INT_UNSUPPORTED_TX, "Transaction with hash:$txHash is not supported in report"
