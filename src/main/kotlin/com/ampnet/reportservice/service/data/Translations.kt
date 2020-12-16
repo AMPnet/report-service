@@ -39,5 +39,5 @@ open class Translations {
 
 class GreekTranslations : Translations() {
     override val transactions: String
-        get() = "need_translation"
+        get() = "συναλλαγές"
 }
