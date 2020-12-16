@@ -6,7 +6,7 @@
 
 body {
     width: 100%;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'OpenSans', sans-serif;
     font-size: 12px
 }
 
@@ -89,8 +89,8 @@ table td {
 
 /*Page 2 start*/
 
-.page-2 .transactions h2 {
-    margin-bottom: 30px;
+.transactions h2 {
+    margin-bottom: 20px;
 }
 
 .text-left {
@@ -145,7 +145,7 @@ table {
     }
 
     @top-right {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'OpenSans', sans-serif;
         font-size: 12px;
         content: "Page " counter(page) "/" counter(pages);
     }

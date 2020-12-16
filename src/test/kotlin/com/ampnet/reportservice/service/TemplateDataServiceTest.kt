@@ -219,7 +219,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(tx.toTxHash).isEqualTo(transaction.toTxHash)
             assertThat(tx.description).isNull()
             assertThat(tx.percentageInProject).isNull()
-            assertThat(userInfo.userUuid).isEqualTo(UUID.fromString(testContext.userWithInfo.user.uuid))
+            assertThat(userInfo.userUuid).isEqualTo(testContext.userWithInfo.user.uuid)
         }
     }
 

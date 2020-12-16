@@ -1,9 +1,9 @@
-<thead th:fragment="transactionsTableHead">
+<thead th:fragment="transactionsTableHead(data)">
 <tr>
-    <th class="text-left table-border-right">Date</th>
-    <th class="text-left table-border-right">Type</th>
-    <th class="table-border-right">Paid In</th>
-    <th class="table-border-right">Pending</th>
-    <th>Paid Out</th>
+    <th class="text-left table-border-right" th:text="${data.translations.date}">Date</th>
+    <th class="text-left table-border-right" th:text="${data.translations.type}">Type</th>
+    <th class="table-border-right" th:text="${data.translations.paidIn}">Paid In</th>
+    <th class="table-border-right" th:text="${data.translations.pending}">Pending</th>
+    <th th:text="${data.translations.paidOut}">Paid Out</th>
 </tr>
 </thead>

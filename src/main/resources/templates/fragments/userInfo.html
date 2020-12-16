@@ -2,7 +2,6 @@
     <td>
         <div class="address">
             <p id="client-name" th:text="${data.userInfo.firstName + ' ' + data.userInfo.lastName}">Filip Dujmušić</p>
-            <p th:each="item : ${data.userInfo.address}" th:text="${item}">Busovača, BIH</p>
         </div>
     </td>
 </tr>

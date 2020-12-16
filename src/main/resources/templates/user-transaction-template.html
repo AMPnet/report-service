@@ -11,7 +11,7 @@
                 <tr>
                     <td>
                         <div class="text-left">
-                            <p>Account ID:</p>
+                            <p th:text="${data.translations.accountId}">Account ID:</p>
                         </div>
                     </td>
                     <td>
@@ -23,17 +23,27 @@
             </table>
         </div>
         <div class="transactions">
-            <h2>Transactions</h2>
+            <h2 th:text="${data.translations.transactions}">Transactions</h2>
             <table id="transactions-summary-table">
-                <div th:replace = "fragments/transactionsTableHead.html ::transactionsTableHead"></div>
+                <div th:replace="fragments/transactionsTableHead.html :: transactionsTableHead(data=${data})"></div>
                 <tbody>
-                    <tr class="table-grey-background table-border-bottom">
-                        <td th:text="${data.transaction.txDate}" class="table-no-bottom-border text-left table-border-right">Aug 1, 2020 13:30</td>
-                        <td th:utext="${data.transaction.name} + (${data.transaction.description != null} ? ('<br/>' + ${data.transaction.description}) : '') + (${data.transaction.percentageInProject != null} ? (' | ' +${data.transaction.percentageInProject}) + '%' : '')" class="table-no-bottom-border text-left table-border-right">Deposit</td>
-                        <td th:utext="${data.transaction.txStatus.name() == 'PAID_IN'} ? ('€' + ${data.transaction.amountInEuro}) : ''" class="table-no-bottom-border table-border-right">Amount</td>
-                        <td th:utext="${data.transaction.txStatus.name() == 'PENDING'} ? ('€' + ${data.transaction.amountInEuro}) : ''" class="table-no-bottom-border table-border-right">Amount</td>
-                        <td th:utext="${data.transaction.txStatus.name() == 'PAID_OUT'} ? ('€' + ${data.transaction.amountInEuro}) : ''" class="table-no-bottom-border">Amount</td>
-                    </tr>
+                <tr class="table-grey-background table-border-bottom">
+                    <td th:text="${data.transaction.txDate}"
+                        class="table-no-bottom-border text-left table-border-right">Aug 1, 2020 13:30
+                    </td>
+                    <td th:utext="${data.transaction.name} + (${data.transaction.description != null} ? ('<br/>' + ${data.transaction.description}) : '') + (${data.transaction.percentageInProject != null} ? (' | ' +${data.transaction.percentageInProject}) + '%' : '')"
+                        class="table-no-bottom-border text-left table-border-right">Deposit
+                    </td>
+                    <td th:utext="${data.transaction.txStatus.name() == 'PAID_IN'} ? ('€' + ${data.transaction.amountInEuro}) : ''"
+                        class="table-no-bottom-border table-border-right">Amount
+                    </td>
+                    <td th:utext="${data.transaction.txStatus.name() == 'PENDING'} ? ('€' + ${data.transaction.amountInEuro}) : ''"
+                        class="table-no-bottom-border table-border-right">Amount
+                    </td>
+                    <td th:utext="${data.transaction.txStatus.name() == 'PAID_OUT'} ? ('€' + ${data.transaction.amountInEuro}) : ''"
+                        class="table-no-bottom-border">Amount
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>

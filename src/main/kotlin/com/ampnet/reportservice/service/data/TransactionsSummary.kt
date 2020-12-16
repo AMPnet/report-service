@@ -5,13 +5,16 @@ import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import mu.KLogging
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 const val DATE_FORMAT = "MMM dd, yyyy"
 
 class TransactionsSummary(
     val transactions: List<Transaction>,
     val userInfo: UserInfo,
-    val periodRequest: PeriodServiceRequest
+    val periodRequest: PeriodServiceRequest,
+    val translations: Translations = Translations(),
+    val locale: Locale = Locale.ENGLISH
 ) {
     companion object : KLogging()
 
@@ -32,7 +35,7 @@ class TransactionsSummary(
     private fun getPeriod(periodRequest: PeriodServiceRequest): String {
         val fromPeriod = formatToYearMonthDay(periodRequest.from ?: userInfo.createdAt)
         val toPeriod = formatToYearMonthDay(periodRequest.to ?: LocalDateTime.now())
-        return "$fromPeriod to $toPeriod"
+        return "$fromPeriod - $toPeriod"
     }
 
     private fun getDateOfFinish(transactions: List<Transaction>, periodRequest: PeriodServiceRequest): String? {
@@ -44,7 +47,7 @@ class TransactionsSummary(
     }
 
     private fun formatToYearMonthDay(date: LocalDateTime?): String? =
-        date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
+        date?.format(DateTimeFormatter.ofPattern(DATE_FORMAT).withLocale(locale))
 
     private fun getBalance(transactions: List<Transaction>): String {
         val balance = transactions.sumByLong { it.amountToCalculate() }

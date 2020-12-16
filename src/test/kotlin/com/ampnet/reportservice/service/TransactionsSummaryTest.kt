@@ -33,7 +33,7 @@ class TransactionsSummaryTest : TestBase() {
         )
         val txSummary = TransactionsSummary(
             createTransactions().mapNotNull { it },
-            UserInfo(userUuid, createUserWithInfoResponse()),
+            UserInfo(createUserWithInfoResponse()),
             periodRequest
         )
         assertThat(txSummary.period).isEqualTo(getPeriod(periodRequest))
@@ -43,18 +43,18 @@ class TransactionsSummaryTest : TestBase() {
     @Test
     fun mustSetCorrectPeriodAndDateOfFinishForZeroTransactionsAndNullPeriodRequest() {
         val periodRequest = PeriodServiceRequest(null, null)
-        val userInfo = UserInfo(userUuid, createUserWithInfoResponse())
+        val userInfo = UserInfo(createUserWithInfoResponse())
         val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest)
         assertThat(txSummary.period).isEqualTo(getPeriodZeroTx(userInfo.createdAt))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
     }
 
     private fun getPeriod(period: PeriodServiceRequest): String {
-        return formatToYearMonthDay(period.from) + " to " + formatToYearMonthDay(period.to)
+        return formatToYearMonthDay(period.from) + " - " + formatToYearMonthDay(period.to)
     }
 
     private fun getPeriodZeroTx(createdAt: LocalDateTime): String {
-        return formatToYearMonthDay(createdAt) + " to " + formatToYearMonthDay(LocalDateTime.now())
+        return formatToYearMonthDay(createdAt) + " - " + formatToYearMonthDay(LocalDateTime.now())
     }
 
     private fun getDateOfFinish(period: PeriodServiceRequest): String {
@@ -79,7 +79,6 @@ class TransactionsSummaryTest : TestBase() {
     ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse())
-            .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
             .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }

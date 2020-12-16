@@ -98,6 +98,7 @@ abstract class ControllerTestBase : TestBase() {
             .setUuid(userUuid.toString())
             .setFirstName("First")
             .setLastName("Last")
+            // .setLanguage("el")
             .build()
     }
 
@@ -107,7 +108,6 @@ abstract class ControllerTestBase : TestBase() {
     ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
-            .setAddress("ZAGREB, GRAD ZAGREB, KARLOVAČKA CESTA 26 A")
             .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }
