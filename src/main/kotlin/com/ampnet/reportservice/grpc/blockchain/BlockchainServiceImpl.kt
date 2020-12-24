@@ -79,8 +79,8 @@ class BlockchainServiceImpl(
     // Status defined in ampenet-blockchain service, for more info see:
     // ampnet-blockchain-service/src/main/kotlin/com/ampnet/crowdfunding/blockchain/enums/ErrorCode.kt
     private fun getErrorDescriptionFromExceptionStatus(ex: StatusRuntimeException): GrpcErrorCode? {
-        val description = ex.status.description?.split(" > ") ?: return null
-        if (description.size != 2) return null
+        val description = ex.status.description?.split(" > ")
+        if (description?.size != 2) return null
         return GrpcErrorCode(description[0], description[1])
     }
 
