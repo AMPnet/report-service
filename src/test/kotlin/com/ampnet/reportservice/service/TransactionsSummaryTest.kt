@@ -88,7 +88,7 @@ class TransactionsSummaryTest : TestBase() {
         type: TransactionType = TransactionType.DEPOSIT,
         fromTxHash: String = "from-tx-hash",
         toTxHash: String = "to-tx-hash",
-        amount: String = "700000"
+        amount: String = "700050"
     ): TransactionInfo {
         return TransactionInfo.newBuilder()
             .setType(type)

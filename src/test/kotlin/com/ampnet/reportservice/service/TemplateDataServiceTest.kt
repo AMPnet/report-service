@@ -295,7 +295,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         val deposit = 100000L
         val invest = 20000L
         val cancelInvestment = 20000L
-        val sharePayout = 1000L
-        val withdraw = 10000L
+        val sharePayout = 1050L
+        val withdraw = 10022L
     }
 }
