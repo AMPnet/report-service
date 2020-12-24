@@ -7,6 +7,7 @@ import com.ampnet.crowdfunding.proto.TransactionsRequest
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
+import com.ampnet.reportservice.exception.GrpcHandledException
 import io.grpc.StatusRuntimeException
 import mu.KLogging
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
@@ -68,19 +69,18 @@ class BlockchainServiceImpl(
         message: String
     ): GrpcException {
         val grpcErrorCode = getErrorDescriptionFromExceptionStatus(ex)
-        val errorCode = ErrorCode.INT_GRPC_BLOCKCHAIN
+            ?: return GrpcException(ErrorCode.INT_GRPC_BLOCKCHAIN, ex.localizedMessage)
+        val errorCode = ErrorCode.MIDDLEWARE
         errorCode.specificCode = grpcErrorCode.code
         errorCode.message = grpcErrorCode.message
-        return GrpcException(errorCode, message)
+        return GrpcHandledException(errorCode, message)
     }
 
     // Status defined in ampenet-blockchain service, for more info see:
     // ampnet-blockchain-service/src/main/kotlin/com/ampnet/crowdfunding/blockchain/enums/ErrorCode.kt
-    private fun getErrorDescriptionFromExceptionStatus(ex: StatusRuntimeException): GrpcErrorCode {
-        val description = ex.status.description?.split(" > ") ?: throw ex
-        if (description.size != 2) {
-            throw ex
-        }
+    private fun getErrorDescriptionFromExceptionStatus(ex: StatusRuntimeException): GrpcErrorCode? {
+        val description = ex.status.description?.split(" > ") ?: return null
+        if (description.size != 2) return null
         return GrpcErrorCode(description[0], description[1])
     }
 

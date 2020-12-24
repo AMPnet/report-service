@@ -12,5 +12,8 @@ enum class ErrorCode(val categoryCode: String, var specificCode: String, var mes
     INT_REQUEST("08", "08", "Invalid controller request exception"),
     INT_GRPC_WALLET("08", "09", "Failed gRPC call to wallet service"),
     INT_GENERATING_PDF("08", "10", "Could not generate pdf from data"),
-    INT_UNSUPPORTED_TX("08", "11", "Unsupported transaction")
+    INT_UNSUPPORTED_TX("08", "11", "Unsupported transaction"),
+
+    // Middleware: 11
+    MIDDLEWARE("11", "00", "Undefined")
 }

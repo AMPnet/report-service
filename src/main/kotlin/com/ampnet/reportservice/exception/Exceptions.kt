@@ -1,6 +1,7 @@
 package com.ampnet.reportservice.exception
 
-class GrpcException(val errorCode: ErrorCode, exceptionMessage: String) : Exception(exceptionMessage)
+open class GrpcException(val errorCode: ErrorCode, exceptionMessage: String) : Exception(exceptionMessage)
+class GrpcHandledException(errorCode: ErrorCode, exceptionMessage: String) : GrpcException(errorCode, exceptionMessage)
 
 class ResourceNotFoundException(val errorCode: ErrorCode, exceptionMessage: String) : Exception(exceptionMessage)
 
