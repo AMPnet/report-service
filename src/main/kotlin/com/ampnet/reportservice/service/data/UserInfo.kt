@@ -12,6 +12,7 @@ class UserInfo(userWithInfo: UserWithInfoResponse) {
     val lastName: String = userWithInfo.user.lastName
     val createdAt: LocalDateTime = getLocalDateTime(userWithInfo.createdAt)
     val language: String = userWithInfo.user.language
+    val logo: String = userWithInfo.logo
 
     private fun getLocalDateTime(milliSeconds: Long): LocalDateTime {
         return Instant.ofEpochMilli(milliSeconds).atZone(ZoneId.systemDefault()).toLocalDateTime()

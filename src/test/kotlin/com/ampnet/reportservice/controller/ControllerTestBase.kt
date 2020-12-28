@@ -45,6 +45,7 @@ abstract class ControllerTestBase : TestBase() {
     protected val mintHash: String = "mint"
     protected val burnHash: String = "burn"
     protected val txHash = "tx_hash"
+    protected val logo = "https://i.picsum.photos/id/1010/5184/3456.jpg?hmac=7SE0MNAloXpJXDxio2nvoshUx9roGIJ_5pZej6qdxXs"
 
     @MockBean
     protected lateinit var walletService: WalletService
@@ -109,6 +110,7 @@ abstract class ControllerTestBase : TestBase() {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
             .setCreatedAt(createdAt.toMiliSeconds())
+            .setLogo(logo)
             .build()
     }
 
