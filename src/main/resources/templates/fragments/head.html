@@ -1,6 +1,20 @@
-<head th:fragment="head">
+<head th:fragment="head(data)">
     <meta charset="UTF-8"></meta>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
     <link rel="stylesheet" href="style.css"></link>
+    <style th:inline="css">
+        @page {
+            @top-left {
+                background-image: url('[(${data.userInfo.logo})]');
+                background-size: 200px 82px;
+                background-repeat: no-repeat;
+                background-position: center;
+                display: inline-block;
+                width: 200px;
+                height: 82px;
+                content: "";
+            }
+        }
+    </style>
     <title>Report</title>
 </head>
