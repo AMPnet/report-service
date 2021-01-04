@@ -12,7 +12,6 @@ body {
 
 h1 {
     font-size: 20px;
-    color: #6AA84F;
     text-align: center;
 }
 
@@ -132,17 +131,6 @@ table {
 @page {
     size: a4 portrait;
     margin: 150px 80px 100px 80px;
-
-    @top-left {
-        background-image: url(../images/logo.png);
-        background-size: 200px 82px;
-        background-repeat: no-repeat;
-        background-position: center;
-        display: inline-block;
-        width: 200px;
-        height: 82px;
-        content: "";
-    }
 
     @top-right {
         font-family: 'OpenSans', sans-serif;

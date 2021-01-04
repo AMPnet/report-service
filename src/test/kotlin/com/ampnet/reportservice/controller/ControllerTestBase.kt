@@ -10,6 +10,7 @@ import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.util.toMiliSeconds
+import com.ampnet.userservice.proto.CoopResponse
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
@@ -45,6 +46,7 @@ abstract class ControllerTestBase : TestBase() {
     protected val mintHash: String = "mint"
     protected val burnHash: String = "burn"
     protected val txHash = "tx_hash"
+    protected val logo = "https://ampnet.io/assets/images/logo-amp.png"
 
     @MockBean
     protected lateinit var walletService: WalletService
@@ -109,8 +111,17 @@ abstract class ControllerTestBase : TestBase() {
         return UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
             .setCreatedAt(createdAt.toMiliSeconds())
+            .setCoop(createCoopResponse())
             .build()
     }
+
+    protected fun createCoopResponse(): CoopResponse =
+        CoopResponse.newBuilder()
+            .setCoop("coop")
+            .setName("Name")
+            .setHostname("http://ampnet.io")
+            .setLogo(logo)
+            .build()
 
     protected fun createProjectsResponse(projectUUID: UUID): ProjectResponse {
         return ProjectResponse.newBuilder()
