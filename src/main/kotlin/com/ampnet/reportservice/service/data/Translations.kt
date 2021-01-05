@@ -39,5 +39,49 @@ open class Translations {
 
 class GreekTranslations : Translations() {
     override val transactions: String
-        get() = "συναλλαγές"
+        get() = "Συναλλαγές"
+    override val accountId: String
+        get() = "Αριθμός λογαριασμού"
+    override val deposit: String
+        get() = "Κατάθεση"
+    override val amount: String
+        get() = "Ποσό"
+    override val date: String
+        get() = "Ημερομηνία"
+    override val type: String
+        get() = "Τύπος"
+    override val paidIn: String
+        get() = "Πληρώθηκε σε"
+    override val paidOut: String
+        get() = "Εξοφλήθηκε"
+    override val pending: String
+        get() = "Σε εκκρεμότητα"
+    override val period: String
+        get() = "Περίοδος"
+    override val transactionsStatement: String
+        get() = "Αποδεικτικό Συναλλαγής"
+    override val accountSummary: String
+        get() = "Περίληψη λογαριασμού"
+    override val deposits: String
+        get() = "Καταθέσεις"
+    override val withdrawals: String
+        get() = "Αναλήψεις"
+    override val totalRevenue: String
+        get() = "Συνολικό μερίδιο εσόδων που ελήφθη"
+    override val totalInvestments: String
+        get() = "Συνολικές επενδύσεις"
+    override val marketplaceBought: String
+        get() = "Αγορές μεριδίων"
+    override val marketplaceSold: String
+        get() = "Πωλήσεις μεριδίων"
+    override val totalBalanceAsOf: String
+        get() = "Συνολικό υπόλοιπο από "
+    override val investment: String
+        get() = "Επένδυση"
+    override val investmentCancel: String
+        get() = "Ακύρωση Επένδυσης"
+    override val revenueSharePayout: String
+        get() = "Πληρωμή μεριδίου εσόδων"
+    override val withdraw: String
+        get() = "Απόσυρση"
 }

@@ -12,13 +12,17 @@ const val DATE_FORMAT = "MMM dd, yyyy"
 class TransactionsSummary(
     val transactions: List<Transaction>,
     val userInfo: UserInfo,
-    val periodRequest: PeriodServiceRequest,
-    val translations: Translations = Translations(),
-    val locale: Locale = Locale.ENGLISH
+    val periodRequest: PeriodServiceRequest
 ) {
     companion object : KLogging()
 
     private val transactionsByType = transactions.groupBy { it.type }
+    private val locale: Locale = if (userInfo.language.isBlank()) {
+        Locale.ENGLISH
+    } else {
+        Locale.forLanguageTag(userInfo.language)
+    }
+    val translations: Translations = Translations.forLanguage(userInfo.language)
     val period: String = getPeriod(periodRequest)
     val dateOfFinish: String? = getDateOfFinish(transactions, periodRequest)
     val balance: String = getBalance(transactions)
