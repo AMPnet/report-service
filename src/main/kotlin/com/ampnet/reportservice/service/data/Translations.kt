@@ -6,6 +6,7 @@ open class Translations {
         fun forLanguage(language: String): Translations =
             when (language) {
                 "el" -> GreekTranslations()
+                "es" -> SpanishTranslations()
                 else -> Translations()
             }
     }
@@ -84,4 +85,53 @@ class GreekTranslations : Translations() {
         get() = "Πληρωμή μεριδίου εσόδων"
     override val withdraw: String
         get() = "Απόσυρση"
+}
+
+class SpanishTranslations : Translations() {
+    override val transactions: String
+        get() = "Transacciones"
+    override val accountId: String
+        get() = "ID de la Cuenta"
+    override val deposit: String
+        get() = "Depósito"
+    override val amount: String
+        get() = "Importe"
+    override val date: String
+        get() = "Fecha"
+    override val type: String
+        get() = "Tipo"
+    override val paidIn: String
+        get() = "Ingresado"
+    override val paidOut: String
+        get() = "Desembolsado"
+    override val pending: String
+        get() = "Espera"
+    override val period: String
+        get() = "Periodo de"
+    override val transactionsStatement: String
+        get() = "Estado de las Transacciones"
+    override val accountSummary: String
+        get() = "Saldo de la Cuenta"
+    override val deposits: String
+        get() = "Depósitos"
+    override val withdrawals: String
+        get() = "Retiradas"
+    override val totalRevenue: String
+        get() = "Total de la cuota de ingresos recibidos"
+    override val totalInvestments: String
+        get() = "Total de inversiones realizadas"
+    override val marketplaceBought: String
+        get() = "Cuotas de mercado compradas"
+    override val marketplaceSold: String
+        get() = "Cuotas de mercado vendidas"
+    override val totalBalanceAsOf: String
+        get() = "Saldo total en "
+    override val investment: String
+        get() = "Inversión"
+    override val investmentCancel: String
+        get() = "Inversión cancelada"
+    override val revenueSharePayout: String
+        get() = "Pago de la cuota de ingresos"
+    override val withdraw: String
+        get() = "Retirar"
 }
