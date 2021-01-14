@@ -9,12 +9,14 @@ import com.ampnet.reportservice.service.data.DATE_FORMAT
 import com.ampnet.reportservice.service.data.Transaction
 import com.ampnet.reportservice.service.data.TransactionFactory
 import com.ampnet.reportservice.service.data.TransactionsSummary
+import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -24,6 +26,12 @@ import java.util.UUID
 class TransactionsSummaryTest : TestBase() {
 
     private val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
+    lateinit var translations: Translations
+
+    @BeforeEach
+    fun init() {
+        translations = getTranslations(userLanguage)
+    }
 
     @Test
     fun mustSetCorrectPeriodAndDateOfFinish() {
@@ -34,7 +42,8 @@ class TransactionsSummaryTest : TestBase() {
         val txSummary = TransactionsSummary(
             createTransactions().mapNotNull { it },
             UserInfo(createUserWithInfoResponse()),
-            periodRequest
+            periodRequest,
+            translations
         )
         assertThat(txSummary.period).isEqualTo(getPeriod(periodRequest))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
@@ -44,7 +53,7 @@ class TransactionsSummaryTest : TestBase() {
     fun mustSetCorrectPeriodAndDateOfFinishForZeroTransactionsAndNullPeriodRequest() {
         val periodRequest = PeriodServiceRequest(null, null)
         val userInfo = UserInfo(createUserWithInfoResponse())
-        val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest)
+        val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest, translations)
         assertThat(txSummary.period).isEqualTo(getPeriodZeroTx(userInfo.createdAt))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
     }
@@ -103,16 +112,20 @@ class TransactionsSummaryTest : TestBase() {
     private fun createTransactions(): List<Transaction?> {
         return listOf(
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 10, 1, 0, 0, 0, 0))
+                createTransaction(LocalDateTime.of(2020, 10, 1, 0, 0, 0, 0)),
+                translations
             ),
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 9, 1, 0, 0, 0, 0))
+                createTransaction(LocalDateTime.of(2020, 9, 1, 0, 0, 0, 0)),
+                translations
             ),
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 8, 1, 0, 0, 0, 0))
+                createTransaction(LocalDateTime.of(2020, 8, 1, 0, 0, 0, 0)),
+                translations
             ),
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 7, 1, 0, 0, 0, 0))
+                createTransaction(LocalDateTime.of(2020, 7, 1, 0, 0, 0, 0)),
+                translations
             )
         )
     }

@@ -12,7 +12,8 @@ const val DATE_FORMAT = "MMM dd, yyyy"
 class TransactionsSummary(
     val transactions: List<Transaction>,
     val userInfo: UserInfo,
-    val periodRequest: PeriodServiceRequest
+    val periodRequest: PeriodServiceRequest,
+    val translations: Translations
 ) {
     companion object : KLogging()
 
@@ -22,7 +23,6 @@ class TransactionsSummary(
     } else {
         Locale.forLanguageTag(userInfo.language)
     }
-    val translations: Translations = Translations.forLanguage(userInfo.language)
     val period: String = getPeriod(periodRequest)
     val dateOfFinish: String? = getDateOfFinish(transactions, periodRequest)
     val balance: String = getBalance(transactions)

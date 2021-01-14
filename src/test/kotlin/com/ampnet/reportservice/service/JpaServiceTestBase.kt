@@ -68,6 +68,7 @@ abstract class JpaServiceTestBase : TestBase() {
             .setFirstName("First")
             .setLastName("Last")
             .setEmail("email@as.co")
+            .setLanguage("EN")
             .build()
     }
 

@@ -15,15 +15,15 @@ const val LENGTH_OF_PERCENTAGE = 8
 
 class TransactionFactory private constructor() {
     companion object {
-        fun createTransaction(transaction: TransactionInfo): Transaction? {
+        fun createTransaction(transaction: TransactionInfo, translations: Translations): Transaction? {
             if (transaction.state == TransactionState.MINED) {
                 transaction.type?.let {
                     return when (it) {
-                        TransactionType.DEPOSIT -> TransactionDeposit(transaction)
-                        TransactionType.WITHDRAW -> TransactionWithdraw(transaction)
-                        TransactionType.INVEST -> TransactionInvest(transaction)
-                        TransactionType.SHARE_PAYOUT -> TransactionSharePayout(transaction)
-                        TransactionType.CANCEL_INVESTMENT -> TransactionCancelInvestment(transaction)
+                        TransactionType.DEPOSIT -> TransactionDeposit(transaction, translations)
+                        TransactionType.WITHDRAW -> TransactionWithdraw(transaction, translations)
+                        TransactionType.INVEST -> TransactionInvest(transaction, translations)
+                        TransactionType.SHARE_PAYOUT -> TransactionSharePayout(transaction, translations)
+                        TransactionType.CANCEL_INVESTMENT -> TransactionCancelInvestment(transaction, translations)
                         else -> null
                     }
                 }
@@ -33,7 +33,7 @@ class TransactionFactory private constructor() {
     }
 }
 
-abstract class Transaction(transaction: TransactionInfo) {
+abstract class Transaction(transaction: TransactionInfo, var translations: Translations) {
 
     val type: TransactionType = transaction.type
     val fromTxHash: String = transaction.fromTxHash
@@ -50,7 +50,6 @@ abstract class Transaction(transaction: TransactionInfo) {
 
     var description: String? = null
     var percentageInProject: String? = null
-    var translations: Translations = Translations()
     var locale: Locale = Locale.ENGLISH
 
     fun setPercentageInProject(expectedProjectFunding: Long) {
@@ -70,37 +69,51 @@ abstract class Transaction(transaction: TransactionInfo) {
 
     fun setLanguage(language: String) {
         if (language.isNotBlank()) {
-            this.translations = Translations.forLanguage(language)
             this.locale = Locale.forLanguageTag(language)
         }
     }
 }
 
-class TransactionInvest(transaction: TransactionInfo) : Transaction(transaction) {
+class TransactionInvest(
+    transaction: TransactionInfo,
+    translations: Translations
+) : Transaction(transaction, translations) {
     override val txStatus = TransactionStatusType.PAID_OUT
     override val name: String
         get() = translations.investment
 }
 
-class TransactionCancelInvestment(transaction: TransactionInfo) : Transaction(transaction) {
+class TransactionCancelInvestment(
+    transaction: TransactionInfo,
+    translations: Translations
+) : Transaction(transaction, translations) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name: String
         get() = translations.investmentCancel
 }
 
-class TransactionSharePayout(transaction: TransactionInfo) : Transaction(transaction) {
+class TransactionSharePayout(
+    transaction: TransactionInfo,
+    translations: Translations
+) : Transaction(transaction, translations) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name: String
         get() = translations.revenueSharePayout
 }
 
-class TransactionDeposit(transaction: TransactionInfo) : Transaction(transaction) {
+class TransactionDeposit(
+    transaction: TransactionInfo,
+    translations: Translations
+) : Transaction(transaction, translations) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name: String
         get() = translations.deposit
 }
 
-class TransactionWithdraw(transaction: TransactionInfo) : Transaction(transaction) {
+class TransactionWithdraw(
+    transaction: TransactionInfo,
+    translations: Translations
+) : Transaction(transaction, translations) {
     override val txStatus = TransactionStatusType.PAID_OUT
     override val name: String
         get() = translations.withdraw

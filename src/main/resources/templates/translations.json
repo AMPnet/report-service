@@ -1,0 +1,92 @@
+{"transactions":
+{
+"EN":"Transactions","ES":"Transacciones","EL":"Συναλλαγές"
+},
+"accountId":
+{
+"EN":"Account ID","ES":"ID de la Cuenta","EL":"Αριθμός λογαριασμού"
+},
+"deposit":
+{
+"EN":"Deposit","ES":"Depósito","EL":"Κατάθεση"
+},
+"amount":
+{
+"EN":"Amount","ES":"Importe","EL":"Ποσό"
+},
+"date":
+{
+"EN":"Date","ES":"Fecha","EL":"Ημερομηνία"
+},
+"type":
+{
+"EN":"Type","ES":"Tipo","EL":"Τύπος"
+},
+"paidIn":
+{
+"EN":"Paid In","ES":"Ingresado","EL":"Πληρώθηκε σε"
+},
+"paidOut":
+{
+"EN":"Paid Out","ES":"Desembolsado","EL":"Εξοφλήθηκε"
+},
+"pending":
+{
+"EN":"Pending","ES":"Espera","EL":"Σε εκκρεμότητα"
+},
+"period":
+{
+"EN":"Period","ES":"Periodo de","EL":"Περίοδος"
+},
+"transactionsStatement":
+{
+"EN":"Transactions Statement","ES":"Estado de las Transacciones","EL":"Αποδεικτικό Συναλλαγής"
+},
+"accountSummary":
+{
+"EN":"Account Summary","ES":"Saldo de la Cuenta","EL":"Περίληψη λογαριασμού"
+},
+"deposits":
+{
+"EN":"Deposits","ES":"Depósitos","EL":"Καταθέσεις"
+},
+"withdrawals":
+{
+"EN":"Withdrawals","ES":"Retiradas","EL":"Αναλήψεις"
+},
+"totalRevenue":
+{
+"EN":"Total revenue share received","ES":"Total de la cuota de ingresos recibidos","EL":"Συνολικό μερίδιο εσόδων που ελήφθη"
+},
+"totalInvestments":
+{
+"EN":"Total investments placed","ES":"Total de inversiones realizadas","EL":"Συνολικές επενδύσεις"
+},
+"marketplaceBought":
+{
+"EN":"Marketplace shares bought","ES":"Cuotas de mercado compradas","EL":"Αγορές μεριδίων"
+},
+"marketplaceSold":
+{
+"EN":"Marketplace shares sold","ES":"Cuotas de mercado vendidas","EL":"Πωλήσεις μεριδίων"
+},
+"totalBalanceAsOf":
+{
+"EN":"Total balance as of ","ES":"Saldo total en","EL":"Συνολικό υπόλοιπο από "
+},
+"investment":
+{
+"EN":"Investment","ES":"Inversión","EL":"Επένδυση"
+},
+"investmentCancel":
+{
+"EN":"Investment cancel","ES":"Inversión cancelada","EL":"Ακύρωση Επένδυσης"
+},
+"revenueSharePayout":
+{
+"EN":"Revenue share payout","ES":"Pago de la cuota de ingresos","EL":"Πληρωμή μεριδίου εσόδων"
+},
+"withdraw":
+{
+"EN":"Withdraw","ES":"Retirar","EL":"Απόσυρση"
+}}

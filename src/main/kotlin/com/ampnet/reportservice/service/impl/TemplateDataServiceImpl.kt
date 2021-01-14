@@ -21,9 +21,13 @@ import com.ampnet.reportservice.service.data.TransactionInvest
 import com.ampnet.reportservice.service.data.TransactionSharePayout
 import com.ampnet.reportservice.service.data.TransactionWithdraw
 import com.ampnet.reportservice.service.data.TransactionsSummary
+import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.walletservice.proto.WalletResponse
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.ZoneOffset
@@ -34,7 +38,8 @@ class TemplateDataServiceImpl(
     private val walletService: WalletService,
     private val blockchainService: BlockchainService,
     private val userService: UserService,
-    private val projectService: ProjectService
+    private val projectService: ProjectService,
+    @Qualifier("camelCaseObjectMapper") private val objectMapper: ObjectMapper
 ) : TemplateDataService {
 
     companion object : KLogging()
@@ -46,8 +51,10 @@ class TemplateDataServiceImpl(
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
         val userWithInfo = UserInfo(userService.getUserWithInfo(userUUID))
-        val transactionsWithNames = setBlockchainTransactionFromToNames(transactions, wallets, userWithInfo.language)
-        return TransactionsSummary(transactionsWithNames, userWithInfo, periodRequest)
+        val translations = getTranslations(userWithInfo.language)
+        val transactionsWithNames =
+            setBlockchainTransactionFromToNames(transactions, wallets, userWithInfo.language, translations)
+        return TransactionsSummary(transactionsWithNames, userWithInfo, periodRequest, translations)
     }
 
     override fun getUserTransactionData(txServiceRequest: TransactionServiceRequest): SingleTransactionSummary {
@@ -59,12 +66,15 @@ class TemplateDataServiceImpl(
         val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
         val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
         val userWithInfo = UserInfo(userService.getUserWithInfo(user))
-        val mappedTransaction = setBlockchainTransactionFromToNames(listOf(transaction), wallets, userWithInfo.language)
-            .firstOrNull()
-            ?: throw InvalidRequestException(
-                ErrorCode.INT_UNSUPPORTED_TX, "Transaction with hash:$txHash is not supported in report"
-            )
-        return SingleTransactionSummary(mappedTransaction, userWithInfo)
+        val translations = getTranslations(userWithInfo.language)
+        val mappedTransaction =
+            setBlockchainTransactionFromToNames(
+                listOf(transaction), wallets, userWithInfo.language, translations
+            ).firstOrNull()
+                ?: throw InvalidRequestException(
+                    ErrorCode.INT_UNSUPPORTED_TX, "Transaction with hash:$txHash is not supported in report"
+                )
+        return SingleTransactionSummary(mappedTransaction, userWithInfo, translations)
     }
 
     private fun getWalletHashes(transactions: List<TransactionInfo>): Set<String> {
@@ -79,7 +89,8 @@ class TemplateDataServiceImpl(
     private fun setBlockchainTransactionFromToNames(
         transactionsResponse: List<TransactionInfo>,
         wallets: List<WalletResponse>,
-        language: String
+        language: String,
+        translations: Translations
     ): List<Transaction> {
         val walletOwners = wallets.map { it.owner }
         val walletsMap = wallets.associateBy { it.hash }
@@ -88,7 +99,7 @@ class TemplateDataServiceImpl(
         //     .associateBy { it.uuid }
         val projects = projectService.getProjects(walletOwners.map { UUID.fromString(it) })
             .associateBy { it.uuid }
-        val transactions = transactionsResponse.mapNotNull { TransactionFactory.createTransaction(it) }
+        val transactions = transactionsResponse.mapNotNull { TransactionFactory.createTransaction(it, translations) }
         transactions.forEach { transaction ->
             transaction.setLanguage(language)
             val ownerUuidFrom = walletsMap[transaction.fromTxHash]?.owner
@@ -157,5 +168,18 @@ class TemplateDataServiceImpl(
             throw InvalidRequestException(
                 ErrorCode.INT_REQUEST, "Transaction doesn't belong to user wallet with hash: $txHash"
             )
+    }
+
+    private fun getTranslations(userLanguage: String): Translations {
+        val json = javaClass.classLoader.getResource("templates/translations.json")?.readText()
+        val typeRef = object : TypeReference<Map<String, Map<String, String>>>() {}
+        val allTranslations = objectMapper.readValue<Map<String, Map<String, String>>>(json, typeRef)
+        val translations: HashMap<String, String> = HashMap()
+        allTranslations.forEach { (key, map) ->
+            map.forEach { (language, translation) ->
+                if (language.equals(userLanguage, true)) translations[key] = translation
+            }
+        }
+        return Translations.from(translations)
     }
 }

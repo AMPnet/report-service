@@ -30,7 +30,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     private lateinit var testContext: TestContext
 
     private val templateDataService: TemplateDataService by lazy {
-        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService)
+        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService, camelCaseObjectMapper)
     }
 
     @BeforeEach
