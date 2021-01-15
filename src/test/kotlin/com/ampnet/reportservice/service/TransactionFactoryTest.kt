@@ -25,8 +25,7 @@ class TransactionFactoryTest : TestBase() {
         val tx = TransactionFactory.createTransaction(
             createTransaction(
                 type = TransactionType.APPROVE_INVESTMENT
-            ),
-            translations
+            )
         )
         assertThat(tx).isNull()
     }
@@ -36,8 +35,7 @@ class TransactionFactoryTest : TestBase() {
         val tx = TransactionFactory.createTransaction(
             createTransaction(
                 type = TransactionType.APPROVE_INVESTMENT
-            ),
-            translations
+            )
         )
         assertThat(tx).isNull()
     }
@@ -48,8 +46,7 @@ class TransactionFactoryTest : TestBase() {
             createTransaction(
                 type = TransactionType.DEPOSIT,
                 state = TransactionState.PENDING
-            ),
-            translations
+            )
         )
         assertThat(tx).isNull()
     }
@@ -60,8 +57,7 @@ class TransactionFactoryTest : TestBase() {
             createTransaction(
                 type = TransactionType.DEPOSIT,
                 state = TransactionState.FAILED
-            ),
-            translations
+            )
         )
         assertThat(tx).isNull()
     }

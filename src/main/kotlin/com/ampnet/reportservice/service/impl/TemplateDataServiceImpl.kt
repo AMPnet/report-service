@@ -5,6 +5,7 @@ import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
+import com.ampnet.reportservice.exception.InternalException
 import com.ampnet.reportservice.exception.InvalidRequestException
 import com.ampnet.reportservice.exception.ResourceNotFoundException
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
@@ -24,8 +25,8 @@ import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.walletservice.proto.WalletResponse
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
@@ -34,6 +35,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 @Service
+@Suppress("TooManyFunctions")
 class TemplateDataServiceImpl(
     private val walletService: WalletService,
     private val blockchainService: BlockchainService,
@@ -43,6 +45,10 @@ class TemplateDataServiceImpl(
 ) : TemplateDataService {
 
     companion object : KLogging()
+
+    val allTranslations by lazy {
+        getTranslationsMap()
+    }
 
     override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TransactionsSummary {
         val wallet = getWalletByUser(userUUID)
@@ -99,9 +105,10 @@ class TemplateDataServiceImpl(
         //     .associateBy { it.uuid }
         val projects = projectService.getProjects(walletOwners.map { UUID.fromString(it) })
             .associateBy { it.uuid }
-        val transactions = transactionsResponse.mapNotNull { TransactionFactory.createTransaction(it, translations) }
+        val transactions = transactionsResponse.mapNotNull { TransactionFactory.createTransaction(it) }
         transactions.forEach { transaction ->
             transaction.setLanguage(language)
+            transaction.translations = translations
             val ownerUuidFrom = walletsMap[transaction.fromTxHash]?.owner
             val ownerUuidTo = walletsMap[transaction.toTxHash]?.owner
             when (transaction) {
@@ -171,15 +178,24 @@ class TemplateDataServiceImpl(
     }
 
     private fun getTranslations(userLanguage: String): Translations {
-        val json = javaClass.classLoader.getResource("templates/translations.json")?.readText()
-        val typeRef = object : TypeReference<Map<String, Map<String, String>>>() {}
-        val allTranslations = objectMapper.readValue<Map<String, Map<String, String>>>(json, typeRef)
-        val translations: HashMap<String, String> = HashMap()
+        val translations = mutableMapOf<String, String>()
         allTranslations.forEach { (key, map) ->
-            map.forEach { (language, translation) ->
-                if (language.equals(userLanguage, true)) translations[key] = translation
-            }
+            val translation = map.getOrElse(userLanguage, { map["en"] })
+                ?: throw InternalException(
+                    ErrorCode.INT_GENERATING_PDF,
+                    "Could not find translations for $userLanguage or 'en'"
+                )
+            translations[key] = translation
         }
-        return Translations.from(translations)
+        return Translations(translations)
+    }
+
+    private fun getTranslationsMap(): Map<String, Map<String, String>> {
+        val json = javaClass.classLoader.getResource("templates/translations.json")?.readText()
+            ?: throw InternalException(
+                ErrorCode.INT_GENERATING_PDF,
+                "Could not find translations.json"
+            )
+        return objectMapper.readValue(json)
     }
 }

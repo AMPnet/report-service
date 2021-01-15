@@ -15,15 +15,15 @@ const val LENGTH_OF_PERCENTAGE = 8
 
 class TransactionFactory private constructor() {
     companion object {
-        fun createTransaction(transaction: TransactionInfo, translations: Translations): Transaction? {
+        fun createTransaction(transaction: TransactionInfo): Transaction? {
             if (transaction.state == TransactionState.MINED) {
                 transaction.type?.let {
                     return when (it) {
-                        TransactionType.DEPOSIT -> TransactionDeposit(transaction, translations)
-                        TransactionType.WITHDRAW -> TransactionWithdraw(transaction, translations)
-                        TransactionType.INVEST -> TransactionInvest(transaction, translations)
-                        TransactionType.SHARE_PAYOUT -> TransactionSharePayout(transaction, translations)
-                        TransactionType.CANCEL_INVESTMENT -> TransactionCancelInvestment(transaction, translations)
+                        TransactionType.DEPOSIT -> TransactionDeposit(transaction)
+                        TransactionType.WITHDRAW -> TransactionWithdraw(transaction)
+                        TransactionType.INVEST -> TransactionInvest(transaction)
+                        TransactionType.SHARE_PAYOUT -> TransactionSharePayout(transaction)
+                        TransactionType.CANCEL_INVESTMENT -> TransactionCancelInvestment(transaction)
                         else -> null
                     }
                 }
@@ -33,7 +33,7 @@ class TransactionFactory private constructor() {
     }
 }
 
-abstract class Transaction(transaction: TransactionInfo, var translations: Translations) {
+abstract class Transaction(transaction: TransactionInfo) {
 
     val type: TransactionType = transaction.type
     val fromTxHash: String = transaction.fromTxHash
@@ -47,6 +47,7 @@ abstract class Transaction(transaction: TransactionInfo, var translations: Trans
     val amountInEuro: String = amount.toEurAmount()
     abstract val txStatus: TransactionStatusType
     abstract val name: String
+    lateinit var translations: Translations
 
     var description: String? = null
     var percentageInProject: String? = null
@@ -74,46 +75,31 @@ abstract class Transaction(transaction: TransactionInfo, var translations: Trans
     }
 }
 
-class TransactionInvest(
-    transaction: TransactionInfo,
-    translations: Translations
-) : Transaction(transaction, translations) {
+class TransactionInvest(transaction: TransactionInfo) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_OUT
     override val name: String
         get() = translations.investment
 }
 
-class TransactionCancelInvestment(
-    transaction: TransactionInfo,
-    translations: Translations
-) : Transaction(transaction, translations) {
+class TransactionCancelInvestment(transaction: TransactionInfo) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name: String
         get() = translations.investmentCancel
 }
 
-class TransactionSharePayout(
-    transaction: TransactionInfo,
-    translations: Translations
-) : Transaction(transaction, translations) {
+class TransactionSharePayout(transaction: TransactionInfo) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name: String
         get() = translations.revenueSharePayout
 }
 
-class TransactionDeposit(
-    transaction: TransactionInfo,
-    translations: Translations
-) : Transaction(transaction, translations) {
+class TransactionDeposit(transaction: TransactionInfo) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_IN
     override val name: String
         get() = translations.deposit
 }
 
-class TransactionWithdraw(
-    transaction: TransactionInfo,
-    translations: Translations
-) : Transaction(transaction, translations) {
+class TransactionWithdraw(transaction: TransactionInfo) : Transaction(transaction) {
     override val txStatus = TransactionStatusType.PAID_OUT
     override val name: String
         get() = translations.withdraw

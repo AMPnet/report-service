@@ -1,92 +1,117 @@
-{"transactions":
 {
-"EN":"Transactions","ES":"Transacciones","EL":"Συναλλαγές"
-},
-"accountId":
-{
-"EN":"Account ID","ES":"ID de la Cuenta","EL":"Αριθμός λογαριασμού"
-},
-"deposit":
-{
-"EN":"Deposit","ES":"Depósito","EL":"Κατάθεση"
-},
-"amount":
-{
-"EN":"Amount","ES":"Importe","EL":"Ποσό"
-},
-"date":
-{
-"EN":"Date","ES":"Fecha","EL":"Ημερομηνία"
-},
-"type":
-{
-"EN":"Type","ES":"Tipo","EL":"Τύπος"
-},
-"paidIn":
-{
-"EN":"Paid In","ES":"Ingresado","EL":"Πληρώθηκε σε"
-},
-"paidOut":
-{
-"EN":"Paid Out","ES":"Desembolsado","EL":"Εξοφλήθηκε"
-},
-"pending":
-{
-"EN":"Pending","ES":"Espera","EL":"Σε εκκρεμότητα"
-},
-"period":
-{
-"EN":"Period","ES":"Periodo de","EL":"Περίοδος"
-},
-"transactionsStatement":
-{
-"EN":"Transactions Statement","ES":"Estado de las Transacciones","EL":"Αποδεικτικό Συναλλαγής"
-},
-"accountSummary":
-{
-"EN":"Account Summary","ES":"Saldo de la Cuenta","EL":"Περίληψη λογαριασμού"
-},
-"deposits":
-{
-"EN":"Deposits","ES":"Depósitos","EL":"Καταθέσεις"
-},
-"withdrawals":
-{
-"EN":"Withdrawals","ES":"Retiradas","EL":"Αναλήψεις"
-},
-"totalRevenue":
-{
-"EN":"Total revenue share received","ES":"Total de la cuota de ingresos recibidos","EL":"Συνολικό μερίδιο εσόδων που ελήφθη"
-},
-"totalInvestments":
-{
-"EN":"Total investments placed","ES":"Total de inversiones realizadas","EL":"Συνολικές επενδύσεις"
-},
-"marketplaceBought":
-{
-"EN":"Marketplace shares bought","ES":"Cuotas de mercado compradas","EL":"Αγορές μεριδίων"
-},
-"marketplaceSold":
-{
-"EN":"Marketplace shares sold","ES":"Cuotas de mercado vendidas","EL":"Πωλήσεις μεριδίων"
-},
-"totalBalanceAsOf":
-{
-"EN":"Total balance as of ","ES":"Saldo total en","EL":"Συνολικό υπόλοιπο από "
-},
-"investment":
-{
-"EN":"Investment","ES":"Inversión","EL":"Επένδυση"
-},
-"investmentCancel":
-{
-"EN":"Investment cancel","ES":"Inversión cancelada","EL":"Ακύρωση Επένδυσης"
-},
-"revenueSharePayout":
-{
-"EN":"Revenue share payout","ES":"Pago de la cuota de ingresos","EL":"Πληρωμή μεριδίου εσόδων"
-},
-"withdraw":
-{
-"EN":"Withdraw","ES":"Retirar","EL":"Απόσυρση"
-}}
+    "transactions":{
+       "en":"Transactions",
+       "es":"Transacciones",
+       "el":"Συναλλαγές"
+    },
+    "accountId":{
+       "en":"Account ID",
+       "es":"ID de la Cuenta",
+       "el":"Αριθμός λογαριασμού"
+    },
+    "deposit":{
+       "en":"Deposit",
+       "es":"Depósito",
+       "el":"Κατάθεση"
+    },
+    "amount":{
+       "en":"Amount",
+       "es":"Importe",
+       "el":"Ποσό"
+    },
+    "date":{
+       "en":"Date",
+       "es":"Fecha",
+       "el":"Ημερομηνία"
+    },
+    "type":{
+       "en":"Type",
+       "es":"Tipo",
+       "el":"Τύπος"
+    },
+    "paidIn":{
+       "en":"Paid In",
+       "es":"Ingresado",
+       "el":"Πληρώθηκε σε"
+    },
+    "paidOut":{
+       "en":"Paid Out",
+       "es":"Desembolsado",
+       "el":"Εξοφλήθηκε"
+    },
+    "pending":{
+       "en":"Pending",
+       "es":"Espera",
+       "el":"Σε εκκρεμότητα"
+    },
+    "period":{
+       "en":"Period",
+       "es":"Periodo de",
+       "el":"Περίοδος"
+    },
+    "transactionsStatement":{
+       "en":"Transactions Statement",
+       "es":"Estado de las Transacciones",
+       "el":"Αποδεικτικό Συναλλαγής"
+    },
+    "accountSummary":{
+       "en":"Account Summary",
+       "es":"Saldo de la Cuenta",
+       "el":"Περίληψη λογαριασμού"
+    },
+    "deposits":{
+       "en":"Deposits",
+       "es":"Depósitos",
+       "el":"Καταθέσεις"
+    },
+    "withdrawals":{
+       "en":"Withdrawals",
+       "es":"Retiradas",
+       "el":"Αναλήψεις"
+    },
+    "totalRevenue":{
+       "en":"Total revenue share received",
+       "es":"Total de la cuota de ingresos recibidos",
+       "el":"Συνολικό μερίδιο εσόδων που ελήφθη"
+    },
+    "totalInvestments":{
+       "en":"Total investments placed",
+       "es":"Total de inversiones realizadas",
+       "el":"Συνολικές επενδύσεις"
+    },
+    "marketplaceBought":{
+       "en":"Marketplace shares bought",
+       "es":"Cuotas de mercado compradas",
+       "el":"Αγορές μεριδίων"
+    },
+    "marketplaceSold":{
+       "en":"Marketplace shares sold",
+       "es":"Cuotas de mercado vendidas",
+       "el":"Πωλήσεις μεριδίων"
+    },
+    "totalBalanceAsOf":{
+       "en":"Total balance as of ",
+       "es":"Saldo total en",
+       "el":"Συνολικό υπόλοιπο από "
+    },
+    "investment":{
+       "en":"Investment",
+       "es":"Inversión",
+       "el":"Επένδυση"
+    },
+    "investmentCancel":{
+       "en":"Investment cancel",
+       "es":"Inversión cancelada",
+       "el":"Ακύρωση Επένδυσης"
+    },
+    "revenueSharePayout":{
+       "en":"Revenue share payout",
+       "es":"Pago de la cuota de ingresos",
+       "el":"Πληρωμή μεριδίου εσόδων"
+    },
+    "withdraw":{
+       "en":"Withdraw",
+       "es":"Retirar",
+       "el":"Απόσυρση"
+    }
+ }

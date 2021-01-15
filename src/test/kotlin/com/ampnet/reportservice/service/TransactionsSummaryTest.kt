@@ -112,20 +112,16 @@ class TransactionsSummaryTest : TestBase() {
     private fun createTransactions(): List<Transaction?> {
         return listOf(
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 10, 1, 0, 0, 0, 0)),
-                translations
+                createTransaction(LocalDateTime.of(2020, 10, 1, 0, 0, 0, 0))
             ),
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 9, 1, 0, 0, 0, 0)),
-                translations
+                createTransaction(LocalDateTime.of(2020, 9, 1, 0, 0, 0, 0))
             ),
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 8, 1, 0, 0, 0, 0)),
-                translations
+                createTransaction(LocalDateTime.of(2020, 8, 1, 0, 0, 0, 0))
             ),
             TransactionFactory.createTransaction(
-                createTransaction(LocalDateTime.of(2020, 7, 1, 0, 0, 0, 0)),
-                translations
+                createTransaction(LocalDateTime.of(2020, 7, 1, 0, 0, 0, 0))
             )
         )
     }

@@ -62,13 +62,13 @@ abstract class JpaServiceTestBase : TestBase() {
             .build()
     }
 
-    protected fun createUserResponse(userUuid: UUID): UserResponse {
+    protected fun createUserResponse(userUuid: UUID, language: String = "en"): UserResponse {
         return UserResponse.newBuilder()
             .setUuid(userUuid.toString())
             .setFirstName("First")
             .setLastName("Last")
             .setEmail("email@as.co")
-            .setLanguage("EN")
+            .setLanguage(language)
             .build()
     }
 
@@ -110,10 +110,11 @@ abstract class JpaServiceTestBase : TestBase() {
 
     protected fun createUserWithInfoResponse(
         userUUID: UUID,
+        language: String = "en",
         createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
     ): UserWithInfoResponse {
         return UserWithInfoResponse.newBuilder()
-            .setUser(createUserResponse(userUUID))
+            .setUser(createUserResponse(userUUID, language))
             .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }

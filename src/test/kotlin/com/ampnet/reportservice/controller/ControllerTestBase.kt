@@ -100,7 +100,7 @@ abstract class ControllerTestBase : TestBase() {
             .setUuid(userUuid.toString())
             .setFirstName("First")
             .setLastName("Last")
-            .setLanguage("es")
+            .setLanguage("")
             .build()
     }
 
