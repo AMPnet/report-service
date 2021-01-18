@@ -13,8 +13,13 @@ class TranslationServiceImpl(
     @Qualifier("camelCaseObjectMapper") private val objectMapper: ObjectMapper
 ) : TranslationService {
 
-    val allTranslations by lazy {
-        getTranslationsMap()
+    private val allTranslations by lazy {
+        val json = javaClass.classLoader.getResource("templates/translations.json")?.readText()
+            ?: throw InternalException(
+                ErrorCode.INT_GENERATING_PDF,
+                "Could not find translations.json"
+            )
+        objectMapper.readValue<Map<String, Map<String, String>>>(json)
     }
 
     override fun getTranslations(language: String): Translations {
@@ -24,14 +29,5 @@ class TranslationServiceImpl(
                 "Could not find default[en] translation"
             )
         return Translations(translations)
-    }
-
-    private fun getTranslationsMap(): Map<String, Map<String, String>> {
-        val json = javaClass.classLoader.getResource("templates/translations.json")?.readText()
-            ?: throw InternalException(
-                ErrorCode.INT_GENERATING_PDF,
-                "Could not find translations.json"
-            )
-        return objectMapper.readValue(json)
     }
 }

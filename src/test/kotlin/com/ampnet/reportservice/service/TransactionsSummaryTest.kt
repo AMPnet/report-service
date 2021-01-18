@@ -36,7 +36,7 @@ class TransactionsSummaryTest : TestBase() {
             createTransactions().mapNotNull { it },
             UserInfo(createUserWithInfoResponse()),
             periodRequest,
-            Translations(mutableMapOf())
+            Translations(mapOf())
         )
         assertThat(txSummary.period).isEqualTo(getPeriod(periodRequest))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
@@ -46,7 +46,7 @@ class TransactionsSummaryTest : TestBase() {
     fun mustSetCorrectPeriodAndDateOfFinishForZeroTransactionsAndNullPeriodRequest() {
         val periodRequest = PeriodServiceRequest(null, null)
         val userInfo = UserInfo(createUserWithInfoResponse())
-        val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest, Translations(mutableMapOf()))
+        val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest, Translations(mapOf()))
         assertThat(txSummary.period).isEqualTo(getPeriodZeroTx(userInfo.createdAt))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
     }
