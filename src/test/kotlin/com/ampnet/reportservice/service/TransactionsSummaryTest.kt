@@ -15,7 +15,6 @@ import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,12 +25,6 @@ import java.util.UUID
 class TransactionsSummaryTest : TestBase() {
 
     private val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
-    lateinit var translations: Translations
-
-    @BeforeEach
-    fun init() {
-        translations = getTranslations(userLanguage)
-    }
 
     @Test
     fun mustSetCorrectPeriodAndDateOfFinish() {
@@ -43,7 +36,7 @@ class TransactionsSummaryTest : TestBase() {
             createTransactions().mapNotNull { it },
             UserInfo(createUserWithInfoResponse()),
             periodRequest,
-            translations
+            Translations(mutableMapOf())
         )
         assertThat(txSummary.period).isEqualTo(getPeriod(periodRequest))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
@@ -53,7 +46,7 @@ class TransactionsSummaryTest : TestBase() {
     fun mustSetCorrectPeriodAndDateOfFinishForZeroTransactionsAndNullPeriodRequest() {
         val periodRequest = PeriodServiceRequest(null, null)
         val userInfo = UserInfo(createUserWithInfoResponse())
-        val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest, translations)
+        val txSummary = TransactionsSummary(listOf(), userInfo, periodRequest, Translations(mutableMapOf()))
         assertThat(txSummary.period).isEqualTo(getPeriodZeroTx(userInfo.createdAt))
         assertThat(txSummary.dateOfFinish).isEqualTo(getDateOfFinish(periodRequest))
     }

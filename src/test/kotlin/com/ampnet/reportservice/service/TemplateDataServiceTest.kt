@@ -3,7 +3,6 @@ package com.ampnet.reportservice.service
 import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.projectservice.proto.ProjectResponse
-import com.ampnet.reportservice.config.JsonConfig
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
@@ -21,19 +20,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
-import org.springframework.context.annotation.Import
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-@Import(JsonConfig::class)
 class TemplateDataServiceTest : JpaServiceTestBase() {
 
     private lateinit var testContext: TestContext
 
     private val templateDataService: TemplateDataService by lazy {
-        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService, camelCaseObjectMapper)
+        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService, translationService)
     }
 
     @BeforeEach

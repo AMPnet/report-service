@@ -5,6 +5,7 @@ import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.TestBase
+import com.ampnet.reportservice.config.JsonConfig
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
 import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
@@ -13,14 +14,19 @@ import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @ExtendWith(SpringExtension::class)
+@Import(JsonConfig::class)
 abstract class JpaServiceTestBase : TestBase() {
 
     protected val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
@@ -43,6 +49,14 @@ abstract class JpaServiceTestBase : TestBase() {
 
     @Mock
     protected lateinit var userService: UserService
+
+    @Autowired
+    @Qualifier("camelCaseObjectMapper")
+    protected lateinit var camelCaseObjectMapper: ObjectMapper
+
+    protected val translationService: TranslationService by lazy {
+        TranslationServiceImpl(camelCaseObjectMapper)
+    }
 
     protected fun createWalletResponse(
         uuid: UUID,

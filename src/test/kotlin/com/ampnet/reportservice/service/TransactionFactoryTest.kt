@@ -5,20 +5,11 @@ import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.reportservice.TestBase
 import com.ampnet.reportservice.service.data.TransactionFactory
-import com.ampnet.reportservice.service.data.Translations
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 
 class TransactionFactoryTest : TestBase() {
-
-    lateinit var translations: Translations
-
-    @BeforeEach
-    fun init() {
-        translations = getTranslations(userLanguage)
-    }
 
     @Test
     fun mustNotCreateApprovedInvestmentTransaction() {

@@ -5,7 +5,6 @@ import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
-import com.ampnet.reportservice.exception.InternalException
 import com.ampnet.reportservice.exception.InvalidRequestException
 import com.ampnet.reportservice.exception.ResourceNotFoundException
 import com.ampnet.reportservice.grpc.blockchain.BlockchainService
@@ -13,6 +12,7 @@ import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.TemplateDataService
+import com.ampnet.reportservice.service.TranslationService
 import com.ampnet.reportservice.service.data.SingleTransactionSummary
 import com.ampnet.reportservice.service.data.Transaction
 import com.ampnet.reportservice.service.data.TransactionCancelInvestment
@@ -25,30 +25,22 @@ import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.walletservice.proto.WalletResponse
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KLogging
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
 
 @Service
-@Suppress("TooManyFunctions")
 class TemplateDataServiceImpl(
     private val walletService: WalletService,
     private val blockchainService: BlockchainService,
     private val userService: UserService,
     private val projectService: ProjectService,
-    @Qualifier("camelCaseObjectMapper") private val objectMapper: ObjectMapper
+    private val translationService: TranslationService
 ) : TemplateDataService {
 
     companion object : KLogging()
-
-    val allTranslations by lazy {
-        getTranslationsMap()
-    }
 
     override fun getUserTransactionsData(userUUID: UUID, periodRequest: PeriodServiceRequest): TransactionsSummary {
         val wallet = getWalletByUser(userUUID)
@@ -57,7 +49,7 @@ class TemplateDataServiceImpl(
         val walletHashes = getWalletHashes(transactions)
         val wallets = walletService.getWalletsByHash(walletHashes)
         val userWithInfo = UserInfo(userService.getUserWithInfo(userUUID))
-        val translations = getTranslations(userWithInfo.language)
+        val translations = translationService.getTranslations(userWithInfo.language)
         val transactionsWithNames =
             setBlockchainTransactionFromToNames(transactions, wallets, userWithInfo.language, translations)
         return TransactionsSummary(transactionsWithNames, userWithInfo, periodRequest, translations)
@@ -72,7 +64,7 @@ class TemplateDataServiceImpl(
         val transaction = blockchainService.getTransactionInfo(txHash, fromTxHash, toTxHash)
         val wallets = walletService.getWalletsByHash(setOf(fromTxHash, toTxHash))
         val userWithInfo = UserInfo(userService.getUserWithInfo(user))
-        val translations = getTranslations(userWithInfo.language)
+        val translations = translationService.getTranslations(userWithInfo.language)
         val mappedTransaction =
             setBlockchainTransactionFromToNames(
                 listOf(transaction), wallets, userWithInfo.language, translations
@@ -175,27 +167,5 @@ class TemplateDataServiceImpl(
             throw InvalidRequestException(
                 ErrorCode.INT_REQUEST, "Transaction doesn't belong to user wallet with hash: $txHash"
             )
-    }
-
-    private fun getTranslations(userLanguage: String): Translations {
-        val translations = mutableMapOf<String, String>()
-        allTranslations.forEach { (key, map) ->
-            val translation = map.getOrElse(userLanguage, { map["en"] })
-                ?: throw InternalException(
-                    ErrorCode.INT_GENERATING_PDF,
-                    "Could not find translations for $userLanguage or 'en'"
-                )
-            translations[key] = translation
-        }
-        return Translations(translations)
-    }
-
-    private fun getTranslationsMap(): Map<String, Map<String, String>> {
-        val json = javaClass.classLoader.getResource("templates/translations.json")?.readText()
-            ?: throw InternalException(
-                ErrorCode.INT_GENERATING_PDF,
-                "Could not find translations.json"
-            )
-        return objectMapper.readValue(json)
     }
 }
