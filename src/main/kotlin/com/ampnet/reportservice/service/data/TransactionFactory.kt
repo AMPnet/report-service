@@ -47,10 +47,10 @@ abstract class Transaction(transaction: TransactionInfo) {
     val amountInEuro: String = amount.toEurAmount()
     abstract val txStatus: TransactionStatusType
     abstract val name: String
+    lateinit var translations: Translations
 
     var description: String? = null
     var percentageInProject: String? = null
-    var translations: Translations = Translations()
     var locale: Locale = Locale.ENGLISH
 
     fun setPercentageInProject(expectedProjectFunding: Long) {
@@ -70,7 +70,6 @@ abstract class Transaction(transaction: TransactionInfo) {
 
     fun setLanguage(language: String) {
         if (language.isNotBlank()) {
-            this.translations = Translations.forLanguage(language)
             this.locale = Locale.forLanguageTag(language)
         }
     }

@@ -30,7 +30,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     private lateinit var testContext: TestContext
 
     private val templateDataService: TemplateDataService by lazy {
-        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService)
+        TemplateDataServiceImpl(walletService, blockchainService, userService, projectService, translationService)
     }
 
     @BeforeEach
@@ -238,6 +238,93 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                 templateDataService.getUserTransactionData(transactionServiceRequest)
             }
             assertThat(exception.errorCode).isEqualTo(ErrorCode.INT_REQUEST)
+        }
+    }
+
+    @Test
+    fun mustGenerateSingleReportInEnglishOnInvalidLanguage() {
+        suppose("Wallet service will return wallet for the user") {
+            mockWalletServiceGetWalletByOwner()
+        }
+        suppose("Blockchain service will return transaction info for txHash, fromTxHash and toTxHash") {
+            testContext.transaction = createTransaction(
+                mintHash, userWalletHash, testContext.deposit.toString(),
+                TransactionType.DEPOSIT
+            )
+            Mockito.`when`(
+                blockchainService.getTransactionInfo(
+                    txHash, testContext.transaction.fromTxHash, testContext.transaction.toTxHash
+                )
+            ).thenReturn(testContext.transaction)
+        }
+        suppose("Wallet service will return wallets for hashes") {
+            createWallets()
+            Mockito.`when`(walletService.getWalletsByHash(setOf(testContext.transaction.fromTxHash, testContext.transaction.toTxHash)))
+                .thenReturn(testContext.wallets)
+        }
+        suppose("Project service will return a list of projects") {
+            mockProjectService()
+        }
+        suppose("User service will return userWithInfo with invalid language") {
+            testContext.userWithInfo = createUserWithInfoResponse(userUuid, "invalid_language")
+            Mockito.`when`(userService.getUserWithInfo(userUuid))
+                .thenReturn(testContext.userWithInfo)
+        }
+
+        verify("Template data service can get user transaction") {
+            val transaction = testContext.transaction
+            val transactionServiceRequest = TransactionServiceRequest(
+                userUuid, txHash, transaction.fromTxHash,
+                transaction.toTxHash
+            )
+            val singleTxSummary = templateDataService.getUserTransactionData(transactionServiceRequest)
+            assertThat(singleTxSummary.translations.transactions).isEqualTo("Transactions")
+        }
+    }
+
+    @Test
+    fun mustGenerateTransactionsSummaryReportInEnglishOnInvalidLanguage() {
+        suppose("gRPCs service will return required data") {
+            mockWalletServiceGetWalletByOwner()
+            mockWalletServiceGetWalletsByHash()
+            mockProjectService()
+        }
+        suppose("User service will return userWithInfo with invalid language") {
+            testContext.userWithInfo = createUserWithInfoResponse(userUuid, "invalid_language")
+            Mockito.`when`(userService.getUserWithInfo(userUuid))
+                .thenReturn(testContext.userWithInfo)
+        }
+        suppose("Blockchain service will return transactions for wallet") {
+            testContext.transactions = listOf(
+                createTransaction(
+                    mintHash, userWalletHash, testContext.deposit.toString(),
+                    TransactionType.DEPOSIT
+                ),
+                createTransaction(
+                    userWalletHash, projectWalletHash, testContext.invest.toString(),
+                    TransactionType.INVEST
+                ),
+                createTransaction(
+                    projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
+                    TransactionType.CANCEL_INVESTMENT
+                ),
+                createTransaction(
+                    projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
+                    TransactionType.SHARE_PAYOUT
+                ),
+                createTransaction(
+                    userWalletHash, burnHash, testContext.withdraw.toString(),
+                    TransactionType.WITHDRAW
+                )
+            )
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+                .thenReturn(testContext.transactions)
+        }
+
+        verify("Template data service can get user transactions") {
+            val periodRequest = PeriodServiceRequest(null, null)
+            val txSummary = templateDataService.getUserTransactionsData(userUuid, periodRequest)
+            assertThat(txSummary.transactions.first().name).isEqualTo("Deposit")
         }
     }
 
