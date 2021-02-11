@@ -15,9 +15,9 @@ import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.fail
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.restdocs.RestDocumentationContextProvider
@@ -176,7 +176,7 @@ abstract class ControllerTestBase : TestBase() {
             assertThat(data[data.size - 1]).isEqualTo(0x0A) // EOL
             return
         }
-        Assert.fail("Unsupported file format")
+        fail("Unsupported file format")
     }
 
     protected fun createTransaction(
