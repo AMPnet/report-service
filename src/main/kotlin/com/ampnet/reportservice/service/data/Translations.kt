@@ -24,4 +24,9 @@ data class Translations(val translations: Map<String, String>) {
     val investmentCancel: String by translations
     val revenueSharePayout: String by translations
     val withdraw: String by translations
+    val dateOfBirth: String by translations
+    val documentNumber: String by translations
+    val dateOfIssue: String by translations
+    val dateOfExpiry: String by translations
+    val personalNumber: String by translations
 }

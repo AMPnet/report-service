@@ -1,0 +1,20 @@
+<tr th:fragment="accountSummary(data)">
+        <h1 th:text="${data.translations.transactionsStatement}">Transactions Statement</h1>
+        <div class="summary-info">
+            <table>
+                <tr>
+                    <td valign="bottom">
+                        <div class="summary-left">
+                            <h2 th:text="${data.translations.accountSummary}">Account Summary</h2>
+                            <p th:text="${data.translations.totalBalanceAsOf} + ${data.dateOfFinish} ?: ''">Total balance as of Aug 31, 2020</p>
+                        </div>
+                    </td>
+                    <td valign="bottom">
+                        <div class="summary-right">
+                            <p th:text="'€' +${data.balance}">€1,360.00</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+</tr>

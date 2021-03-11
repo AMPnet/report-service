@@ -4,6 +4,7 @@ import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.security.WithMockCrowdfundUser
+import com.ampnet.userservice.proto.Role
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
@@ -19,8 +20,10 @@ import java.util.UUID
 class ReportingControllerTest : ControllerTestBase() {
 
     private val reportPath = "/report/user/"
+    private val userAccountsSummaryPath = "/report/admin/user"
     private val transaction = "transaction"
     private val transactions = "transactions"
+    private val userAccountsSummary = "userAccountsSummary"
     private val userTransactionsPath = reportPath + transactions
     private val userTransactionPath = reportPath + transaction
 
@@ -139,16 +142,54 @@ class ReportingControllerTest : ControllerTestBase() {
         }
     }
 
+    @Test
+    @WithMockCrowdfundUser
+    fun mustBeAbleToGeneratePdfForAllActiveUsers() {
+        suppose("User service will return a list of users") {
+            val user = createUserExtendedResponse(userUuid, role = Role.PLATFORM_MANAGER)
+            val secondUser = createUserExtendedResponse(secondUserUuid)
+            val thirdUser = createUserExtendedResponse(thirdUserUuid)
+            val coopResponse = createCoopResponse()
+            val response = createUsersExtendedResponse(
+                listOf(user, secondUser, thirdUser), coopResponse
+            )
+            Mockito.`when`(userService.getAllActiveUsers(userUuid, coop))
+                .thenReturn(response)
+        }
+        suppose("Wallet service will return wallets for the users") {
+            testContext.wallet = createWalletResponse(walletUuid, userUuid, hash = "wallet_hash_1")
+            testContext.secondWallet = createWalletResponse(UUID.randomUUID(), secondUserUuid, hash = "wallet_hash_2")
+            testContext.thirdWallet = createWalletResponse(UUID.randomUUID(), thirdUserUuid, hash = "wallet_hash_3")
+            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid, secondUserUuid, thirdUserUuid)))
+                .thenReturn(listOf(testContext.wallet, testContext.secondWallet, testContext.thirdWallet))
+        }
+        suppose("Blockchain service will return transactions for wallets") {
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+                .thenReturn(createTransactionsResponse())
+            Mockito.`when`(blockchainService.getTransactions(testContext.secondWallet.hash))
+                .thenReturn(createDeposits())
+            Mockito.`when`(blockchainService.getTransactions(testContext.thirdWallet.hash))
+                .thenReturn(listOf())
+        }
+
+        verify("Platform manager can get pdf with all user accounts summary") {
+            val result = mockMvc.perform(
+                get(userAccountsSummaryPath)
+                    .param("from", "2019-10-10")
+                    .param("to", LocalDate.now().plusDays(1).toString())
+            )
+                .andExpect(status().isOk)
+                .andReturn()
+
+            val pdfContent = result.response.contentAsByteArray
+            verifyPdfFormat(pdfContent)
+            // File(getDownloadDirectory(userAccountsSummary)).writeBytes(pdfContent)
+        }
+    }
+
     private fun createTransactionsResponse(): List<TransactionInfo> {
         val investment = "30000"
-        val deposits = MutableList(2) {
-            createTransaction(
-                TransactionType.DEPOSIT,
-                mintHash,
-                userWalletHash,
-                amount = "1000000"
-            )
-        }
+        val deposits = createDeposits()
         val invests = MutableList(2) {
             createTransaction(
                 TransactionType.INVEST,
@@ -185,6 +226,17 @@ class ReportingControllerTest : ControllerTestBase() {
         return deposits + invests + withdrawals + revenueShares + cancelInvestments
     }
 
+    private fun createDeposits(): List<TransactionInfo> {
+        return MutableList(2) {
+            createTransaction(
+                TransactionType.DEPOSIT,
+                mintHash,
+                userWalletHash,
+                amount = "1000000"
+            )
+        }
+    }
+
     private fun getDownloadDirectory(name: String): String {
         return System.getProperty("user.home") + File.separator +
             "Desktop" + File.separator + name + ".pdf"
@@ -192,6 +244,8 @@ class ReportingControllerTest : ControllerTestBase() {
 
     private class TestContext {
         lateinit var wallet: WalletResponse
+        lateinit var secondWallet: WalletResponse
+        lateinit var thirdWallet: WalletResponse
         lateinit var wallets: List<WalletResponse>
         lateinit var transactions: List<TransactionInfo>
         lateinit var transaction: TransactionInfo

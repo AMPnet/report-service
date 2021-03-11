@@ -49,6 +49,20 @@ class ReportingController(
         return ResponseEntity(pdfContents, getHttpHeadersForPdf(), HttpStatus.OK)
     }
 
+    @GetMapping("/report/admin/user")
+    fun getActiveUsersReport(
+        @RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
+        @RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
+    ): ResponseEntity<ByteArray> {
+        val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
+        logger.debug {
+            "Received request to get the transactions summary for all the active users"
+        }
+        val periodRequest = PeriodServiceRequest(from, to)
+        val pdfContents = reportingService.generatePdfReportForAllActiveUsers(userPrincipal, periodRequest)
+        return ResponseEntity(pdfContents, getHttpHeadersForPdf(), HttpStatus.OK)
+    }
+
     private fun getHttpHeadersForPdf(): HttpHeaders {
         val httpHeaders = HttpHeaders()
         httpHeaders.contentType = MediaType.APPLICATION_PDF

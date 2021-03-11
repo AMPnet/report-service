@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.service.impl
 
+import com.ampnet.core.jwt.UserPrincipal
 import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.projectservice.proto.ProjectResponse
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
@@ -24,14 +25,19 @@ import com.ampnet.reportservice.service.data.TransactionWithdraw
 import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
+import com.ampnet.reportservice.service.data.UsersAccountsSummary
+import com.ampnet.userservice.proto.Role
+import com.ampnet.userservice.proto.UsersExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
+import kotlin.streams.asSequence
 
 @Service
+@Suppress("TooManyFunctions")
 class TemplateDataServiceImpl(
     private val walletService: WalletService,
     private val blockchainService: BlockchainService,
@@ -73,6 +79,33 @@ class TemplateDataServiceImpl(
                     ErrorCode.INT_UNSUPPORTED_TX, "Transaction with hash:$txHash is not supported in report"
                 )
         return SingleTransactionSummary(mappedTransaction, userWithInfo, translations)
+    }
+
+    override fun getAllActiveUsersSummaryData(
+        user: UserPrincipal,
+        periodRequest: PeriodServiceRequest
+    ): UsersAccountsSummary {
+        val users = userService.getAllActiveUsers(user.uuid, user.coop)
+        val reportLanguage = validateUserCanCreatePdf(user, users)
+        val userWallets = walletService.getWalletsByOwner(users.usersList.map { UUID.fromString(it.uuid) })
+        val userTransactions = userWallets.parallelStream().asSequence().associateBy(
+            { it.owner },
+            { blockchainService.getTransactions(it.hash).filter { tx -> inTimePeriod(periodRequest, tx.date) } }
+        )
+        val translations = translationService.getTranslations(reportLanguage)
+        val transactionsSummaryList: MutableList<TransactionsSummary> = mutableListOf()
+        users.usersList.forEach { userResponse ->
+            userTransactions[userResponse.uuid]?.mapNotNull { TransactionFactory.createTransaction(it) }
+                ?.let { transactions ->
+                    if (transactions.isNotEmpty()) {
+                        val userInfo = UserInfo(userResponse, users.coop, reportLanguage)
+                        transactionsSummaryList.add(
+                            TransactionsSummary(transactions, userInfo, periodRequest, translations)
+                        )
+                    }
+                }
+        }
+        return UsersAccountsSummary(transactionsSummaryList, users.coop.logo)
     }
 
     private fun getWalletHashes(transactions: List<TransactionInfo>): Set<String> {
@@ -167,5 +200,16 @@ class TemplateDataServiceImpl(
             throw InvalidRequestException(
                 ErrorCode.INT_REQUEST, "Transaction doesn't belong to user wallet with hash: $txHash"
             )
+    }
+
+    private fun validateUserCanCreatePdf(user: UserPrincipal, users: UsersExtendedResponse): String {
+        val adminOrPlatformManager = users.usersList.find {
+            it.uuid == user.uuid.toString() && (it.role == Role.PLATFORM_MANAGER || it.role == Role.ADMIN)
+        } ?: throw ResourceNotFoundException(
+            ErrorCode.USER_MISSING_PRIVILEGE,
+            "User(${user.uuid}) requesting all active users accounts summary pdf " +
+                "is not a platform manager or admin of the coop: ${user.coop}"
+        )
+        return adminOrPlatformManager.language
     }
 }

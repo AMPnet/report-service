@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.service.impl
 
+import com.ampnet.core.jwt.UserPrincipal
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
@@ -31,6 +32,14 @@ class ReportingServiceImpl(
 
     override fun generatePdfReportForUserTransaction(transactionServiceRequest: TransactionServiceRequest): ByteArray {
         val template = templateService.generateTemplateForUserTransaction(transactionServiceRequest)
+        return generateFromTemplateToByteArray(template)
+    }
+
+    override fun generatePdfReportForAllActiveUsers(
+        user: UserPrincipal,
+        periodRequest: PeriodServiceRequest
+    ): ByteArray {
+        val template = templateService.generateTemplateForAllActiveUsers(user, periodRequest)
         return generateFromTemplateToByteArray(template)
     }
 

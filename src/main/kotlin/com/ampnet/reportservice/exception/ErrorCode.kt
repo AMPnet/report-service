@@ -2,6 +2,9 @@ package com.ampnet.reportservice.exception
 
 enum class ErrorCode(val categoryCode: String, var specificCode: String, var message: String) {
 
+    // Users: 03
+    USER_MISSING_PRIVILEGE("03", "05", "Missing privilege to access data"),
+
     // Wallet: 05
     WALLET_MISSING("05", "01", "Missing wallet"),
 
