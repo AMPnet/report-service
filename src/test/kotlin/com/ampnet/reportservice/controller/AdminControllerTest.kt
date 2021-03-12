@@ -66,7 +66,7 @@ class AdminControllerTest : ControllerTestBase() {
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
-            File(getDownloadDirectory(usersAccountsSummary)).writeBytes(pdfContent)
+            // File(getDownloadDirectory(usersAccountsSummary)).writeBytes(pdfContent)
         }
     }
 
