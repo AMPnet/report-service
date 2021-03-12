@@ -13,7 +13,6 @@ import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.CoopResponse
-import com.ampnet.userservice.proto.Role
 import com.ampnet.userservice.proto.UserExtendedResponse
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
@@ -142,7 +141,7 @@ abstract class JpaServiceTestBase : TestBase() {
             .build()
     }
 
-    protected fun createUserExtendedResponse(userUUID: UUID, role: Role = Role.USER): UserExtendedResponse =
+    protected fun createUserExtendedResponse(userUUID: UUID): UserExtendedResponse =
         UserExtendedResponse.newBuilder()
             .setUuid(userUUID.toString())
             .setFirstName("first name")
@@ -154,7 +153,6 @@ abstract class JpaServiceTestBase : TestBase() {
             .setDateOfIssue("10.03.2021")
             .setDateOfExpiry("10.07.2021")
             .setPersonalNumber("personal number")
-            .setRole(role)
             .build()
 
     protected fun createUsersExtendedResponse(

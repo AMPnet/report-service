@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import java.io.File
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -158,7 +159,6 @@ abstract class ControllerTestBase : TestBase() {
             .setDateOfIssue("10.03.2021")
             .setDateOfExpiry("10.07.2021")
             .setPersonalNumber("personal number")
-            .setRole(role)
             .build()
 
     protected fun createUsersExtendedResponse(
@@ -222,5 +222,60 @@ abstract class ControllerTestBase : TestBase() {
             .setState(TransactionState.MINED)
             .setDate(LocalDateTime.now().minusDays(1).toMiliSeconds().toString())
             .build()
+    }
+
+    protected fun getDownloadDirectory(name: String): String {
+        return System.getProperty("user.home") + File.separator +
+            "Desktop" + File.separator + name + ".pdf"
+    }
+
+    protected fun createTransactionsResponse(): List<TransactionInfo> {
+        val investment = "30000"
+        val deposits = createDeposits()
+        val invests = MutableList(2) {
+            createTransaction(
+                TransactionType.INVEST,
+                userWalletHash,
+                projectWalletHash,
+                amount = investment
+            )
+        }
+        val withdrawals = MutableList(2) {
+            createTransaction(
+                TransactionType.WITHDRAW,
+                userWalletHash,
+                burnHash,
+                amount = "10000"
+            )
+        }
+        val revenueShares =
+            MutableList(2) {
+                createTransaction(
+                    TransactionType.SHARE_PAYOUT,
+                    projectWalletHash,
+                    userWalletHash,
+                    amount = "6670"
+                )
+            }
+        val cancelInvestments = MutableList(1) {
+            createTransaction(
+                TransactionType.CANCEL_INVESTMENT,
+                projectWalletHash,
+                userWalletHash,
+                amount = investment
+            )
+        }
+        return deposits + invests + withdrawals + revenueShares + cancelInvestments
+    }
+
+    protected fun createDeposits(): List<TransactionInfo> {
+        return MutableList(2) {
+            createTransaction(
+                TransactionType.DEPOSIT,
+                mintHash,
+                userWalletHash,
+                amount = "1000000"
+            )
+        }
     }
 }

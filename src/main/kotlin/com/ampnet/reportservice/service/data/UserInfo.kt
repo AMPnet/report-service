@@ -44,6 +44,5 @@ class UserInfo {
     }
 }
 
-fun Long.millisecondsToLocalDateTime(): LocalDateTime {
-    return Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDateTime()
-}
+fun Long.millisecondsToLocalDateTime(): LocalDateTime =
+    Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDateTime()

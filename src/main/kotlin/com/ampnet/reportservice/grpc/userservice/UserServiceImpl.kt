@@ -3,7 +3,7 @@ package com.ampnet.reportservice.grpc.userservice
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
-import com.ampnet.userservice.proto.GetActiveUsersRequest
+import com.ampnet.userservice.proto.CoopRequest
 import com.ampnet.userservice.proto.GetUserRequest
 import com.ampnet.userservice.proto.GetUsersRequest
 import com.ampnet.userservice.proto.UserResponse
@@ -58,11 +58,10 @@ class UserServiceImpl(
         }
     }
 
-    override fun getAllActiveUsers(uuid: UUID, coop: String): UsersExtendedResponse {
+    override fun getAllActiveUsers(coop: String): UsersExtendedResponse {
         logger.debug { "Fetching UsersExtendedResponse for coop: $coop" }
         try {
-            val request = GetActiveUsersRequest.newBuilder()
-                .setUuid(uuid.toString())
+            val request = CoopRequest.newBuilder()
                 .setCoop(coop)
                 .build()
             val response = serviceWithTimeout().getAllActiveUsers(request)

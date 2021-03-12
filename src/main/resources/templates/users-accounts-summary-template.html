@@ -4,7 +4,7 @@
 <div th:replace="fragments/head.html :: head(logo=${data.logo})"></div>
 <body>
 <div th:each="summary: ${data.summaries}" class="container">
-    <div class="page-1">
+    <div th:if="${!summary.transactions.isEmpty()}" class="page-1">
         <div th:include="fragments/userInfo.html :: userInfo(data=${summary})"></div>
         <div class="account-summary">
             <div th:include="fragments/accountSummary.html :: accountSummary(data=${summary})"></div>

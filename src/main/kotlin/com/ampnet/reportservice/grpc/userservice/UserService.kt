@@ -8,5 +8,5 @@ import java.util.UUID
 interface UserService {
     fun getUsers(uuids: Set<UUID>): List<UserResponse>
     fun getUserWithInfo(uuid: UUID): UserWithInfoResponse
-    fun getAllActiveUsers(uuid: UUID, coop: String): UsersExtendedResponse
+    fun getAllActiveUsers(coop: String): UsersExtendedResponse
 }

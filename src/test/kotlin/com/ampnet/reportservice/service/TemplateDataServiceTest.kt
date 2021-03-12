@@ -13,7 +13,6 @@ import com.ampnet.reportservice.service.data.TO_PERCENTAGE
 import com.ampnet.reportservice.service.data.toEurAmount
 import com.ampnet.reportservice.service.impl.TemplateDataServiceImpl
 import com.ampnet.userservice.proto.CoopResponse
-import com.ampnet.userservice.proto.Role
 import com.ampnet.userservice.proto.UserExtendedResponse
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
@@ -96,14 +95,14 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             val depositTx = transactions.first { it.type == TransactionType.DEPOSIT }
             assertThat(depositTx.description).isNull()
             assertThat(depositTx.percentageInProject).isNull()
-            assertThat(depositTx.txDate).isNotBlank()
+            assertThat(depositTx.txDate).isNotBlank
             assertThat(depositTx.amountInEuro).isEqualTo(depositTx.amount.toEurAmount())
             val investTx = transactions.first { it.type == TransactionType.INVEST }
             assertThat(investTx.description).isEqualTo(project.name)
             assertThat(investTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, investTx.amount)
             )
-            assertThat(investTx.txDate).isNotBlank()
+            assertThat(investTx.txDate).isNotBlank
             assertThat(investTx.amountInEuro).isEqualTo(investTx.amount.toEurAmount())
             val cancelInvestmentTx =
                 transactions.first { it.type == TransactionType.CANCEL_INVESTMENT }
@@ -111,16 +110,16 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(cancelInvestmentTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, cancelInvestmentTx.amount)
             )
-            assertThat(cancelInvestmentTx.txDate).isNotBlank()
+            assertThat(cancelInvestmentTx.txDate).isNotBlank
             assertThat(cancelInvestmentTx.amountInEuro).isEqualTo(cancelInvestmentTx.amount.toEurAmount())
             val sharePayoutTx = transactions.first { it.type == TransactionType.SHARE_PAYOUT }
             assertThat(sharePayoutTx.description).isEqualTo(project.name)
-            assertThat(sharePayoutTx.txDate).isNotBlank()
+            assertThat(sharePayoutTx.txDate).isNotBlank
             assertThat(sharePayoutTx.amountInEuro).isEqualTo(sharePayoutTx.amount.toEurAmount())
             val withdrawTx = transactions.first { it.type == TransactionType.WITHDRAW }
             assertThat(withdrawTx.description).isNull()
             assertThat(withdrawTx.percentageInProject).isNull()
-            assertThat(withdrawTx.txDate).isNotBlank()
+            assertThat(withdrawTx.txDate).isNotBlank
             assertThat(withdrawTx.amountInEuro).isEqualTo(withdrawTx.amount.toEurAmount())
         }
     }
@@ -313,14 +312,14 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
     @Test
     fun mustGenerateCorrectUsersAccountsSummary() {
         suppose("User service will return a list of users") {
-            testContext.userExtended = createUserExtendedResponse(userUuid, role = Role.PLATFORM_MANAGER)
+            testContext.userExtended = createUserExtendedResponse(userUuid)
             testContext.secondUserExtended = createUserExtendedResponse(secondUserUuid)
             testContext.thirdUserExtended = createUserExtendedResponse(thirdUserUuid)
             testContext.coopResponse = createCoopResponse()
             val response = createUsersExtendedResponse(
                 listOf(testContext.userExtended, testContext.secondUserExtended, testContext.thirdUserExtended), testContext.coopResponse
             )
-            Mockito.`when`(userService.getAllActiveUsers(userUuid, coop))
+            Mockito.`when`(userService.getAllActiveUsers(coop))
                 .thenReturn(response)
         }
         suppose("Wallet service will return wallets for users") {
@@ -346,7 +345,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             val usersAccountsSummary = templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
             val transactionsSummaryList = usersAccountsSummary.summaries
             val logo = usersAccountsSummary.logo
-            assertThat(transactionsSummaryList).hasSize(2)
+            assertThat(transactionsSummaryList).hasSize(3)
             assertThat(logo).isEqualTo(testContext.coopResponse.logo)
             transactionsSummaryList.forEach {
                 when (UUID.fromString(it.userInfo.userUuid)) {
@@ -366,28 +365,9 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                         assertThat(it.deposits).isEqualTo(testContext.deposit.toEurAmount())
                         assertThat(it.balance).isEqualTo(testContext.deposit.toEurAmount())
                     }
+                    thirdUserUuid -> { assertThat(it.transactions).isEmpty() }
                 }
             }
-        }
-    }
-
-    @Test
-    fun mustThrowExceptionIfUserIsNotAdminOrPlatformManager() {
-        suppose("There are users in the coop") {
-            val firstUser = createUserExtendedResponse(userUuid)
-            val secondUser = createUserExtendedResponse(UUID.randomUUID())
-            val coopResponse = createCoopResponse()
-            val users = createUsersExtendedResponse(listOf(firstUser, secondUser), coopResponse)
-            Mockito.`when`(userService.getAllActiveUsers(userUuid, coop)).thenReturn(users)
-        }
-
-        verify("Service must throw exception if user is not admin or platform manager") {
-            val periodRequest = PeriodServiceRequest(null, null)
-            val user = createUserPrincipal()
-            val exception = assertThrows<InvalidRequestException> {
-                templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
-            }
-            assertThat(exception.errorCode).isEqualTo(ErrorCode.USER_MISSING_PRIVILEGE)
         }
     }
 
@@ -397,32 +377,26 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             TransactionType.DEPOSIT
         )
 
-    private fun createInvestTx(): TransactionInfo =
-        createTransaction(
-            userWalletHash, projectWalletHash, testContext.invest.toString(),
-            TransactionType.INVEST
-        )
-
-    private fun createSharePayoutTx(): TransactionInfo =
-        createTransaction(
-            projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
-            TransactionType.SHARE_PAYOUT
-        )
-
-    private fun createCancelInvestmentTx(): TransactionInfo =
-        createTransaction(
-            projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
-            TransactionType.CANCEL_INVESTMENT
-        )
-
-    private fun createWithdrawTx(): TransactionInfo =
-        createTransaction(
-            userWalletHash, burnHash, testContext.withdraw.toString(),
-            TransactionType.WITHDRAW
-        )
-
     private fun createUserTransactionFlow(): List<TransactionInfo> =
-        listOf(createDepositTx(), createInvestTx(), createSharePayoutTx(), createCancelInvestmentTx(), createWithdrawTx())
+        listOf(
+            createDepositTx(),
+            createTransaction(
+                userWalletHash, projectWalletHash, testContext.invest.toString(),
+                TransactionType.INVEST
+            ),
+            createTransaction(
+                projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
+                TransactionType.SHARE_PAYOUT
+            ),
+            createTransaction(
+                projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
+                TransactionType.CANCEL_INVESTMENT
+            ),
+            createTransaction(
+                userWalletHash, burnHash, testContext.withdraw.toString(),
+                TransactionType.WITHDRAW
+            )
+        )
 
     private fun getPercentageInProject(expectedFunding: Long?, amount: Long): String? {
         return expectedFunding?.let {

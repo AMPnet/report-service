@@ -26,7 +26,6 @@ import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.reportservice.service.data.UsersAccountsSummary
-import com.ampnet.userservice.proto.Role
 import com.ampnet.userservice.proto.UsersExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
@@ -85,24 +84,18 @@ class TemplateDataServiceImpl(
         user: UserPrincipal,
         periodRequest: PeriodServiceRequest
     ): UsersAccountsSummary {
-        val users = userService.getAllActiveUsers(user.uuid, user.coop)
-        val reportLanguage = validateUserCanCreatePdf(user, users)
+        val users = userService.getAllActiveUsers(user.coop)
+        val reportLanguage = getReportLanguage(user, users)
         val userWallets = walletService.getWalletsByOwner(users.usersList.map { UUID.fromString(it.uuid) })
         val userTransactions = userWallets.parallelStream().asSequence().associateBy(
             { it.owner },
             { blockchainService.getTransactions(it.hash).filter { tx -> inTimePeriod(periodRequest, tx.date) } }
         )
         val translations = translationService.getTranslations(reportLanguage)
-        val transactionsSummaryList: MutableList<TransactionsSummary> = mutableListOf()
-        users.usersList.map { userResponse ->
-            getTransactions(userTransactions, userResponse.uuid)?.let { transactions ->
-                if (transactions.isNotEmpty()) {
-                    val userInfo = UserInfo(userResponse, users.coop, reportLanguage)
-                    transactionsSummaryList.add(
-                        TransactionsSummary(transactions, userInfo, periodRequest, translations)
-                    )
-                }
-            }
+        val transactionsSummaryList = users.usersList.map { userResponse ->
+            val transactions = getTransactions(userTransactions, userResponse.uuid)
+            val userInfo = UserInfo(userResponse, users.coop, reportLanguage)
+            TransactionsSummary(transactions, userInfo, periodRequest, translations)
         }
         return UsersAccountsSummary(transactionsSummaryList, users.coop.logo)
     }
@@ -201,21 +194,17 @@ class TemplateDataServiceImpl(
             )
     }
 
-    private fun validateUserCanCreatePdf(user: UserPrincipal, users: UsersExtendedResponse): String {
-        val adminOrPlatformManager = users.usersList.find {
-            it.uuid == user.uuid.toString() && (it.role == Role.PLATFORM_MANAGER || it.role == Role.ADMIN)
-        } ?: throw InvalidRequestException(
-            ErrorCode.USER_MISSING_PRIVILEGE,
-            "User(${user.uuid}) requesting all active users accounts summary pdf " +
-                "is not a platform manager or admin of the coop: ${user.coop}"
-        )
-        return adminOrPlatformManager.language
-    }
+    private fun getReportLanguage(user: UserPrincipal, users: UsersExtendedResponse): String =
+        users.usersList.find { it.uuid == user.uuid.toString() }?.language
+            ?: throw InvalidRequestException(
+                ErrorCode.USER_MISSING_PRIVILEGE,
+                "User(${user.uuid}) requesting all active users accounts summary pdf " +
+                    "is not a member of the coop: ${user.coop}"
+            )
 
     private fun getTransactions(
-        userTransactions: Map<String,
-            List<TransactionInfo>>,
+        userTransactions: Map<String, List<TransactionInfo>>,
         userUuid: String
-    ): List<Transaction>? =
-        userTransactions[userUuid]?.mapNotNull { TransactionFactory.createTransaction(it) }
+    ): List<Transaction> =
+        userTransactions[userUuid]?.mapNotNull { TransactionFactory.createTransaction(it) }.orEmpty()
 }
