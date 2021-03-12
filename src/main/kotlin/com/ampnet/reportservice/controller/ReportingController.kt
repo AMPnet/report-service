@@ -56,7 +56,7 @@ class ReportingController(
     ): ResponseEntity<ByteArray> {
         val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
         logger.debug {
-            "Received request to get the transactions summary for all the active users"
+            "Received request to get users accounts summary for all the active users"
         }
         val periodRequest = PeriodServiceRequest(from, to)
         val pdfContents = reportingService.generatePdfReportForAllActiveUsers(userPrincipal, periodRequest)

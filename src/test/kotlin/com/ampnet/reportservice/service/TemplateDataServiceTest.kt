@@ -12,6 +12,9 @@ import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
 import com.ampnet.reportservice.service.data.TO_PERCENTAGE
 import com.ampnet.reportservice.service.data.toEurAmount
 import com.ampnet.reportservice.service.impl.TemplateDataServiceImpl
+import com.ampnet.userservice.proto.CoopResponse
+import com.ampnet.userservice.proto.Role
+import com.ampnet.userservice.proto.UserExtendedResponse
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
@@ -295,28 +298,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                 .thenReturn(testContext.userWithInfo)
         }
         suppose("Blockchain service will return transactions for wallet") {
-            testContext.transactions = listOf(
-                createTransaction(
-                    mintHash, userWalletHash, testContext.deposit.toString(),
-                    TransactionType.DEPOSIT
-                ),
-                createTransaction(
-                    userWalletHash, projectWalletHash, testContext.invest.toString(),
-                    TransactionType.INVEST
-                ),
-                createTransaction(
-                    projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
-                    TransactionType.CANCEL_INVESTMENT
-                ),
-                createTransaction(
-                    projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
-                    TransactionType.SHARE_PAYOUT
-                ),
-                createTransaction(
-                    userWalletHash, burnHash, testContext.withdraw.toString(),
-                    TransactionType.WITHDRAW
-                )
-            )
+            testContext.transactions = createUserTransactionFlow()
             Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
                 .thenReturn(testContext.transactions)
         }
@@ -327,6 +309,120 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(txSummary.transactions.first().name).isEqualTo("Deposit")
         }
     }
+
+    @Test
+    fun mustGenerateCorrectUsersAccountsSummary() {
+        suppose("User service will return a list of users") {
+            testContext.userExtended = createUserExtendedResponse(userUuid, role = Role.PLATFORM_MANAGER)
+            testContext.secondUserExtended = createUserExtendedResponse(secondUserUuid)
+            testContext.thirdUserExtended = createUserExtendedResponse(thirdUserUuid)
+            testContext.coopResponse = createCoopResponse()
+            val response = createUsersExtendedResponse(
+                listOf(testContext.userExtended, testContext.secondUserExtended, testContext.thirdUserExtended), testContext.coopResponse
+            )
+            Mockito.`when`(userService.getAllActiveUsers(userUuid, coop))
+                .thenReturn(response)
+        }
+        suppose("Wallet service will return wallets for users") {
+            testContext.wallet = createWalletResponse(walletUuid, userUuid, hash = "wallet_hash_1")
+            testContext.secondWallet = createWalletResponse(UUID.randomUUID(), secondUserUuid, hash = "wallet_hash_2")
+            testContext.thirdWallet = createWalletResponse(UUID.randomUUID(), thirdUserUuid, hash = "wallet_hash_3")
+            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid, secondUserUuid, thirdUserUuid)))
+                .thenReturn(listOf(testContext.wallet, testContext.secondWallet, testContext.thirdWallet))
+            createWallets()
+        }
+        suppose("Blockchain service will return transactions for wallets") {
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+                .thenReturn(createUserTransactionFlow())
+            Mockito.`when`(blockchainService.getTransactions(testContext.secondWallet.hash))
+                .thenReturn(listOf(createDepositTx()))
+            Mockito.`when`(blockchainService.getTransactions(testContext.thirdWallet.hash))
+                .thenReturn(listOf())
+        }
+
+        verify("Template data service can get users accounts summary") {
+            val user = createUserPrincipal()
+            val periodRequest = PeriodServiceRequest(null, null)
+            val usersAccountsSummary = templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
+            val transactionsSummaryList = usersAccountsSummary.summaries
+            val logo = usersAccountsSummary.logo
+            assertThat(transactionsSummaryList).hasSize(2)
+            assertThat(logo).isEqualTo(testContext.coopResponse.logo)
+            transactionsSummaryList.forEach {
+                when (UUID.fromString(it.userInfo.userUuid)) {
+                    userUuid -> {
+                        assertThat(it.deposits).isEqualTo(testContext.deposit.toEurAmount())
+                        assertThat(it.investments).isEqualTo((testContext.invest - testContext.cancelInvestment).toEurAmount())
+                        assertThat(it.revenueShare).isEqualTo(testContext.sharePayout.toEurAmount())
+                        assertThat(it.withdrawals).isEqualTo(testContext.withdraw.toEurAmount())
+                        assertThat(it.balance).isEqualTo(
+                            (
+                                testContext.deposit + testContext.invest -
+                                    testContext.cancelInvestment + testContext.sharePayout - testContext.withdraw
+                                ).toEurAmount()
+                        )
+                    }
+                    secondUserUuid -> {
+                        assertThat(it.deposits).isEqualTo(testContext.deposit.toEurAmount())
+                        assertThat(it.balance).isEqualTo(testContext.deposit.toEurAmount())
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun mustThrowExceptionIfUserIsNotAdminOrPlatformManager() {
+        suppose("There are users in the coop") {
+            val firstUser = createUserExtendedResponse(userUuid)
+            val secondUser = createUserExtendedResponse(UUID.randomUUID())
+            val coopResponse = createCoopResponse()
+            val users = createUsersExtendedResponse(listOf(firstUser, secondUser), coopResponse)
+            Mockito.`when`(userService.getAllActiveUsers(userUuid, coop)).thenReturn(users)
+        }
+
+        verify("Service must throw exception if user is not admin or platform manager") {
+            val periodRequest = PeriodServiceRequest(null, null)
+            val user = createUserPrincipal()
+            val exception = assertThrows<InvalidRequestException> {
+                templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
+            }
+            assertThat(exception.errorCode).isEqualTo(ErrorCode.USER_MISSING_PRIVILEGE)
+        }
+    }
+
+    private fun createDepositTx(): TransactionInfo =
+        createTransaction(
+            mintHash, userWalletHash, testContext.deposit.toString(),
+            TransactionType.DEPOSIT
+        )
+
+    private fun createInvestTx(): TransactionInfo =
+        createTransaction(
+            userWalletHash, projectWalletHash, testContext.invest.toString(),
+            TransactionType.INVEST
+        )
+
+    private fun createSharePayoutTx(): TransactionInfo =
+        createTransaction(
+            projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
+            TransactionType.SHARE_PAYOUT
+        )
+
+    private fun createCancelInvestmentTx(): TransactionInfo =
+        createTransaction(
+            projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
+            TransactionType.CANCEL_INVESTMENT
+        )
+
+    private fun createWithdrawTx(): TransactionInfo =
+        createTransaction(
+            userWalletHash, burnHash, testContext.withdraw.toString(),
+            TransactionType.WITHDRAW
+        )
+
+    private fun createUserTransactionFlow(): List<TransactionInfo> =
+        listOf(createDepositTx(), createInvestTx(), createSharePayoutTx(), createCancelInvestmentTx(), createWithdrawTx())
 
     private fun getPercentageInProject(expectedFunding: Long?, amount: Long): String? {
         return expectedFunding?.let {
@@ -373,12 +469,18 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
 
     private class TestContext {
         lateinit var wallet: WalletResponse
+        lateinit var secondWallet: WalletResponse
+        lateinit var thirdWallet: WalletResponse
         lateinit var wallets: List<WalletResponse>
         lateinit var transactions: List<TransactionInfo>
         lateinit var transaction: TransactionInfo
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
         lateinit var userWithInfo: UserWithInfoResponse
+        lateinit var coopResponse: CoopResponse
+        lateinit var userExtended: UserExtendedResponse
+        lateinit var secondUserExtended: UserExtendedResponse
+        lateinit var thirdUserExtended: UserExtendedResponse
         val deposit = 100000L
         val invest = 20000L
         val cancelInvestment = 20000L

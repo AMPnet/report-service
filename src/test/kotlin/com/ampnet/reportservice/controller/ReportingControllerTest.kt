@@ -23,7 +23,7 @@ class ReportingControllerTest : ControllerTestBase() {
     private val userAccountsSummaryPath = "/report/admin/user"
     private val transaction = "transaction"
     private val transactions = "transactions"
-    private val userAccountsSummary = "userAccountsSummary"
+    private val usersAccountsSummary = "usersAccountsSummary"
     private val userTransactionsPath = reportPath + transactions
     private val userTransactionPath = reportPath + transaction
 
@@ -183,7 +183,7 @@ class ReportingControllerTest : ControllerTestBase() {
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
-            // File(getDownloadDirectory(userAccountsSummary)).writeBytes(pdfContent)
+            // File(getDownloadDirectory(usersAccountsSummary)).writeBytes(pdfContent)
         }
     }
 

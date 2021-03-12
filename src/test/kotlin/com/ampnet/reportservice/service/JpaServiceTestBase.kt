@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.service
 
+import com.ampnet.core.jwt.UserPrincipal
 import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionState
 import com.ampnet.crowdfunding.proto.TransactionType
@@ -11,8 +12,12 @@ import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.util.toMiliSeconds
+import com.ampnet.userservice.proto.CoopResponse
+import com.ampnet.userservice.proto.Role
+import com.ampnet.userservice.proto.UserExtendedResponse
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
+import com.ampnet.userservice.proto.UsersExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,6 +35,8 @@ import java.util.UUID
 abstract class JpaServiceTestBase : TestBase() {
 
     protected val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
+    protected val secondUserUuid: UUID = UUID.randomUUID()
+    protected val thirdUserUuid: UUID = UUID.randomUUID()
     protected val walletUuid: UUID = UUID.fromString("d3499ace-ee85-11ea-adc1-0242ac120002")
     protected val projectUuid: UUID = UUID.fromString("979dd8c5-765d-49a4-b64d-142a3c55f4df")
     protected val userWalletHash: String = "user wallet hash"
@@ -37,6 +44,8 @@ abstract class JpaServiceTestBase : TestBase() {
     protected val mintHash: String = "mint"
     protected val burnHash: String = "burn"
     protected val txHash: String = "tx_hash"
+    protected val logo = "https://ampnet.io/assets/images/logo-amp.png"
+    protected val coop = "ampnet-test"
 
     @Mock
     protected lateinit var walletService: WalletService
@@ -132,4 +141,39 @@ abstract class JpaServiceTestBase : TestBase() {
             .setCreatedAt(createdAt.toMiliSeconds())
             .build()
     }
+
+    protected fun createUserExtendedResponse(userUUID: UUID, role: Role = Role.USER): UserExtendedResponse =
+        UserExtendedResponse.newBuilder()
+            .setUuid(userUUID.toString())
+            .setFirstName("first name")
+            .setLastName("last Name")
+            .setCreatedAt(ZonedDateTime.now().minusDays(11).toEpochSecond())
+            .setLanguage("en")
+            .setDateOfBirth("15.11.1991.")
+            .setDocumentNumber("document number")
+            .setDateOfIssue("10.03.2021")
+            .setDateOfExpiry("10.07.2021")
+            .setPersonalNumber("personal number")
+            .setRole(role)
+            .build()
+
+    protected fun createUsersExtendedResponse(
+        users: List<UserExtendedResponse>,
+        coopResponse: CoopResponse
+    ): UsersExtendedResponse =
+        UsersExtendedResponse.newBuilder()
+            .addAllUsers(users)
+            .setCoop(coopResponse)
+            .build()
+
+    protected fun createCoopResponse(): CoopResponse =
+        CoopResponse.newBuilder()
+            .setCoop(coop)
+            .setName("Name")
+            .setHostname("http://ampnet.io")
+            .setLogo(logo)
+            .build()
+
+    protected fun createUserPrincipal(): UserPrincipal =
+        UserPrincipal(userUuid, "email", "name", setOf(), true, true, coop)
 }

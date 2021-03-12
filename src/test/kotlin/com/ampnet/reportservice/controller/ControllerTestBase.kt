@@ -143,7 +143,10 @@ abstract class ControllerTestBase : TestBase() {
             .setExpectedFunding(100000000L)
             .build()
 
-    protected fun createUserExtendedResponse(userUUID: UUID, role: Role = Role.USER): UserExtendedResponse =
+    protected fun createUserExtendedResponse(
+        userUUID: UUID,
+        role: Role = Role.USER
+    ): UserExtendedResponse =
         UserExtendedResponse.newBuilder()
             .setUuid(userUUID.toString())
             .setFirstName("first name")
