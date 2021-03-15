@@ -79,6 +79,7 @@ class ReportingControllerTest : ControllerTestBase() {
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
+            // Uncomment next line to test generating a PDF report
             // File(getDownloadDirectory(transactions)).writeBytes(pdfContent)
         }
     }
@@ -135,6 +136,7 @@ class ReportingControllerTest : ControllerTestBase() {
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
+            // Uncomment next line to test generating a PDF report
             // File(getDownloadDirectory(transaction)).writeBytes(pdfContent)
         }
     }

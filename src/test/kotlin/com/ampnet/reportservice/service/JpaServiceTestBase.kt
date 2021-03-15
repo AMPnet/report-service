@@ -144,8 +144,8 @@ abstract class JpaServiceTestBase : TestBase() {
     protected fun createUserExtendedResponse(userUUID: UUID): UserExtendedResponse =
         UserExtendedResponse.newBuilder()
             .setUuid(userUUID.toString())
-            .setFirstName("first name")
-            .setLastName("last Name")
+            .setFirstName("Matija")
+            .setLastName("Pevec")
             .setCreatedAt(ZonedDateTime.now().minusDays(11).toEpochSecond())
             .setLanguage("en")
             .setDateOfBirth("15.11.1991.")
