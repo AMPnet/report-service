@@ -58,7 +58,7 @@ class AdminControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                 MockMvcRequestBuilders.get(userAccountsSummaryPath)
                     .param("from", "2019-10-10")
-                    .param("to", LocalDate.now().plusDays(1).toString())
+                    .param("to", LocalDate.now().plusDays(2).toString())
             )
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andReturn()
