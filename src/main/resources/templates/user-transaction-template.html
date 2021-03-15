@@ -1,13 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
         "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
-<div th:replace="fragments/head.html :: head(data=${data})"></div>
+<div th:replace="fragments/head.html :: head(logo=${data.userInfo.logo})"></div>
 <body>
 <div class="container">
     <div class="page-1">
         <div class="client-info">
             <table>
-                <div th:replace="fragments/userInfo.html :: userInfo(data=${data})"></div>
+                <div class="address">
+                    <p id="client-name" th:text="${data.userInfo.firstName + ' ' + data.userInfo.lastName}">Filip Dujmušić</p>
+                </div>
                 <tr>
                     <td>
                         <div class="text-left">

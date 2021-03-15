@@ -22,7 +22,12 @@
     "investment": "Investment",
     "investmentCancel": "Investment cancel",
     "revenueSharePayout": "Revenue share payout",
-    "withdraw": "Withdraw"
+    "withdraw": "Withdraw",
+    "dateOfBirth": "Date of Birth",
+    "documentNumber": "Document Number",
+    "dateOfIssue": "Date of Issue",
+    "dateOfExpiry": "Date of Expiry",
+    "personalNumber": "Personal Number"
   },
   "es": {
     "transactions": "Transacciones",

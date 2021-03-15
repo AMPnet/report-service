@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.service.impl
 
+import com.ampnet.core.jwt.UserPrincipal
 import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
@@ -23,6 +24,7 @@ class TemplateServiceImpl(
 
     internal val userTransactionsTemplate = "user-transactions-template"
     internal val userTransactionTemplate = "user-transaction-template"
+    internal val usersAccountsSummaryTemplate = "users-accounts-summary-template"
 
     override fun generateTemplateForUserTransactions(userUUID: UUID, periodRequest: PeriodServiceRequest): String {
         val transactions = templateDataService.getUserTransactionsData(userUUID, periodRequest)
@@ -32,6 +34,11 @@ class TemplateServiceImpl(
     override fun generateTemplateForUserTransaction(transactionServiceRequest: TransactionServiceRequest): String {
         val transaction = templateDataService.getUserTransactionData(transactionServiceRequest)
         return processThymeleafTemplate(transaction, userTransactionTemplate)
+    }
+
+    override fun generateTemplateForAllActiveUsers(user: UserPrincipal, periodRequest: PeriodServiceRequest): String {
+        val activeUsersSummaryData = templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
+        return processThymeleafTemplate(activeUsersSummaryData, usersAccountsSummaryTemplate)
     }
 
     private fun processThymeleafTemplate(data: Any, templateName: String): String {

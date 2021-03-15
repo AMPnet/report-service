@@ -33,8 +33,6 @@ class TransactionsSummary(
         sumTransactionAmountsByType(TransactionType.INVEST) -
             sumTransactionAmountsByType(TransactionType.CANCEL_INVESTMENT)
         ).toEurAmount()
-    val sharesBought = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
-    val sharesSold = sumTransactionAmountsByType(TransactionType.UNRECOGNIZED).toEurAmount()
 
     private fun getPeriod(periodRequest: PeriodServiceRequest): String {
         val fromPeriod = formatToYearMonthDay(periodRequest.from ?: userInfo.createdAt)

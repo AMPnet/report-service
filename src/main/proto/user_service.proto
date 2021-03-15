@@ -10,6 +10,11 @@ message GetUsersRequest {
     repeated string uuids = 1;
 }
 
+message GetUsersByEmailRequest {
+    repeated string emails = 1;
+    string coop = 2;
+}
+
 message UserResponse {
     string uuid = 1;
     string first_name = 2;
@@ -22,6 +27,19 @@ message UserResponse {
 
 message UsersResponse {
     repeated UserResponse users = 1;
+}
+
+enum Role {
+    ADMIN = 0;
+    TOKEN_ISSUER = 1;
+    PLATFORM_MANAGER = 2;
+    USER = 3;
+}
+
+message SetRoleRequest {
+    string uuid = 1;
+    Role role = 2;
+    string coop = 3; // coop is just for safety
 }
 
 message UserWithInfoResponse {
@@ -41,7 +59,30 @@ message CoopResponse {
     string logo = 4;
 }
 
+message UserExtendedResponse {
+    string uuid = 1;
+    string first_name = 2;
+    string last_name = 3;
+    uint64 createdAt = 4;
+    string language = 5;
+    string dateOfBirth = 6;
+    string documentNumber = 7;
+    string dateOfIssue = 8;
+    string dateOfExpiry = 9;
+    string personalNumber = 10;
+}
+
+message UsersExtendedResponse {
+    repeated UserExtendedResponse users = 1;
+    CoopResponse coop = 2;
+}
+
 service UserService {
     rpc GetUsers (GetUsersRequest) returns (UsersResponse);
+    rpc SetUserRole (SetRoleRequest) returns (UserResponse);
+    rpc GetPlatformManagers (CoopRequest) returns (UsersResponse);
+    rpc GetTokenIssuers (CoopRequest) returns (UsersResponse);
     rpc GetUserWithInfo (GetUserRequest) returns (UserWithInfoResponse);
+    rpc GetUsersByEmail (GetUsersByEmailRequest) returns (UsersResponse);
+    rpc GetAllActiveUsers (CoopRequest) returns (UsersExtendedResponse);
 }

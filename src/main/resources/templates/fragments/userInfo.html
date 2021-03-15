@@ -1,7 +1,33 @@
 <tr th:fragment="userInfo(data)">
-    <td>
-        <div class="address">
-            <p id="client-name" th:text="${data.userInfo.firstName + ' ' + data.userInfo.lastName}">Filip Dujmušić</p>
-        </div>
-    </td>
+    <div class="client-info">
+        <table>
+            <div class="address">
+                <p id="client-name" th:text="${data.userInfo.firstName + ' ' + data.userInfo.lastName}">Filip Dujmušić</p>
+            </div>
+            <tr>
+                <td>
+                    <div class="text-left">
+                        <p th:if="${!#strings.isEmpty(data.userInfo.dateOfBirth)}" th:text="${data.translations.dateOfBirth}">Date of Birth:</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.documentNumber)}" th:text="${data.translations.documentNumber}">Document Number:</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.dateOfIssue)}" th:text="${data.translations.dateOfIssue}">Date of Issue:</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.dateOfExpiry)}" th:text="${data.translations.dateOfExpiry}">Date of Expiry:</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.personalNumber)}" th:text="${data.translations.personalNumber}">Personal Number:</p>
+                        <p th:text="${data.translations.accountId}">Account ID:</p>
+                        <p th:text="${data.translations.period}">Period:</p>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.dateOfBirth)}" th:text="${data.userInfo.dateOfBirth}">12.11.1991</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.documentNumber)}" th:text="${data.userInfo.documentNumber}">1717809e-0cb5-452d-9435-bbcfedd3db16</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.dateOfIssue)}" th:text="${data.userInfo.dateOfIssue}">10.03.2021</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.dateOfExpiry)}" th:text="${data.userInfo.dateOfExpiry}">10.05.2021</p>
+                        <p th:if="${!#strings.isEmpty(data.userInfo.personalNumber)}" th:text="${data.userInfo.personalNumber}">1717809e-0cb5-452d-9435-bbcfedd3db16</p>
+                        <p th:text="${data.userInfo.userUuid}">1717809e-0cb5-452d-9435-bbcfedd3db16</p>
+                        <p th:text="${data.period} ?: ''">Aug 1, 2020 to Aug 31, 2020</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
 </tr>

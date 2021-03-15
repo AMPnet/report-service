@@ -11,8 +11,11 @@ import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.CoopResponse
+import com.ampnet.userservice.proto.Role
+import com.ampnet.userservice.proto.UserExtendedResponse
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
+import com.ampnet.userservice.proto.UsersExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -30,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import java.io.File
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -39,6 +43,8 @@ import java.util.UUID
 abstract class ControllerTestBase : TestBase() {
 
     protected val userUuid: UUID = UUID.fromString("89fb3b1c-9c0a-11e9-a2a3-2a2ae2dbcce4")
+    protected val secondUserUuid: UUID = UUID.randomUUID()
+    protected val thirdUserUuid: UUID = UUID.randomUUID()
     protected val walletUuid: UUID = UUID.fromString("d3499ace-ee85-11ea-adc1-0242ac120002")
     protected val projectUuid: UUID = UUID.fromString("979dd8c5-765d-49a4-b64d-142a3c55f4df")
     protected val userWalletHash: String = "user wallet hash"
@@ -47,6 +53,7 @@ abstract class ControllerTestBase : TestBase() {
     protected val burnHash: String = "burn"
     protected val txHash = "tx_hash"
     protected val logo = "https://ampnet.io/assets/images/logo-amp.png"
+    protected val coop = "ampnet-test"
 
     @MockBean
     protected lateinit var walletService: WalletService
@@ -84,8 +91,8 @@ abstract class ControllerTestBase : TestBase() {
         type: WalletResponse.Type = WalletResponse.Type.USER,
         currency: String = "EUR",
         hash: String = "wallet hash"
-    ): WalletResponse {
-        return WalletResponse.newBuilder()
+    ): WalletResponse =
+        WalletResponse.newBuilder()
             .setUuid(uuid.toString())
             .setOwner(owner.toString())
             .setActivationData(activationData)
@@ -93,27 +100,24 @@ abstract class ControllerTestBase : TestBase() {
             .setCurrency(currency)
             .setHash(hash)
             .build()
-    }
 
-    protected fun createUserResponse(userUUID: UUID): UserResponse {
-        return UserResponse.newBuilder()
+    protected fun createUserResponse(userUUID: UUID): UserResponse =
+        UserResponse.newBuilder()
             .setUuid(userUuid.toString())
             .setFirstName("First")
             .setLastName("Last")
             .setLanguage("")
             .build()
-    }
 
     protected fun createUserWithInfoResponse(
         userUUID: UUID,
         createdAt: LocalDateTime = LocalDateTime.now().minusMonths(6)
-    ): UserWithInfoResponse {
-        return UserWithInfoResponse.newBuilder()
+    ): UserWithInfoResponse =
+        UserWithInfoResponse.newBuilder()
             .setUser(createUserResponse(userUUID))
             .setCreatedAt(createdAt.toMiliSeconds())
             .setCoop(createCoopResponse())
             .build()
-    }
 
     protected fun createCoopResponse(): CoopResponse =
         CoopResponse.newBuilder()
@@ -123,8 +127,8 @@ abstract class ControllerTestBase : TestBase() {
             .setLogo(logo)
             .build()
 
-    protected fun createProjectsResponse(projectUUID: UUID): ProjectResponse {
-        return ProjectResponse.newBuilder()
+    protected fun createProjectsResponse(projectUUID: UUID): ProjectResponse =
+        ProjectResponse.newBuilder()
             .setUuid(projectUUID.toString())
             .setName("Project name")
             .setActive(true)
@@ -139,7 +143,32 @@ abstract class ControllerTestBase : TestBase() {
             .setMinPerUser(1000L)
             .setExpectedFunding(100000000L)
             .build()
-    }
+
+    protected fun createUserExtendedResponse(
+        userUUID: UUID,
+        role: Role = Role.USER
+    ): UserExtendedResponse =
+        UserExtendedResponse.newBuilder()
+            .setUuid(userUUID.toString())
+            .setFirstName("first name")
+            .setLastName("last Name")
+            .setCreatedAt(ZonedDateTime.now().minusDays(11).toEpochSecond())
+            .setLanguage("en")
+            .setDateOfBirth("15.11.1991.")
+            .setDocumentNumber("document number")
+            .setDateOfIssue("10.03.2021")
+            .setDateOfExpiry("10.07.2021")
+            .setPersonalNumber("personal number")
+            .build()
+
+    protected fun createUsersExtendedResponse(
+        users: List<UserExtendedResponse>,
+        coopResponse: CoopResponse
+    ): UsersExtendedResponse =
+        UsersExtendedResponse.newBuilder()
+            .addAllUsers(users)
+            .setCoop(coopResponse)
+            .build()
 
     protected fun verifyPdfFormat(data: ByteArray) {
         assertThat(data.isNotEmpty()).isTrue()
@@ -193,5 +222,60 @@ abstract class ControllerTestBase : TestBase() {
             .setState(TransactionState.MINED)
             .setDate(LocalDateTime.now().minusDays(1).toMiliSeconds().toString())
             .build()
+    }
+
+    protected fun getDownloadDirectory(name: String): String {
+        return System.getProperty("user.home") + File.separator +
+            "Desktop" + File.separator + name + ".pdf"
+    }
+
+    protected fun createTransactionsResponse(): List<TransactionInfo> {
+        val investment = "30000"
+        val deposits = createDeposits()
+        val invests = MutableList(2) {
+            createTransaction(
+                TransactionType.INVEST,
+                userWalletHash,
+                projectWalletHash,
+                amount = investment
+            )
+        }
+        val withdrawals = MutableList(2) {
+            createTransaction(
+                TransactionType.WITHDRAW,
+                userWalletHash,
+                burnHash,
+                amount = "10000"
+            )
+        }
+        val revenueShares =
+            MutableList(2) {
+                createTransaction(
+                    TransactionType.SHARE_PAYOUT,
+                    projectWalletHash,
+                    userWalletHash,
+                    amount = "6670"
+                )
+            }
+        val cancelInvestments = MutableList(1) {
+            createTransaction(
+                TransactionType.CANCEL_INVESTMENT,
+                projectWalletHash,
+                userWalletHash,
+                amount = investment
+            )
+        }
+        return deposits + invests + withdrawals + revenueShares + cancelInvestments
+    }
+
+    protected fun createDeposits(): List<TransactionInfo> {
+        return MutableList(2) {
+            createTransaction(
+                TransactionType.DEPOSIT,
+                mintHash,
+                userWalletHash,
+                amount = "1000000"
+            )
+        }
     }
 }

@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+        "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<div th:replace="fragments/head.html :: head(logo=${data.logo})"></div>
+<body>
+<div th:each="summary: ${data.summaries}" class="container">
+    <div th:if="${!summary.transactions.isEmpty()}" class="page-1">
+        <div th:include="fragments/userInfo.html :: userInfo(data=${summary})"></div>
+        <div class="account-summary">
+            <div th:include="fragments/accountSummary.html :: accountSummary(data=${summary})"></div>
+            <div th:include="fragments/accountSummaryTable.html :: accountSummaryTable(data=${summary})"></div>
+        </div>
+    </div>
+</div>
+<div th:if="${data.summaries.isEmpty()}">
+    <h5>No User has deposited any money yet!</h5>
+</div>
+<div style="page-break-before:always">&nbsp;</div>
+</body>
+</html>

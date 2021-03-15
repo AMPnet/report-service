@@ -3,11 +3,13 @@ package com.ampnet.reportservice.grpc.userservice
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
+import com.ampnet.userservice.proto.CoopRequest
 import com.ampnet.userservice.proto.GetUserRequest
 import com.ampnet.userservice.proto.GetUsersRequest
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserServiceGrpc
 import com.ampnet.userservice.proto.UserWithInfoResponse
+import com.ampnet.userservice.proto.UsersExtendedResponse
 import io.grpc.StatusRuntimeException
 import mu.KLogging
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
@@ -53,6 +55,23 @@ class UserServiceImpl(
             return response
         } catch (ex: StatusRuntimeException) {
             throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch user. ${ex.localizedMessage}")
+        }
+    }
+
+    override fun getAllActiveUsers(coop: String): UsersExtendedResponse {
+        logger.debug { "Fetching UsersExtendedResponse for coop: $coop" }
+        try {
+            val request = CoopRequest.newBuilder()
+                .setCoop(coop)
+                .build()
+            val response = serviceWithTimeout().getAllActiveUsers(request)
+            logger.debug { "Fetched users: $response" }
+            return response
+        } catch (ex: StatusRuntimeException) {
+            throw GrpcException(
+                ErrorCode.INT_GRPC_USER,
+                "Failed to fetch UsersExtendedResponse. ${ex.localizedMessage}"
+            )
         }
     }
 

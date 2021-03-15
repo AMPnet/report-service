@@ -15,5 +15,8 @@ enum class PrivilegeType {
      */
 
     // Administration
-    MONITORING
+    MONITORING,
+
+    // Profile
+    PRA_PROFILE
 }

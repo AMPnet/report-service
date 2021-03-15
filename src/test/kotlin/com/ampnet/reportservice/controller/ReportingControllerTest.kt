@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.io.File
 import java.time.LocalDate
 import java.util.UUID
 
@@ -21,6 +20,7 @@ class ReportingControllerTest : ControllerTestBase() {
     private val reportPath = "/report/user/"
     private val transaction = "transaction"
     private val transactions = "transactions"
+
     private val userTransactionsPath = reportPath + transactions
     private val userTransactionPath = reportPath + transaction
 
@@ -137,57 +137,6 @@ class ReportingControllerTest : ControllerTestBase() {
             verifyPdfFormat(pdfContent)
             // File(getDownloadDirectory(transaction)).writeBytes(pdfContent)
         }
-    }
-
-    private fun createTransactionsResponse(): List<TransactionInfo> {
-        val investment = "30000"
-        val deposits = MutableList(2) {
-            createTransaction(
-                TransactionType.DEPOSIT,
-                mintHash,
-                userWalletHash,
-                amount = "1000000"
-            )
-        }
-        val invests = MutableList(2) {
-            createTransaction(
-                TransactionType.INVEST,
-                userWalletHash,
-                projectWalletHash,
-                amount = investment
-            )
-        }
-        val withdrawals = MutableList(2) {
-            createTransaction(
-                TransactionType.WITHDRAW,
-                userWalletHash,
-                burnHash,
-                amount = "10000"
-            )
-        }
-        val revenueShares =
-            MutableList(2) {
-                createTransaction(
-                    TransactionType.SHARE_PAYOUT,
-                    projectWalletHash,
-                    userWalletHash,
-                    amount = "6670"
-                )
-            }
-        val cancelInvestments = MutableList(1) {
-            createTransaction(
-                TransactionType.CANCEL_INVESTMENT,
-                projectWalletHash,
-                userWalletHash,
-                amount = investment
-            )
-        }
-        return deposits + invests + withdrawals + revenueShares + cancelInvestments
-    }
-
-    private fun getDownloadDirectory(name: String): String {
-        return System.getProperty("user.home") + File.separator +
-            "Desktop" + File.separator + name + ".pdf"
     }
 
     private class TestContext {

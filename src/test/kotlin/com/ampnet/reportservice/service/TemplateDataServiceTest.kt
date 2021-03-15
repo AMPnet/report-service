@@ -12,6 +12,8 @@ import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
 import com.ampnet.reportservice.service.data.TO_PERCENTAGE
 import com.ampnet.reportservice.service.data.toEurAmount
 import com.ampnet.reportservice.service.impl.TemplateDataServiceImpl
+import com.ampnet.userservice.proto.CoopResponse
+import com.ampnet.userservice.proto.UserExtendedResponse
 import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserWithInfoResponse
 import com.ampnet.walletservice.proto.WalletResponse
@@ -93,14 +95,14 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             val depositTx = transactions.first { it.type == TransactionType.DEPOSIT }
             assertThat(depositTx.description).isNull()
             assertThat(depositTx.percentageInProject).isNull()
-            assertThat(depositTx.txDate).isNotBlank()
+            assertThat(depositTx.txDate).isNotBlank
             assertThat(depositTx.amountInEuro).isEqualTo(depositTx.amount.toEurAmount())
             val investTx = transactions.first { it.type == TransactionType.INVEST }
             assertThat(investTx.description).isEqualTo(project.name)
             assertThat(investTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, investTx.amount)
             )
-            assertThat(investTx.txDate).isNotBlank()
+            assertThat(investTx.txDate).isNotBlank
             assertThat(investTx.amountInEuro).isEqualTo(investTx.amount.toEurAmount())
             val cancelInvestmentTx =
                 transactions.first { it.type == TransactionType.CANCEL_INVESTMENT }
@@ -108,16 +110,16 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(cancelInvestmentTx.percentageInProject).isEqualTo(
                 getPercentageInProject(project.expectedFunding, cancelInvestmentTx.amount)
             )
-            assertThat(cancelInvestmentTx.txDate).isNotBlank()
+            assertThat(cancelInvestmentTx.txDate).isNotBlank
             assertThat(cancelInvestmentTx.amountInEuro).isEqualTo(cancelInvestmentTx.amount.toEurAmount())
             val sharePayoutTx = transactions.first { it.type == TransactionType.SHARE_PAYOUT }
             assertThat(sharePayoutTx.description).isEqualTo(project.name)
-            assertThat(sharePayoutTx.txDate).isNotBlank()
+            assertThat(sharePayoutTx.txDate).isNotBlank
             assertThat(sharePayoutTx.amountInEuro).isEqualTo(sharePayoutTx.amount.toEurAmount())
             val withdrawTx = transactions.first { it.type == TransactionType.WITHDRAW }
             assertThat(withdrawTx.description).isNull()
             assertThat(withdrawTx.percentageInProject).isNull()
-            assertThat(withdrawTx.txDate).isNotBlank()
+            assertThat(withdrawTx.txDate).isNotBlank
             assertThat(withdrawTx.amountInEuro).isEqualTo(withdrawTx.amount.toEurAmount())
         }
     }
@@ -295,28 +297,7 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                 .thenReturn(testContext.userWithInfo)
         }
         suppose("Blockchain service will return transactions for wallet") {
-            testContext.transactions = listOf(
-                createTransaction(
-                    mintHash, userWalletHash, testContext.deposit.toString(),
-                    TransactionType.DEPOSIT
-                ),
-                createTransaction(
-                    userWalletHash, projectWalletHash, testContext.invest.toString(),
-                    TransactionType.INVEST
-                ),
-                createTransaction(
-                    projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
-                    TransactionType.CANCEL_INVESTMENT
-                ),
-                createTransaction(
-                    projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
-                    TransactionType.SHARE_PAYOUT
-                ),
-                createTransaction(
-                    userWalletHash, burnHash, testContext.withdraw.toString(),
-                    TransactionType.WITHDRAW
-                )
-            )
+            testContext.transactions = createUserTransactionFlow()
             Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
                 .thenReturn(testContext.transactions)
         }
@@ -327,6 +308,95 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             assertThat(txSummary.transactions.first().name).isEqualTo("Deposit")
         }
     }
+
+    @Test
+    fun mustGenerateCorrectUsersAccountsSummary() {
+        suppose("User service will return a list of users") {
+            testContext.userExtended = createUserExtendedResponse(userUuid)
+            testContext.secondUserExtended = createUserExtendedResponse(secondUserUuid)
+            testContext.thirdUserExtended = createUserExtendedResponse(thirdUserUuid)
+            testContext.coopResponse = createCoopResponse()
+            val response = createUsersExtendedResponse(
+                listOf(testContext.userExtended, testContext.secondUserExtended, testContext.thirdUserExtended), testContext.coopResponse
+            )
+            Mockito.`when`(userService.getAllActiveUsers(coop))
+                .thenReturn(response)
+        }
+        suppose("Wallet service will return wallets for users") {
+            testContext.wallet = createWalletResponse(walletUuid, userUuid, hash = "wallet_hash_1")
+            testContext.secondWallet = createWalletResponse(UUID.randomUUID(), secondUserUuid, hash = "wallet_hash_2")
+            testContext.thirdWallet = createWalletResponse(UUID.randomUUID(), thirdUserUuid, hash = "wallet_hash_3")
+            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid, secondUserUuid, thirdUserUuid)))
+                .thenReturn(listOf(testContext.wallet, testContext.secondWallet, testContext.thirdWallet))
+            createWallets()
+        }
+        suppose("Blockchain service will return transactions for wallets") {
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+                .thenReturn(createUserTransactionFlow())
+            Mockito.`when`(blockchainService.getTransactions(testContext.secondWallet.hash))
+                .thenReturn(listOf(createDepositTx()))
+            Mockito.`when`(blockchainService.getTransactions(testContext.thirdWallet.hash))
+                .thenReturn(listOf())
+        }
+
+        verify("Template data service can get users accounts summary") {
+            val user = createUserPrincipal()
+            val periodRequest = PeriodServiceRequest(null, null)
+            val usersAccountsSummary = templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
+            val transactionsSummaryList = usersAccountsSummary.summaries
+            val logo = usersAccountsSummary.logo
+            assertThat(transactionsSummaryList).hasSize(3)
+            assertThat(logo).isEqualTo(testContext.coopResponse.logo)
+            transactionsSummaryList.forEach {
+                when (UUID.fromString(it.userInfo.userUuid)) {
+                    userUuid -> {
+                        assertThat(it.deposits).isEqualTo(testContext.deposit.toEurAmount())
+                        assertThat(it.investments).isEqualTo((testContext.invest - testContext.cancelInvestment).toEurAmount())
+                        assertThat(it.revenueShare).isEqualTo(testContext.sharePayout.toEurAmount())
+                        assertThat(it.withdrawals).isEqualTo(testContext.withdraw.toEurAmount())
+                        assertThat(it.balance).isEqualTo(
+                            (
+                                testContext.deposit + testContext.invest -
+                                    testContext.cancelInvestment + testContext.sharePayout - testContext.withdraw
+                                ).toEurAmount()
+                        )
+                    }
+                    secondUserUuid -> {
+                        assertThat(it.deposits).isEqualTo(testContext.deposit.toEurAmount())
+                        assertThat(it.balance).isEqualTo(testContext.deposit.toEurAmount())
+                    }
+                    thirdUserUuid -> { assertThat(it.transactions).isEmpty() }
+                }
+            }
+        }
+    }
+
+    private fun createDepositTx(): TransactionInfo =
+        createTransaction(
+            mintHash, userWalletHash, testContext.deposit.toString(),
+            TransactionType.DEPOSIT
+        )
+
+    private fun createUserTransactionFlow(): List<TransactionInfo> =
+        listOf(
+            createDepositTx(),
+            createTransaction(
+                userWalletHash, projectWalletHash, testContext.invest.toString(),
+                TransactionType.INVEST
+            ),
+            createTransaction(
+                projectWalletHash, userWalletHash, testContext.sharePayout.toString(),
+                TransactionType.SHARE_PAYOUT
+            ),
+            createTransaction(
+                projectWalletHash, userWalletHash, testContext.cancelInvestment.toString(),
+                TransactionType.CANCEL_INVESTMENT
+            ),
+            createTransaction(
+                userWalletHash, burnHash, testContext.withdraw.toString(),
+                TransactionType.WITHDRAW
+            )
+        )
 
     private fun getPercentageInProject(expectedFunding: Long?, amount: Long): String? {
         return expectedFunding?.let {
@@ -373,12 +443,18 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
 
     private class TestContext {
         lateinit var wallet: WalletResponse
+        lateinit var secondWallet: WalletResponse
+        lateinit var thirdWallet: WalletResponse
         lateinit var wallets: List<WalletResponse>
         lateinit var transactions: List<TransactionInfo>
         lateinit var transaction: TransactionInfo
         lateinit var user: UserResponse
         lateinit var project: ProjectResponse
         lateinit var userWithInfo: UserWithInfoResponse
+        lateinit var coopResponse: CoopResponse
+        lateinit var userExtended: UserExtendedResponse
+        lateinit var secondUserExtended: UserExtendedResponse
+        lateinit var thirdUserExtended: UserExtendedResponse
         val deposit = 100000L
         val invest = 20000L
         val cancelInvestment = 20000L
