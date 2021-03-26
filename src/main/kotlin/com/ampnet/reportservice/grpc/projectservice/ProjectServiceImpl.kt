@@ -12,6 +12,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.Throws
 
 @Service
 class ProjectServiceImpl(
@@ -26,6 +27,7 @@ class ProjectServiceImpl(
         ProjectServiceGrpc.newBlockingStub(channel)
     }
 
+    @Throws(GrpcException::class)
     override fun getProjects(uuids: Iterable<UUID>): List<ProjectResponse> {
         logger.debug { "Fetching projects: $uuids" }
         if (uuids.none()) {
@@ -39,7 +41,8 @@ class ProjectServiceImpl(
             logger.debug { "Fetched projects: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_PROJECT, "Failed to fetch projects. ${ex.localizedMessage}")
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_PROJECT, "Failed to fetch projects")
         }
     }
 

@@ -13,6 +13,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.Throws
 
 @Service
 class WalletServiceImpl(
@@ -27,6 +28,7 @@ class WalletServiceImpl(
         WalletServiceGrpc.newBlockingStub(channel)
     }
 
+    @Throws(GrpcException::class)
     override fun getWalletsByOwner(uuids: List<UUID>): List<WalletResponse> {
         logger.debug { "Fetching wallets by owner uuid: $uuids" }
         try {
@@ -38,10 +40,12 @@ class WalletServiceImpl(
             logger.debug { "Fetched wallets: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets. ${ex.localizedMessage}")
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets")
         }
     }
 
+    @Throws(GrpcException::class)
     override fun getWalletsByHash(hashes: Set<String>): List<WalletResponse> {
         logger.debug { "Fetching wallets by hashes: $hashes" }
         try {
@@ -53,7 +57,8 @@ class WalletServiceImpl(
             logger.debug { "Fetched wallets: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets. ${ex.localizedMessage}")
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets")
         }
     }
 
