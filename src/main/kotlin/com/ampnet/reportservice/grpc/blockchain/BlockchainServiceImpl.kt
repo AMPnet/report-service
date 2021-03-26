@@ -13,6 +13,7 @@ import mu.KLogging
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.Throws
 
 @Service
 class BlockchainServiceImpl(
@@ -27,6 +28,7 @@ class BlockchainServiceImpl(
         BlockchainServiceGrpc.newBlockingStub(channel)
     }
 
+    @Throws(GrpcException::class)
     override fun getTransactions(walletHash: String): List<TransactionInfo> {
         logger.debug { "Get transactions for wallet address: $walletHash" }
         try {
@@ -43,6 +45,7 @@ class BlockchainServiceImpl(
         }
     }
 
+    @Throws(GrpcException::class)
     override fun getTransactionInfo(txHash: String, fromTxHash: String, toTxHash: String): TransactionInfo {
         logger.debug { "Get info for transaction with hash: $txHash" }
         try {

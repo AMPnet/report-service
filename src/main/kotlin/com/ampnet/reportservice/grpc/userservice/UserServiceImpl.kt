@@ -16,6 +16,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.Throws
 
 @Service
 class UserServiceImpl(
@@ -30,6 +31,7 @@ class UserServiceImpl(
         UserServiceGrpc.newBlockingStub(channel)
     }
 
+    @Throws(GrpcException::class)
     override fun getUsers(uuids: Set<UUID>): List<UserResponse> {
         logger.debug { "Fetching users: $uuids" }
         try {
@@ -40,10 +42,12 @@ class UserServiceImpl(
             logger.debug { "Fetched users: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch users. ${ex.localizedMessage}")
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch users")
         }
     }
 
+    @Throws(GrpcException::class)
     override fun getUserWithInfo(uuid: UUID): UserWithInfoResponse {
         logger.debug { "Fetching user: $uuid" }
         try {
@@ -54,10 +58,12 @@ class UserServiceImpl(
             logger.debug { "Fetched user: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch user. ${ex.localizedMessage}")
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch user")
         }
     }
 
+    @Throws(GrpcException::class)
     override fun getAllActiveUsers(coop: String): UsersExtendedResponse {
         logger.debug { "Fetching UsersExtendedResponse for coop: $coop" }
         try {
@@ -68,10 +74,8 @@ class UserServiceImpl(
             logger.debug { "Fetched users: $response" }
             return response
         } catch (ex: StatusRuntimeException) {
-            throw GrpcException(
-                ErrorCode.INT_GRPC_USER,
-                "Failed to fetch UsersExtendedResponse. ${ex.localizedMessage}"
-            )
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch UsersExtendedResponse")
         }
     }
 
