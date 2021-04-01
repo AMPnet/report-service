@@ -31,6 +31,7 @@ class BlockchainServiceImpl(
     @Throws(GrpcException::class)
     override fun getTransactions(walletHash: String): List<TransactionInfo> {
         logger.debug { "Get transactions for wallet address: $walletHash" }
+        if (walletHash.isBlank()) return emptyList()
         try {
             val response = serviceWithTimeout()
                 .getTransactions(

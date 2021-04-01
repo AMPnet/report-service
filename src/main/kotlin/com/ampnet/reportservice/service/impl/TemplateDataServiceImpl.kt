@@ -26,7 +26,6 @@ import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.reportservice.service.data.UsersAccountsSummary
-import com.ampnet.userservice.proto.UsersExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
 import org.springframework.stereotype.Service
@@ -85,7 +84,7 @@ class TemplateDataServiceImpl(
         periodRequest: PeriodServiceRequest
     ): UsersAccountsSummary {
         val users = userService.getAllActiveUsers(user.coop)
-        val reportLanguage = getReportLanguage(user, users)
+        val reportLanguage = userService.getUsers(setOf(user.uuid)).firstOrNull()?.language.orEmpty()
         val userWallets = walletService.getWalletsByOwner(users.usersList.map { UUID.fromString(it.uuid) })
         val userTransactions = userWallets.parallelStream().asSequence().associateBy(
             { it.owner },
@@ -117,9 +116,6 @@ class TemplateDataServiceImpl(
     ): List<Transaction> {
         val walletOwners = wallets.map { it.owner }
         val walletsMap = wallets.associateBy { it.hash }
-        // users will be needed for shares trading
-        // val users = userService.getUsers(walletOwners.map { UUID.fromString(it) }.toSet())
-        //     .associateBy { it.uuid }
         val projects = projectService.getProjects(walletOwners.map { UUID.fromString(it) })
             .associateBy { it.uuid }
         val transactions = transactionsResponse.mapNotNull { TransactionFactory.createTransaction(it) }
@@ -155,12 +151,6 @@ class TemplateDataServiceImpl(
         return transactions
     }
 
-    // private fun getUserNameWithUuid(ownerUuid: String?, users: Map<String, UserResponse>): String? {
-    //     return users[ownerUuid]?.let { user ->
-    //         "${user.firstName} ${user.lastName}"
-    //     }
-    // }
-
     private fun getProjectNameWithUuid(ownerUuid: String?, projects: Map<String, ProjectResponse>): String? {
         return projects[ownerUuid]?.name
     }
@@ -193,14 +183,6 @@ class TemplateDataServiceImpl(
                 ErrorCode.INT_REQUEST, "Transaction doesn't belong to user wallet with hash: $txHash"
             )
     }
-
-    private fun getReportLanguage(user: UserPrincipal, users: UsersExtendedResponse): String =
-        users.usersList.find { it.uuid == user.uuid.toString() }?.language
-            ?: throw InvalidRequestException(
-                ErrorCode.USER_MISSING_PRIVILEGE,
-                "User(${user.uuid}) requesting all active users accounts summary pdf " +
-                    "is not a member of the coop: ${user.coop}"
-            )
 
     private fun getTransactions(
         userTransactions: Map<String, List<TransactionInfo>>,
