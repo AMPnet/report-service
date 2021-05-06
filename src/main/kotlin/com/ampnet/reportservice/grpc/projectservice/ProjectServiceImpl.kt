@@ -36,7 +36,7 @@ class ProjectServiceImpl(
                 .addAllUuids(uuids.map { it.toString() })
                 .build()
             val response = serviceWithTimeout().getProjects(request).projectsList
-            logger.debug { "Fetched projects: $response" }
+            logger.debug { "Fetched projects: ${response.size}" }
             return response
         } catch (ex: StatusRuntimeException) {
             logger.warn(ex.localizedMessage)

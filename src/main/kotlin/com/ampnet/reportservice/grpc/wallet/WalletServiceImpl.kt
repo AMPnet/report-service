@@ -38,7 +38,7 @@ class WalletServiceImpl(
                 .build()
             val response = serviceWithTimeout()
                 .getWalletsByOwner(request).walletsList
-            logger.debug { "Fetched wallets: $response" }
+            logger.debug { "Fetched wallets: ${response.size}" }
             return response
         } catch (ex: StatusRuntimeException) {
             logger.warn(ex.localizedMessage)
@@ -56,7 +56,7 @@ class WalletServiceImpl(
                 .build()
             val response = serviceWithTimeout()
                 .getWalletsByHash(request).walletsList
-            logger.debug { "Fetched wallets: $response" }
+            logger.debug { "Fetched wallets: ${response.size}" }
             return response
         } catch (ex: StatusRuntimeException) {
             logger.warn(ex.localizedMessage)

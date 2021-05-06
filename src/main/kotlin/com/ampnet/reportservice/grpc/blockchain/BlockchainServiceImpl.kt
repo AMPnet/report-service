@@ -39,7 +39,7 @@ class BlockchainServiceImpl(
                         .setWalletHash(walletHash)
                         .build()
                 )
-            logger.debug { "Transactions response: $response" }
+            logger.debug { "Transactions response: ${response.transactionsCount}" }
             return response.transactionsList
         } catch (ex: StatusRuntimeException) {
             throw getInternalExceptionFromStatusException(ex, "Could not get transactions for wallet: $walletHash")

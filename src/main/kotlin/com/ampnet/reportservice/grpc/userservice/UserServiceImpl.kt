@@ -40,7 +40,7 @@ class UserServiceImpl(
                 .addAllUuids(uuids.map { it.toString() })
                 .build()
             val response = serviceWithTimeout().getUsers(request).usersList
-            logger.debug { "Fetched users: $response" }
+            logger.debug { "Fetched users: ${response.size}" }
             return response
         } catch (ex: StatusRuntimeException) {
             logger.warn(ex.localizedMessage)
@@ -72,7 +72,7 @@ class UserServiceImpl(
                 .setCoop(coop)
                 .build()
             val response = serviceWithTimeout().getAllActiveUsers(request)
-            logger.debug { "Fetched users: $response" }
+            logger.debug { "Fetched users: ${response.usersCount}" }
             return response
         } catch (ex: StatusRuntimeException) {
             logger.warn(ex.localizedMessage)
