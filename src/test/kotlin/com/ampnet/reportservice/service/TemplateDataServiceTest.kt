@@ -7,6 +7,7 @@ import com.ampnet.reportservice.controller.pojo.PeriodServiceRequest
 import com.ampnet.reportservice.controller.pojo.TransactionServiceRequest
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.InvalidRequestException
+import com.ampnet.reportservice.exception.ResourceNotFoundException
 import com.ampnet.reportservice.service.data.DATE_FORMAT
 import com.ampnet.reportservice.service.data.LENGTH_OF_PERCENTAGE
 import com.ampnet.reportservice.service.data.TO_PERCENTAGE
@@ -368,6 +369,24 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
                     thirdUserUuid -> { assertThat(it.transactions).isEmpty() }
                 }
             }
+        }
+    }
+
+    @Test
+    fun mustThrowExceptionIfNoUserWithInfoFound() {
+        suppose("User service will return empty list") {
+            testContext.coopResponse = createCoopResponse()
+            val response = createUsersExtendedResponse(listOf(), testContext.coopResponse)
+            Mockito.`when`(userService.getAllActiveUsers(coop)).thenReturn(response)
+        }
+
+        verify("Template data service can get users accounts summary") {
+            val user = createUserPrincipal()
+            val periodRequest = PeriodServiceRequest(null, null)
+            val exception = assertThrows<ResourceNotFoundException> {
+                templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
+            }
+            assertThat(exception.errorCode).isEqualTo(ErrorCode.USER_MISSING_INFO)
         }
     }
 
