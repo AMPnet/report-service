@@ -14,7 +14,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handleResourceDoesNotExists(exception: ResourceNotFoundException): ErrorResponse {
-        logger.error("ResourceNotFoundException", exception)
+        logger.info("ResourceNotFoundException", exception)
         return generateErrorResponse(exception.errorCode, exception.message)
     }
 
@@ -28,14 +28,14 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     @ExceptionHandler(GrpcException::class)
     fun handleGrpcException(exception: GrpcException): ErrorResponse {
-        logger.error("GrpcException", exception)
+        logger.warn("GrpcException", exception)
         return generateErrorResponse(exception.errorCode, exception.message)
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidRequestException::class)
     fun handleInvalidRequestException(exception: InvalidRequestException): ErrorResponse {
-        logger.error("InvalidRequestException", exception)
+        logger.warn("InvalidRequestException", exception)
         return generateErrorResponse(exception.errorCode, exception.message)
     }
 
