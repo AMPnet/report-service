@@ -26,6 +26,7 @@ import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.reportservice.service.data.UsersAccountsSummary
+import com.ampnet.userservice.proto.UsersExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
 import org.springframework.stereotype.Service
@@ -84,6 +85,7 @@ class TemplateDataServiceImpl(
         periodRequest: PeriodServiceRequest
     ): UsersAccountsSummary {
         val users = userService.getAllActiveUsers(user.coop)
+        throwExceptionIfNoUserWithInfo(users)
         val reportLanguage = userService.getUsers(setOf(user.uuid)).firstOrNull()?.language.orEmpty()
         val userWallets = walletService.getWalletsByOwner(users.usersList.map { UUID.fromString(it.uuid) })
         val userTransactions = userWallets.parallelStream().asSequence().associateBy(
@@ -189,4 +191,9 @@ class TemplateDataServiceImpl(
         userUuid: String
     ): List<Transaction> =
         userTransactions[userUuid]?.mapNotNull { TransactionFactory.createTransaction(it) }.orEmpty()
+
+    private fun throwExceptionIfNoUserWithInfo(users: UsersExtendedResponse) {
+        if (users.usersList.isEmpty())
+            throw ResourceNotFoundException(ErrorCode.USER_MISSING_INFO, "No user has went through kyc on the platform")
+    }
 }
