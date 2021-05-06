@@ -33,6 +33,7 @@ class UserServiceImpl(
 
     @Throws(GrpcException::class)
     override fun getUsers(uuids: Set<UUID>): List<UserResponse> {
+        if (uuids.isEmpty()) return emptyList()
         logger.debug { "Fetching users: $uuids" }
         try {
             val request = GetUsersRequest.newBuilder()

@@ -194,8 +194,11 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
         }
         suppose("Wallet service will return wallets for hashes") {
             createWallets()
-            Mockito.`when`(walletService.getWalletsByHash(setOf(testContext.transaction.fromTxHash, testContext.transaction.toTxHash)))
-                .thenReturn(testContext.wallets)
+            Mockito.`when`(
+                walletService.getWalletsByHash(
+                    setOf(testContext.transaction.fromTxHash, testContext.transaction.toTxHash)
+                )
+            ).thenReturn(testContext.wallets)
         }
         suppose("Project service will return a list of projects") {
             mockProjectService()
@@ -329,7 +332,6 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             testContext.thirdWallet = createWalletResponse(UUID.randomUUID(), thirdUserUuid, hash = "wallet_hash_3")
             Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid, secondUserUuid, thirdUserUuid)))
                 .thenReturn(listOf(testContext.wallet, testContext.secondWallet, testContext.thirdWallet))
-            createWallets()
         }
         suppose("Blockchain service will return transactions for wallets") {
             Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
@@ -378,6 +380,37 @@ class TemplateDataServiceTest : JpaServiceTestBase() {
             testContext.coopResponse = createCoopResponse()
             val response = createUsersExtendedResponse(listOf(), testContext.coopResponse)
             Mockito.`when`(userService.getAllActiveUsers(coop)).thenReturn(response)
+        }
+
+        verify("Template data service can get users accounts summary") {
+            val user = createUserPrincipal()
+            val periodRequest = PeriodServiceRequest(null, null)
+            val exception = assertThrows<ResourceNotFoundException> {
+                templateDataService.getAllActiveUsersSummaryData(user, periodRequest)
+            }
+            assertThat(exception.errorCode).isEqualTo(ErrorCode.USER_MISSING_INFO)
+        }
+    }
+
+    @Test
+    fun mustThrowExceptionIfForEmptyListTransaction() {
+        suppose("User service will return a user") {
+            testContext.userExtended = createUserExtendedResponse(userUuid)
+            val response = createUsersExtendedResponse(
+                listOf(testContext.userExtended), createCoopResponse()
+            )
+            Mockito.`when`(userService.getAllActiveUsers(coop))
+                .thenReturn(response)
+        }
+        suppose("Wallet service will return wallet for user") {
+            testContext.wallet = createWalletResponse(walletUuid, userUuid, hash = "wallet_hash_1")
+            Mockito.`when`(walletService.getWalletsByOwner(listOf(userUuid)))
+                .thenReturn(listOf(testContext.wallet))
+            createWallets()
+        }
+        suppose("Blockchain service will return empty list") {
+            Mockito.`when`(blockchainService.getTransactions(testContext.wallet.hash))
+                .thenReturn(emptyList())
         }
 
         verify("Template data service can get users accounts summary") {
