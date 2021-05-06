@@ -30,6 +30,7 @@ class WalletServiceImpl(
 
     @Throws(GrpcException::class)
     override fun getWalletsByOwner(uuids: List<UUID>): List<WalletResponse> {
+        if (uuids.isEmpty()) return emptyList()
         logger.debug { "Fetching wallets by owner uuid: $uuids" }
         try {
             val request = GetWalletsByOwnerRequest.newBuilder()
@@ -47,6 +48,7 @@ class WalletServiceImpl(
 
     @Throws(GrpcException::class)
     override fun getWalletsByHash(hashes: Set<String>): List<WalletResponse> {
+        if (hashes.isEmpty()) return emptyList()
         logger.debug { "Fetching wallets by hashes: $hashes" }
         try {
             val request = GetWalletsByHashRequest.newBuilder()

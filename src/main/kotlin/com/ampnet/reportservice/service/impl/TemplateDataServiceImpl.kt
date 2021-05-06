@@ -26,7 +26,6 @@ import com.ampnet.reportservice.service.data.TransactionsSummary
 import com.ampnet.reportservice.service.data.Translations
 import com.ampnet.reportservice.service.data.UserInfo
 import com.ampnet.reportservice.service.data.UsersAccountsSummary
-import com.ampnet.userservice.proto.UsersExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
 import mu.KLogging
 import org.springframework.stereotype.Service
@@ -85,13 +84,16 @@ class TemplateDataServiceImpl(
         periodRequest: PeriodServiceRequest
     ): UsersAccountsSummary {
         val users = userService.getAllActiveUsers(user.coop)
-        throwExceptionIfNoUserWithInfo(users)
         val reportLanguage = userService.getUsers(setOf(user.uuid)).firstOrNull()?.language.orEmpty()
         val userWallets = walletService.getWalletsByOwner(users.usersList.map { UUID.fromString(it.uuid) })
         val userTransactions = userWallets.parallelStream().asSequence().associateBy(
             { it.owner },
             { blockchainService.getTransactions(it.hash).filter { tx -> inTimePeriod(periodRequest, tx.date) } }
         )
+        if (userTransactions.values.all { it.isEmpty() }) throw ResourceNotFoundException(
+            ErrorCode.USER_MISSING_INFO, "None of the users went through KYC and completed at least one transaction."
+        )
+
         val translations = translationService.getTranslations(reportLanguage)
         val transactionsSummaryList = users.usersList.map { userResponse ->
             val transactions = getTransactions(userTransactions, userResponse.uuid)
@@ -191,12 +193,4 @@ class TemplateDataServiceImpl(
         userUuid: String
     ): List<Transaction> =
         userTransactions[userUuid]?.mapNotNull { TransactionFactory.createTransaction(it) }.orEmpty()
-
-    private fun throwExceptionIfNoUserWithInfo(users: UsersExtendedResponse) {
-        if (users.usersList.isEmpty())
-            throw ResourceNotFoundException(
-                ErrorCode.USER_MISSING_INFO,
-                "None of the users went through KYC and completed at least one transaction."
-            )
-    }
 }

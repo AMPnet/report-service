@@ -29,10 +29,8 @@ class ProjectServiceImpl(
 
     @Throws(GrpcException::class)
     override fun getProjects(uuids: Iterable<UUID>): List<ProjectResponse> {
+        if (uuids.none()) return emptyList()
         logger.debug { "Fetching projects: $uuids" }
-        if (uuids.none()) {
-            return emptyList()
-        }
         try {
             val request = GetByUuids.newBuilder()
                 .addAllUuids(uuids.map { it.toString() })
