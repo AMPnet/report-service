@@ -194,6 +194,9 @@ class TemplateDataServiceImpl(
 
     private fun throwExceptionIfNoUserWithInfo(users: UsersExtendedResponse) {
         if (users.usersList.isEmpty())
-            throw ResourceNotFoundException(ErrorCode.USER_MISSING_INFO, "No user has went through kyc on the platform")
+            throw ResourceNotFoundException(
+                ErrorCode.USER_MISSING_INFO,
+                "None of the users went through KYC and completed at least one transaction."
+            )
     }
 }
