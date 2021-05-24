@@ -1,6 +1,9 @@
 package com.ampnet.reportservice.service.impl
 
 import com.ampnet.reportservice.controller.pojo.XlsxType
+import com.ampnet.reportservice.exception.ErrorCode
+import com.ampnet.reportservice.exception.InternalException
+import com.ampnet.reportservice.grpc.blockchain.BlockchainService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
 import com.ampnet.reportservice.service.XlsxService
@@ -13,13 +16,16 @@ import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.jvm.Throws
 
 @Service
 class XlsxServiceImpl(
     private val userService: UserService,
-    private val walletService: WalletService
+    private val walletService: WalletService,
+    private val blockchainService: BlockchainService
 ) : XlsxService {
 
     @Suppress("MagicNumber")
@@ -30,16 +36,21 @@ class XlsxServiceImpl(
     private lateinit var workbook: XSSFWorkbook
     private lateinit var sheet: XSSFSheet
 
+    @Throws(InternalException::class)
     override fun generateXlsx(coop: String, type: XlsxType): ByteArray {
-        workbook = XSSFWorkbook()
-        val users = getUsers(coop, type)
-        writeHeaderLine(type)
-        writeDataLines(users)
-        val out = ByteArrayOutputStream()
-        workbook.write(out)
-        out.close()
-        workbook.close()
-        return out.toByteArray()
+        try {
+            workbook = XSSFWorkbook()
+            val users = getUsers(coop, type)
+            writeHeaderLine(type)
+            writeDataLines(users)
+            val outputStream = ByteArrayOutputStream()
+            workbook.write(outputStream)
+            outputStream.close()
+            workbook.close()
+            return outputStream.toByteArray()
+        } catch (exception: IOException) {
+            throw InternalException(ErrorCode.INT_GENERATING_XLSX, "Failed to generate xlsx file", exception)
+        }
     }
 
     private fun getUsers(coop: String, type: XlsxType): List<UserResponse> =
@@ -47,24 +58,31 @@ class XlsxServiceImpl(
             XlsxType.REGISTERED -> userService.getAllUsers(coop)
             XlsxType.VERIFIED -> mapUserResponse(userService.getAllActiveUsers(coop).usersList)
             XlsxType.WALLET -> {
+                // users with initialized wallet
                 val activeUsers = userService.getAllActiveUsers(coop)
                 val walletOwners = walletService
                     .getWalletsByOwner(activeUsers.usersList.map { UUID.fromString(it.uuid) })
-                    .map { it.uuid }
-                mapUserResponse(activeUsers.usersList.filter { walletOwners.contains(it.uuid) })
+                    .map { it.owner }
+                val usersWithWallet = activeUsers.usersList.filter { walletOwners.contains(it.uuid) }
+                mapUserResponse(usersWithWallet)
             }
             XlsxType.DEPOSIT -> {
+                // users with approved deposit
                 val depositOwners = walletService.getOwnersWithApprovedDeposit(coop)
                 val usersWithDeposit = userService.getAllActiveUsers(coop).usersList
                     .filter { depositOwners.contains(it.uuid) }
                 mapUserResponse(usersWithDeposit)
             }
             XlsxType.INVESTMENT -> {
-                val activeUsers = userService.getAllActiveUsers(coop)
+                // users with at least one investment
+                val activeUsers = userService.getAllActiveUsers(coop).usersList
+                val walletsWithInvestment = blockchainService.getUserWalletsWithInvestment(coop).map { it.wallet }
                 val walletOwners = walletService
-                    .getWalletsByOwner(activeUsers.usersList.map { UUID.fromString(it.uuid) })
-                    .map { it.uuid }
-                mapUserResponse(userService.getAllActiveUsers(coop).usersList)
+                    .getWalletsByOwner(activeUsers.map { UUID.fromString(it.uuid) })
+                    .filter { walletsWithInvestment.contains(it.activationData) }
+                    .map { it.owner }
+                val usersWithInvestment = activeUsers.filter { walletOwners.contains(it.uuid) }
+                mapUserResponse(usersWithInvestment)
             }
         }
 

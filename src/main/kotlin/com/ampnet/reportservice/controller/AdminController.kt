@@ -41,13 +41,14 @@ class AdminController(
 
     @GetMapping("/admin/report/xlsx")
     @PreAuthorize("hasAuthority(T(com.ampnet.reportservice.enums.PrivilegeType).PRA_PROFILE)")
-    fun get(@RequestParam type: XlsxType): ResponseEntity<ByteArray> {
+    fun getXlsxReport(@RequestParam type: XlsxType): ResponseEntity<ByteArray> {
         val user = ControllerUtils.getUserPrincipalFromSecurityContext()
         logger.info { "Received request to get users xlsx report, type: $type" }
         val pdfContents = xlsxService.generateXlsx(user.coop, type)
         val httpHeaders = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_OCTET_STREAM
         }
+        logger.info { "Successfully generate xlsx report, type: $type" }
         return ResponseEntity(pdfContents, httpHeaders, HttpStatus.OK)
     }
 }

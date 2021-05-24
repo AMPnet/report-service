@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.io.File
 import java.time.LocalDate
 import java.util.UUID
 
@@ -93,8 +92,8 @@ class AdminControllerTest : ControllerTestBase() {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andReturn()
 
-            val content = result.response.contentAsByteArray
-            File(getDownloadDirectory("test-xlsx.xlsx")).writeBytes(content)
+//            val content = result.response.contentAsByteArray
+//            File(getDownloadDirectory("test-xlsx.xlsx")).writeBytes(content)
         }
     }
 
