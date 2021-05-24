@@ -6,7 +6,6 @@ import com.ampnet.crowdfunding.proto.TransactionInfoRequest
 import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsRequest
 import com.ampnet.crowdfunding.proto.UserWalletsForCoopAndTxTypeRequest
-import com.ampnet.crowdfunding.proto.UserWalletsForCoopAndTxTypeResponse
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
@@ -17,6 +16,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 import kotlin.jvm.Throws
+import com.ampnet.crowdfunding.proto.UserWalletsForCoopAndTxTypeResponse.WalletWithHash as WalletWithHash
 
 @Service
 class BlockchainServiceImpl(
@@ -69,7 +69,7 @@ class BlockchainServiceImpl(
     }
 
     @Throws(GrpcException::class)
-    override fun getUserWalletsWithInvestment(coop: String): List<UserWalletsForCoopAndTxTypeResponse.WalletWithHash> {
+    override fun getUserWalletsWithInvestment(coop: String): List<WalletWithHash> {
         logger.debug { "Get user wallets with investment for coop: $coop" }
         try {
             val response = serviceWithTimeout()

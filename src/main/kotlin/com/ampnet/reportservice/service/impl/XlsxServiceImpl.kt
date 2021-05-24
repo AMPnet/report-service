@@ -28,10 +28,10 @@ class XlsxServiceImpl(
     private val blockchainService: BlockchainService
 ) : XlsxService {
 
-    @Suppress("MagicNumber")
-    private val headerFontSize: Short = 16
-    @Suppress("MagicNumber")
-    private val dataFontSize: Short = 14
+    companion object {
+        const val headerFontSize: Short = 16
+        const val dataFontSize: Short = 14
+    }
 
     private lateinit var workbook: XSSFWorkbook
     private lateinit var sheet: XSSFSheet
@@ -57,34 +57,37 @@ class XlsxServiceImpl(
         when (type) {
             XlsxType.REGISTERED -> userService.getAllUsers(coop)
             XlsxType.VERIFIED -> mapUserResponse(userService.getAllActiveUsers(coop).usersList)
-            XlsxType.WALLET -> {
-                // users with initialized wallet
-                val activeUsers = userService.getAllActiveUsers(coop)
-                val walletOwners = walletService
-                    .getWalletsByOwner(activeUsers.usersList.map { UUID.fromString(it.uuid) })
-                    .map { it.owner }
-                val usersWithWallet = activeUsers.usersList.filter { walletOwners.contains(it.uuid) }
-                mapUserResponse(usersWithWallet)
-            }
-            XlsxType.DEPOSIT -> {
-                // users with approved deposit
-                val depositOwners = walletService.getOwnersWithApprovedDeposit(coop)
-                val usersWithDeposit = userService.getAllActiveUsers(coop).usersList
-                    .filter { depositOwners.contains(it.uuid) }
-                mapUserResponse(usersWithDeposit)
-            }
-            XlsxType.INVESTMENT -> {
-                // users with at least one investment
-                val activeUsers = userService.getAllActiveUsers(coop).usersList
-                val walletsWithInvestment = blockchainService.getUserWalletsWithInvestment(coop).map { it.wallet }
-                val walletOwners = walletService
-                    .getWalletsByOwner(activeUsers.map { UUID.fromString(it.uuid) })
-                    .filter { walletsWithInvestment.contains(it.activationData) }
-                    .map { it.owner }
-                val usersWithInvestment = activeUsers.filter { walletOwners.contains(it.uuid) }
-                mapUserResponse(usersWithInvestment)
-            }
+            XlsxType.WALLET -> getUsersWithWallet(coop)
+            XlsxType.DEPOSIT -> getUsersWithApprovedDeposit(coop)
+            XlsxType.INVESTMENT -> getUsersWithInvestment(coop)
         }
+
+    private fun getUsersWithInvestment(coop: String): List<UserResponse> {
+        val activeUsers = userService.getAllActiveUsers(coop).usersList
+        val walletsWithInvestment = blockchainService.getUserWalletsWithInvestment(coop).map { it.wallet }
+        val walletOwners = walletService
+            .getWalletsByOwner(activeUsers.map { UUID.fromString(it.uuid) })
+            .filter { walletsWithInvestment.contains(it.activationData) }
+            .map { it.owner }
+        val usersWithInvestment = activeUsers.filter { walletOwners.contains(it.uuid) }
+        return mapUserResponse(usersWithInvestment)
+    }
+
+    private fun getUsersWithApprovedDeposit(coop: String): List<UserResponse> {
+        val depositOwners = walletService.getOwnersWithApprovedDeposit(coop)
+        val usersWithDeposit = userService.getAllActiveUsers(coop).usersList
+            .filter { depositOwners.contains(it.uuid) }
+        return mapUserResponse(usersWithDeposit)
+    }
+
+    private fun getUsersWithWallet(coop: String): List<UserResponse> {
+        val activeUsers = userService.getAllActiveUsers(coop)
+        val walletOwners = walletService
+            .getWalletsByOwner(activeUsers.usersList.map { UUID.fromString(it.uuid) })
+            .map { it.owner }
+        val usersWithWallet = activeUsers.usersList.filter { walletOwners.contains(it.uuid) }
+        return mapUserResponse(usersWithWallet)
+    }
 
     private fun writeHeaderLine(type: XlsxType) {
         sheet = workbook.createSheet("Users-$type")
@@ -132,13 +135,13 @@ class XlsxServiceImpl(
 
     private fun mapUserResponse(users: List<UserExtendedResponse>): List<UserResponse> =
         users.map {
-            UserResponse.newBuilder()
-                .setUuid(it.uuid)
-                .setEmail(it.email)
-                .setFirstName(it.firstName)
-                .setLastName(it.lastName)
-                .setAuth(it.auth)
-                .setCreatedAt(it.createdAt)
-                .build()
+            UserResponse.newBuilder().apply {
+                uuid = it.uuid
+                email = it.email
+                firstName = it.firstName
+                lastName = it.lastName
+                auth = it.auth
+                createdAt = it.createdAt
+            }.build()
         }
 }

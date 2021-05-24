@@ -7,6 +7,7 @@ import com.ampnet.userservice.proto.Role
 import com.ampnet.walletservice.proto.WalletResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.BDDMockito
 import org.mockito.Mockito
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -80,8 +81,7 @@ class AdminControllerTest : ControllerTestBase() {
             val response = createUsersExtendedResponse(
                 listOf(user, secondUser, thirdUser), coopResponse
             )
-            Mockito.`when`(userService.getAllActiveUsers(coop))
-                .thenReturn(response)
+            BDDMockito.given(userService.getAllActiveUsers(coop)).willReturn(response)
         }
 
         verify("Platform manager can get xlsx report") {
