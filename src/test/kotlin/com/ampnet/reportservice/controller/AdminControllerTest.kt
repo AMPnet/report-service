@@ -1,5 +1,6 @@
 package com.ampnet.reportservice.controller
 
+import com.ampnet.reportservice.controller.pojo.XlsxType
 import com.ampnet.reportservice.enums.PrivilegeType
 import com.ampnet.reportservice.security.WithMockCrowdfundUser
 import com.ampnet.userservice.proto.Role
@@ -9,12 +10,12 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.io.File
 import java.time.LocalDate
 import java.util.UUID
 
 class AdminControllerTest : ControllerTestBase() {
 
-    private val usersAccountsSummary = "usersAccountsSummary"
     private val userAccountsSummaryPath = "/admin/report/user"
 
     private lateinit var testContext: TestContext
@@ -65,7 +66,35 @@ class AdminControllerTest : ControllerTestBase() {
 
             val pdfContent = result.response.contentAsByteArray
             verifyPdfFormat(pdfContent)
-            // File(getDownloadDirectory(usersAccountsSummary)).writeBytes(pdfContent)
+            // File(getDownloadDirectory("usersAccountsSummary.pdf")).writeBytes(pdfContent)
+        }
+    }
+
+    @Test
+    @WithMockCrowdfundUser(privileges = [PrivilegeType.PRA_PROFILE])
+    fun mustBeAbleToDownloadXlsxForVerifiedUsers() {
+        suppose("User service will return a list of users") {
+            val user = createUserExtendedResponse(userUuid, role = Role.PLATFORM_MANAGER)
+            val secondUser = createUserExtendedResponse(secondUserUuid)
+            val thirdUser = createUserExtendedResponse(thirdUserUuid)
+            val coopResponse = createCoopResponse()
+            val response = createUsersExtendedResponse(
+                listOf(user, secondUser, thirdUser), coopResponse
+            )
+            Mockito.`when`(userService.getAllActiveUsers(coop))
+                .thenReturn(response)
+        }
+
+        verify("Platform manager can get xlsx report") {
+            val result = mockMvc.perform(
+                MockMvcRequestBuilders.get("/admin/report/xlsx")
+                    .param("type", XlsxType.VERIFIED.name)
+            )
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andReturn()
+
+            val content = result.response.contentAsByteArray
+            File(getDownloadDirectory("test-xlsx.xlsx")).writeBytes(content)
         }
     }
 

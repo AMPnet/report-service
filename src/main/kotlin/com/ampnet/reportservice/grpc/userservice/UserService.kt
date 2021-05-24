@@ -9,4 +9,5 @@ interface UserService {
     fun getUsers(uuids: Set<UUID>): List<UserResponse>
     fun getUserWithInfo(uuid: UUID): UserWithInfoResponse
     fun getAllActiveUsers(coop: String): UsersExtendedResponse
+    fun getAllUsers(coop: String): List<UserResponse>
 }

@@ -159,6 +159,8 @@ abstract class ControllerTestBase : TestBase() {
             .setDateOfIssue("10.03.2021")
             .setDateOfExpiry("10.07.2021")
             .setPersonalNumber("personal number")
+            .setEmail("email@mail.com")
+            .setAuth("EMAIL")
             .build()
 
     protected fun createUsersExtendedResponse(
@@ -224,10 +226,8 @@ abstract class ControllerTestBase : TestBase() {
             .build()
     }
 
-    protected fun getDownloadDirectory(name: String): String {
-        return System.getProperty("user.home") + File.separator +
-            "Desktop" + File.separator + name + ".pdf"
-    }
+    protected fun getDownloadDirectory(name: String): String =
+        System.getProperty("user.home") + File.separator + "Downloads" + File.separator + name
 
     protected fun createTransactionsResponse(): List<TransactionInfo> {
         val investment = "30000"

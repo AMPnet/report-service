@@ -55,6 +55,7 @@ dependencies {
 
     implementation("com.github.AMPnet:jwt:0.2.0")
     implementation("net.devh:grpc-client-spring-boot-starter:2.11.0.RELEASE")
+    implementation("org.apache.poi:poi-ooxml:5.0.0")
 
     val openHtmlToPdfVersion = "1.0.6"
     implementation("com.openhtmltopdf:openhtmltopdf-core:$openHtmlToPdfVersion")

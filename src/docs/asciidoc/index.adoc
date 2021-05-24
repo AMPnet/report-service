@@ -39,3 +39,19 @@ Query parameters `from` and `to` are both optional.
 .Request
 include::{snippets}/AdminControllerTest/mustBeAbleToGeneratePdfForAllActiveUsers/http-request.adoc[]
 Response is a PDF file data.
+
+=== User stats report
+Admin can download the xlsx report with users list.
+Following report types are available:
+
+* REGISTERED - users that have registered on the platform
+* VERIFIED - users that have completed KYC
+* WALLET - users that have initialized wallet
+* DEPOSIT - users that have at least one minted deposit
+* INVESTMENT - users that have completed at least one investment
+
+Query parameter `type` is mandatory.
+
+.Request
+include::{snippets}/AdminControllerTest/mustBeAbleToDownloadXlsxForVerifiedUsers/http-request.adoc[]
+Response is xlsx file data.

@@ -6,4 +6,5 @@ import java.util.UUID
 interface WalletService {
     fun getWalletsByOwner(uuids: List<UUID>): List<WalletResponse>
     fun getWalletsByHash(hashes: Set<String>): List<WalletResponse>
+    fun getOwnersWithApprovedDeposit(coop: String): List<String>
 }
