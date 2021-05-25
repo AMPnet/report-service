@@ -3,14 +3,20 @@ package com.ampnet.reportservice.controller
 import com.ampnet.reportservice.controller.pojo.XlsxType
 import com.ampnet.reportservice.enums.PrivilegeType
 import com.ampnet.reportservice.security.WithMockCrowdfundUser
+import com.ampnet.reportservice.service.impl.toDateString
 import com.ampnet.userservice.proto.Role
+import com.ampnet.userservice.proto.UserExtendedResponse
 import com.ampnet.walletservice.proto.WalletResponse
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.WorkbookFactory
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito
 import org.mockito.Mockito
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.util.UUID
 
@@ -77,9 +83,10 @@ class AdminControllerTest : ControllerTestBase() {
             val user = createUserExtendedResponse(userUuid, role = Role.PLATFORM_MANAGER)
             val secondUser = createUserExtendedResponse(secondUserUuid)
             val thirdUser = createUserExtendedResponse(thirdUserUuid)
+            testContext.users = listOf(user, secondUser, thirdUser)
             val coopResponse = createCoopResponse()
             val response = createUsersExtendedResponse(
-                listOf(user, secondUser, thirdUser), coopResponse
+                testContext.users, coopResponse
             )
             BDDMockito.given(userService.getAllActiveUsers(coop)).willReturn(response)
         }
@@ -92,14 +99,34 @@ class AdminControllerTest : ControllerTestBase() {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andReturn()
 
-//            val content = result.response.contentAsByteArray
-//            File(getDownloadDirectory("test-xlsx.xlsx")).writeBytes(content)
+            val content = result.response.contentAsByteArray
+            val wb = WorkbookFactory.create(ByteArrayInputStream(content))
+            assertThat(wb.numberOfSheets).isEqualTo(1)
+            val sheet = wb.getSheetAt(0)
+            assertThat(sheet.lastRowNum).isEqualTo(3)
+
+            for (i in 1..sheet.lastRowNum) {
+                verifyCellUser(sheet.getRow(i), testContext.users[i - 1])
+            }
+
+            // Uncomment to generate file locally.
+            // File(getDownloadDirectory("test-xlsx.xlsx")).writeBytes(content)
         }
+    }
+
+    private fun verifyCellUser(row: Row, user: UserExtendedResponse) {
+        assertThat(row.getCell(0).stringCellValue).isEqualTo(user.uuid)
+        assertThat(row.getCell(1).stringCellValue).isEqualTo(user.email)
+        assertThat(row.getCell(2).stringCellValue).isEqualTo(user.firstName)
+        assertThat(row.getCell(3).stringCellValue).isEqualTo(user.lastName)
+        assertThat(row.getCell(4).stringCellValue).isEqualTo(user.auth)
+        assertThat(row.getCell(5).stringCellValue).isEqualTo(user.createdAt.toDateString())
     }
 
     private class TestContext {
         lateinit var wallet: WalletResponse
         lateinit var secondWallet: WalletResponse
         lateinit var thirdWallet: WalletResponse
+        lateinit var users: List<UserExtendedResponse>
     }
 }

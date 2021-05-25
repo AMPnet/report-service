@@ -118,7 +118,7 @@ class XlsxServiceImpl(
             createCell(row, columnCount++, user.firstName, style)
             createCell(row, columnCount++, user.lastName, style)
             createCell(row, columnCount++, user.auth, style)
-            createCell(row, columnCount, dateToString(user.createdAt), style)
+            createCell(row, columnCount, user.createdAt.toDateString(), style)
         }
     }
 
@@ -130,18 +130,19 @@ class XlsxServiceImpl(
         }
     }
 
-    private fun dateToString(date: Long): String =
-        date.millisecondsToLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
     private fun mapUserResponse(users: List<UserExtendedResponse>): List<UserResponse> =
-        users.map {
+        users.map { user ->
             UserResponse.newBuilder().apply {
-                uuid = it.uuid
-                email = it.email
-                firstName = it.firstName
-                lastName = it.lastName
-                auth = it.auth
-                createdAt = it.createdAt
+                uuid = user.uuid
+                email = user.email
+                firstName = user.firstName
+                lastName = user.lastName
+                auth = user.auth
+                createdAt = user.createdAt
             }.build()
         }
+}
+
+fun Long.toDateString(): String {
+    return this.millisecondsToLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 }
