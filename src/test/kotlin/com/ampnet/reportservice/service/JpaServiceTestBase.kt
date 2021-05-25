@@ -11,6 +11,7 @@ import com.ampnet.reportservice.grpc.blockchain.BlockchainService
 import com.ampnet.reportservice.grpc.projectservice.ProjectService
 import com.ampnet.reportservice.grpc.userservice.UserService
 import com.ampnet.reportservice.grpc.wallet.WalletService
+import com.ampnet.reportservice.service.impl.TranslationServiceImpl
 import com.ampnet.reportservice.util.toMiliSeconds
 import com.ampnet.userservice.proto.CoopResponse
 import com.ampnet.userservice.proto.UserExtendedResponse

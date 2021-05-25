@@ -3,7 +3,9 @@ package com.ampnet.reportservice.grpc.blockchain
 import com.ampnet.crowdfunding.proto.BlockchainServiceGrpc
 import com.ampnet.crowdfunding.proto.TransactionInfo
 import com.ampnet.crowdfunding.proto.TransactionInfoRequest
+import com.ampnet.crowdfunding.proto.TransactionType
 import com.ampnet.crowdfunding.proto.TransactionsRequest
+import com.ampnet.crowdfunding.proto.UserWalletsForCoopAndTxTypeRequest
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
@@ -14,6 +16,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 import kotlin.jvm.Throws
+import com.ampnet.crowdfunding.proto.UserWalletsForCoopAndTxTypeResponse.WalletWithHash as WalletWithHash
 
 @Service
 class BlockchainServiceImpl(
@@ -62,6 +65,27 @@ class BlockchainServiceImpl(
             return response
         } catch (ex: StatusRuntimeException) {
             throw getInternalExceptionFromStatusException(ex, "Could not get info for transaction with hash: $txHash")
+        }
+    }
+
+    @Throws(GrpcException::class)
+    override fun getUserWalletsWithInvestment(coop: String): List<WalletWithHash> {
+        logger.debug { "Get user wallets with investment for coop: $coop" }
+        try {
+            val response = serviceWithTimeout()
+                .getUserWalletsForCoopAndTxType(
+                    UserWalletsForCoopAndTxTypeRequest.newBuilder()
+                        .setCoop(coop)
+                        .setType(TransactionType.INVEST)
+                        .build()
+                )
+            logger.debug { "TransactionInfoResponse response: $response" }
+            return response.walletsList
+        } catch (ex: StatusRuntimeException) {
+            throw getInternalExceptionFromStatusException(
+                ex,
+                "Could not get user wallets with investment for coop: $coop"
+            )
         }
     }
 

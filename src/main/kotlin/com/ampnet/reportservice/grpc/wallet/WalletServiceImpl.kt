@@ -3,6 +3,7 @@ package com.ampnet.reportservice.grpc.wallet
 import com.ampnet.reportservice.config.ApplicationProperties
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.GrpcException
+import com.ampnet.walletservice.proto.CoopRequest
 import com.ampnet.walletservice.proto.GetWalletsByHashRequest
 import com.ampnet.walletservice.proto.GetWalletsByOwnerRequest
 import com.ampnet.walletservice.proto.WalletResponse
@@ -56,6 +57,23 @@ class WalletServiceImpl(
                 .build()
             val response = serviceWithTimeout()
                 .getWalletsByHash(request).walletsList
+            logger.debug { "Fetched wallets: ${response.size}" }
+            return response
+        } catch (ex: StatusRuntimeException) {
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_WALLET, "Failed to fetch wallets")
+        }
+    }
+
+    @Throws(GrpcException::class)
+    override fun getOwnersWithApprovedDeposit(coop: String): List<String> {
+        logger.debug { "Fetching owners with approved deposit for coop: $coop" }
+        try {
+            val request = CoopRequest.newBuilder()
+                .setCoop(coop)
+                .build()
+            val response = serviceWithTimeout()
+                .getOwnersWithDeposit(request).ownersUuidsList
             logger.debug { "Fetched wallets: ${response.size}" }
             return response
         } catch (ex: StatusRuntimeException) {

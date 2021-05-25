@@ -1,7 +1,8 @@
-package com.ampnet.reportservice.service
+package com.ampnet.reportservice.service.impl
 
 import com.ampnet.reportservice.exception.ErrorCode
 import com.ampnet.reportservice.exception.InternalException
+import com.ampnet.reportservice.service.TranslationService
 import com.ampnet.reportservice.service.data.Translations
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

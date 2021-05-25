@@ -80,6 +80,22 @@ class UserServiceImpl(
         }
     }
 
+    @Throws(GrpcException::class)
+    override fun getAllUsers(coop: String): List<UserResponse> {
+        logger.debug { "Fetching all users for coop: $coop" }
+        try {
+            val request = CoopRequest.newBuilder()
+                .setCoop(coop)
+                .build()
+            val response = serviceWithTimeout().getAllUsers(request).usersList
+            logger.debug { "Fetched users: ${response.size}" }
+            return response
+        } catch (ex: StatusRuntimeException) {
+            logger.warn(ex.localizedMessage)
+            throw GrpcException(ErrorCode.INT_GRPC_USER, "Failed to fetch users")
+        }
+    }
+
     private fun serviceWithTimeout() = serviceBlockingStub
         .withDeadlineAfter(applicationProperties.grpc.userServiceTimeout, TimeUnit.MILLISECONDS)
 }

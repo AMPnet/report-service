@@ -17,10 +17,11 @@ message WalletResponse {
     Type type = 4;
     string currency = 5;
     string hash = 6;
+    string coop = 7;
     enum Type {
-      USER = 0;
-      ORGANIZATION = 1;
-      PROJECT = 2;
+        USER = 0;
+        ORGANIZATION = 1;
+        PROJECT = 2;
     }
 }
 
@@ -28,7 +29,16 @@ message WalletsResponse {
     repeated WalletResponse wallets = 1;
 }
 
+message CoopRequest {
+    string coop = 1;
+}
+
+message OwnersResponse {
+    repeated string owners_uuids = 1;
+}
+
 service WalletService {
     rpc GetWalletsByOwner (GetWalletsByOwnerRequest) returns (WalletsResponse);
     rpc GetWalletsByHash (GetWalletsByHashRequest) returns (WalletsResponse);
+    rpc GetOwnersWithDeposit (CoopRequest) returns (OwnersResponse);
 }
