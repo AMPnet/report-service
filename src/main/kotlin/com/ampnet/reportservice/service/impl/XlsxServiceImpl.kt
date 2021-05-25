@@ -63,37 +63,34 @@ class XlsxServiceImpl(
         }
 
     private fun getUsersWithInvestment(coop: String): List<UserResponse> {
-        val activeUsers = userService.getAllActiveUsers(coop).usersList
+        val activeUsers = userService.getAllUsers(coop)
         val walletsWithInvestment = blockchainService.getUserWalletsWithInvestment(coop).map { it.wallet }
         val walletOwners = walletService
             .getWalletsByOwner(activeUsers.map { UUID.fromString(it.uuid) })
             .filter { walletsWithInvestment.contains(it.activationData) }
             .map { it.owner }
-        val usersWithInvestment = activeUsers.filter { walletOwners.contains(it.uuid) }
-        return mapUserResponse(usersWithInvestment)
+        return activeUsers.filter { walletOwners.contains(it.uuid) }
     }
 
     private fun getUsersWithApprovedDeposit(coop: String): List<UserResponse> {
         val depositOwners = walletService.getOwnersWithApprovedDeposit(coop)
-        val usersWithDeposit = userService.getAllActiveUsers(coop).usersList
+        return userService.getAllUsers(coop)
             .filter { depositOwners.contains(it.uuid) }
-        return mapUserResponse(usersWithDeposit)
     }
 
     private fun getUsersWithWallet(coop: String): List<UserResponse> {
-        val activeUsers = userService.getAllActiveUsers(coop)
+        val activeUsers = userService.getAllUsers(coop)
         val walletOwners = walletService
-            .getWalletsByOwner(activeUsers.usersList.map { UUID.fromString(it.uuid) })
+            .getWalletsByOwner(activeUsers.map { UUID.fromString(it.uuid) })
             .map { it.owner }
-        val usersWithWallet = activeUsers.usersList.filter { walletOwners.contains(it.uuid) }
-        return mapUserResponse(usersWithWallet)
+        return activeUsers.filter { walletOwners.contains(it.uuid) }
     }
 
     private fun writeHeaderLine(type: XlsxType) {
         sheet = workbook.createSheet("Users-$type")
         val font = workbook.createFont().apply {
             bold = true
-            fontHeight = headerFontSize
+            fontHeightInPoints = headerFontSize
         }
         val style = workbook.createCellStyle().apply { setFont(font) }
         val row = sheet.createRow(0)
@@ -107,12 +104,13 @@ class XlsxServiceImpl(
     }
 
     private fun writeDataLines(users: List<UserResponse>) {
-        val font = workbook.createFont().apply { fontHeight = dataFontSize }
+        val font = workbook.createFont().apply { fontHeightInPoints = dataFontSize }
         val style = workbook.createCellStyle().apply { setFont(font) }
         var rowCount = 1
+        var columnCount = 0
         for (user in users) {
             val row: Row = sheet.createRow(rowCount++)
-            var columnCount = 0
+            columnCount = 0
             createCell(row, columnCount++, user.uuid, style)
             createCell(row, columnCount++, user.email, style)
             createCell(row, columnCount++, user.firstName, style)
@@ -120,10 +118,12 @@ class XlsxServiceImpl(
             createCell(row, columnCount++, user.auth, style)
             createCell(row, columnCount, user.createdAt.toDateString(), style)
         }
+        for (i in 0..columnCount) {
+            sheet.autoSizeColumn(i, true)
+        }
     }
 
     private fun createCell(row: Row, columnCount: Int, value: String, style: CellStyle) {
-        sheet.autoSizeColumn(columnCount)
         row.createCell(columnCount).apply {
             setCellValue(value)
             cellStyle = style
